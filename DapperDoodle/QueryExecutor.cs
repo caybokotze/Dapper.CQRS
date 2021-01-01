@@ -40,6 +40,24 @@ namespace DapperDoodle
 
         public void Execute(IEnumerable<Query> queries)
         {
+            /* Perhaps there should be an option to return a list of query results
+                If one has a list of queries, the following options are equivalent
+                
+                Execute(listOfQueries);
+                for (q in listOfQueries)
+                    results.append(q.Result)
+                
+
+                for (q in listOfQueries)
+                    results.append(Execute(q))
+                
+
+                results = Execute(listOfQueries)
+
+
+                the second option is more concise than the first, so it removes the desire to be able to execute multiple queries.
+                Allowing for the third case would be the most concise and probably ideal for this use-case?
+            */
             if (queries == null)
             {
                 throw new ArgumentNullException(nameof (queries));
