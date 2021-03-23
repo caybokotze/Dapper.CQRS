@@ -10,7 +10,14 @@ namespace DapperDoodle
     
     public abstract class Query : BaseSqlExecutor
     {
+        protected Query()
+        {
+            CommandExecutor = new CommandExecutor(Provider);
+            QueryExecutor = new QueryExecutor(Provider);
+        }
         public abstract void Execute();
+        public ICommandExecutor CommandExecutor { get; }
+        public IQueryExecutor QueryExecutor { get; }
 
         public List<T> BuildSelect<T>(object parameters = null)
         {

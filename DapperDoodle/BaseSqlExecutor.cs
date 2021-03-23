@@ -10,9 +10,12 @@ namespace DapperDoodle
     {
         public void InitialiseDependencies(IBaseSqlExecutorOptions options)
         {
+            Provider = options.ServiceProvider;
             _connection = options.Connection;
             Dbms = options.Dbms;
         }
+
+        public IServiceProvider Provider;
 
         private IDbConnection _connection;
         public DBMS Dbms { get; set; }
