@@ -31,7 +31,7 @@ namespace DapperDoodle.Tests
             }
         }
 
-        public class QueryInheritor : Query<int>
+        private class QueryInheritor : Query<int>
         {
             private readonly int _expectedReturnValue;
 

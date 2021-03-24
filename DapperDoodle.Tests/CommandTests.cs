@@ -21,21 +21,15 @@ namespace DapperDoodle.Tests
                 command.Dbms = DBMS.MySQL;
 
                 // Act
-                var insertStatement = command.BuildInsertStatement<Person>();
-                var expected = @"INSERT INTO `people` (id, name, surname, email) VALUES (@Id, @Name, @Surname, @Email); SELECT LAST_INSERT_ID();";
+                var insertStatement = command.BuildInsertStatement<Person>(null, Case.Lowercase);
+                var expected = $"INSERT INTO `people` (id, name, surname, email, datecreated) " +
+                               $"VALUES (@Id, @Name, @Surname, @Email, @DateCreated); " +
+                               $"SELECT LAST_INSERT_ID();";
                 
                 // Assert
                 Expect(insertStatement).To.Equal(expected);
             }
 
-            [Test]
-            public void CommandExecutorShouldWorkFromWithinCommand()
-            {
-                // Arrange
-                // Act
-                // Assert
-            }
-            
             [Test]
             public void ShouldBuildInsertForSqlLite()
             {
@@ -44,8 +38,10 @@ namespace DapperDoodle.Tests
                 command.Dbms = DBMS.SQLite;
 
                 // Act
-                var insertStatement = command.BuildInsertStatement<Person>();
-                var expected = @"INSERT INTO people (id, name, surname, email) VALUES (@Id, @Name, @Surname, @Email); SELECT last_insert_rowid();";
+                var insertStatement = command.BuildInsertStatement<Person>(null, Case.SnakeCase);
+                var expected = $"INSERT INTO people (id, name, surname, email, date_created) " +
+                               $"VALUES (@Id, @Name, @Surname, @Email, @DateCreated); " +
+                               $"SELECT last_insert_rowid();";
                 
                 // Assert
                 Expect(insertStatement).To.Equal(expected);
@@ -59,8 +55,10 @@ namespace DapperDoodle.Tests
                 command.Dbms = DBMS.MSSQL;
 
                 // Act
-                var insertStatement = command.BuildInsertStatement<Person>();
-                var expected = @"INSERT INTO [people] (id, name, surname, email) VALUES (@Id, @Name, @Surname, @Email); SELECT SCOPE_IDENTITY();";
+                var insertStatement = command.BuildInsertStatement<Person>(null, Case.SnakeCase);
+                var expected = $"INSERT INTO [people] (id, name, surname, email, date_created) " +
+                               $"VALUES (@Id, @Name, @Surname, @Email, @DateCreated); " +
+                               $"SELECT SCOPE_IDENTITY();";
                 
                 // Assert
                 Expect(insertStatement).To.Equal(expected);
@@ -113,7 +111,7 @@ namespace DapperDoodle.Tests
             }
         }
 
-        public class RandomCommand : Command
+        private class RandomCommand : Command
         {
             public override void Execute()
             {
@@ -121,7 +119,7 @@ namespace DapperDoodle.Tests
             }
         }
 
-        public static Command Create()
+        private static Command Create()
         {
             return new RandomCommand();
         }

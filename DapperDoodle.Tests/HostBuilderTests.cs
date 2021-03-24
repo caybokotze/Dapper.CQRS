@@ -8,10 +8,11 @@ using NUnit.Framework;
 
 namespace DapperDoodle.Tests
 {
+    [TestFixture]
     public class HostBuilderTests
     {
         [Test]
-        public async Task AssertThatHostBuilderRegistersSuccessfully()
+        public async Task AssertThatHostBuilderRegistersAndRespondsSuccessfully()
         {
             // Arrange
             var expected = "HostBuilder was started successfully.";
