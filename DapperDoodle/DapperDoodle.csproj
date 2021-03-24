@@ -10,14 +10,14 @@
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.Doodle</PackageId>
-        <Version>1.2.3</Version>
-        <PackageReleaseNotes>Include access to QueryExecutors and CommandExecutors from wihtin queries and commands.</PackageReleaseNotes>
+        <Version>1.3</Version>
+        <PackageReleaseNotes>Introduce some breaking changes and optimized the query and command builder code.</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>1.2.3</PackageVersion>
+        <PackageVersion>1.3</PackageVersion>
         <Title>Dapper Doodle</Title>
         <PackageProjectUrl>https://mergedigital.io</PackageProjectUrl>
     </PropertyGroup>
