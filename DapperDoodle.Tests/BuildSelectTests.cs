@@ -15,8 +15,8 @@ namespace DapperDoodle.Tests
         {
             // Arrange
             var expected = $"SELECT id, name, surname, email, date_created FROM `people`;";
-            // Act
             
+            // Act
             var person = new Person
             {
                 Id = GetRandomInt(),
@@ -26,7 +26,7 @@ namespace DapperDoodle.Tests
                 DateCreated = DateTime.Now
             };
             
-            var selectStatementBuilder = new TestBuildSelect<Person>(person, Case.SnakeCase);
+            var selectStatementBuilder = new TestBuildSelect<Person>(Case.SnakeCase);
             selectStatementBuilder.Execute();
             var actual = selectStatementBuilder.Result;
             
@@ -34,19 +34,17 @@ namespace DapperDoodle.Tests
             Expect(actual).To.Equal(expected);
         }
 
-        public class TestBuildSelect<T> : Query<string>
+        private class TestBuildSelect<T> : Query<string>
         {
-            public Person Person { get; }
             private Case Case { get;}
 
-            public TestBuildSelect(Person person, Case @case)
+            public TestBuildSelect(Case @case)
             {
-                Person = person;
                 Case = @case;
             }
             public override void Execute()
             {
-                Result = this.BuildSelectStatement<T>(Case);
+                Result = this.BuildSelectStatement<T>(null, null, Case);
             }
         }
     }
