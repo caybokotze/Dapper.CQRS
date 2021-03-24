@@ -151,7 +151,7 @@ namespace DapperDoodle
 
             sqlStatement.Append(clause);
 
-            sqlStatement.Append(" SELECT 0;");
+            sqlStatement.Append("; SELECT 1;");
             
             return sqlStatement.ToString();
         }
