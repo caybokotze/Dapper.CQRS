@@ -14,16 +14,8 @@ namespace DapperDoodle
     
     public abstract class Command : BaseSqlExecutor, ICommand
     {
-        protected Command()
-        {
-            QueryExecutor = new QueryExecutor(Provider);
-            CommandExecutor = new CommandExecutor(Provider);
-        }
         public abstract void Execute();                                                                                                            
         
-        public IQueryExecutor QueryExecutor { get; }
-        public ICommandExecutor CommandExecutor { get; }
-
         /// <summary>
         /// Returns the ID of the Inserted record after inserting the record.
         /// </summary>

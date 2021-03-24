@@ -58,7 +58,8 @@ namespace DapperDoodle
                 new BaseSqlExecutorOptions()
                 {
                     Connection = new MySqlConnection(connectionString),
-                    Dbms = dbms
+                    Dbms = dbms,
+                    ServiceProvider = provider
                 });
         }
 
@@ -73,7 +74,8 @@ namespace DapperDoodle
                 new BaseSqlExecutorOptions()
             {
                 Connection = new SqliteConnection(connectionString),
-                Dbms = dbms
+                Dbms = dbms,
+                ServiceProvider = provider
             });
         }
     }

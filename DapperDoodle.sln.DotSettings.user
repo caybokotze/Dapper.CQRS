@@ -9,14 +9,16 @@
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CaseHelperTests.CaseKebabCase_DoesConvert_PascalCaseToKebabCase&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6edad85b_002D65c3_002D4efb_002D86d5_002Dd67922a563a9/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AssertThatIApplicationBuilderRegistersIQueryExecutor" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6edad85b_002D65c3_002D4efb_002D86d5_002Dd67922a563a9/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AssertThatIApplicationBuilderRegistersIQueryExecutor" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CaseHelperTests.CaseKebabCase_DoesConvert_PascalCaseToKebabCase&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CaseHelperTests.PascalCase_DoesConvert_ToCamelCase&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CaseHelperTests.PascalCase_DoesConvert_ToKebabCase&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.QueryExecutorTests+Registrations.AssertThatIApplicationBuilderRegistersIQueryExecutor&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CommandExecutorTests+Registrations.AssertThatIApplicationBuilderRegistersCommandExecutor&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d63a244b_002D875c_002D49bf_002D8db1_002Dd1f91f26586c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="PascalCase_DoesConvert_ToKebabCase" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d63a244b_002D875c_002D49bf_002D8db1_002Dd1f91f26586c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="PascalCase_DoesConvert_ToKebabCase" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CaseHelperTests.PascalCase_DoesConvert_ToKebabCase&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CaseHelperTests.PascalCase_DoesConvert_ToCamelCase&lt;/TestId&gt;&#xD;
@@ -25,5 +27,6 @@
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.CaseHelperTests.KebabCase_DoesConvert_ToPascalCase&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.BuildSelectTests.ShouldReturnCorrectSelect&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.BuildSelectTests.ShouldReturnSnakeCaseSelectStatement&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net5.0::DapperDoodle.Tests.QueryExecutorTests+Registrations.AssertThatIApplicationBuilderRegistersIQueryExecutor&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

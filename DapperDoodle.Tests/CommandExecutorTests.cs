@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,40 +15,25 @@ namespace DapperDoodle.Tests
     public class CommandExecutorTests
     {
         [TestFixture]
-        public class Registrations
+        public class Registrations : ResolveExecutors
         {
             [Test]
-            public async Task AssertThatIApplicationBuilderRegistersCommandExecutor()
+            public void AssertThatIApplicationBuilderRegistersCommandExecutor()
             {
-                var hostBuilder = new HostBuilder().ConfigureWebHost(webhost =>
-                {
-                    webhost.UseTestServer();
-                    webhost.Configure(app =>
-                    {
-                        app.Run(handle => handle
-                            .Response
-                            .StartAsync());
-                    });
-
-                    webhost.ConfigureServices(config =>
-                    {
-                        config
-                            .ConfigureDapperDoodle(null, DBMS.SQLite);
-                    });
-                });
-
-                var host = await hostBuilder.StartAsync();
-                var serviceProvider = host.Services;
-                
-                var commandExecutor = serviceProvider
-                    .GetService<ICommandExecutor>();
-                
                 var actual = GetRandomInt();
-                var expected = commandExecutor.Execute(new CommandInheritor(actual));
+                if (CommandExecutor == null) return;
+                
+                var expected = CommandExecutor
+                    .Execute(new CommandInheritor(actual));
             
                 Assert.AreEqual(actual, expected);
             }
-            
+
+            public void AssertThatCommandExecutorIsAccessibleFromWithinCommand()
+            {
+                // var serviceProvider =
+            }
+
             public class CommandInheritor : Command<int>
             {
                 private readonly int _expectedReturnValue;

@@ -16,7 +16,7 @@ namespace DapperDoodle.Tests
             // Arrange
             var expected = "HostBuilder was started successfully.";
             
-            var hostBuilder = new HostBuilder()
+            var hostBuilder = new Microsoft.Extensions.Hosting.HostBuilder()
                 .ConfigureWebHost(webhost =>
             {
                 webhost.UseTestServer();

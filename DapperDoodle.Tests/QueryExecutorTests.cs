@@ -16,32 +16,15 @@ namespace DapperDoodle.Tests
         public class Registrations
         {
             [Test]
-            public async Task AssertThatIApplicationBuilderRegistersIQueryExecutor()
+            public void AssertThatIApplicationBuilderRegistersIQueryExecutor()
             {
-                var hostBuilder = new HostBuilder().ConfigureWebHost(webhost =>
-                {
-                    webhost.UseTestServer();
-                    webhost.Configure(app =>
-                    {
-                        app.Run(handle => handle
-                            .Response
-                            .StartAsync());
-                    });
+                var host = HostBuilder.CreateHostBuilder();
 
-                    webhost.ConfigureServices(config =>
-                    {
-                        config
-                            .ConfigureDapperDoodle(null, DBMS.SQLite);
-                    });
-                });
-
-                var host = await hostBuilder.StartAsync();
-                var serviceProvider = host.Services;
-                
-                var queryExecutor = serviceProvider
+                var queryExecutor = host.Result
                     .GetService<IQueryExecutor>();
 
                 var actual = GetRandomInt();
+                if (queryExecutor == null) return;
                 var expected = queryExecutor.Execute(new QueryInheritor(actual));
             
                 Assert.That(expected.Equals(actual));

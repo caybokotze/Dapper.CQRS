@@ -30,6 +30,14 @@ namespace DapperDoodle.Tests
                 // Assert
                 Expect(insertStatement).To.Equal(expected);
             }
+
+            [Test]
+            public void CommandExecutorShouldWorkFromWithinCommand()
+            {
+                // Arrange
+                // Act
+                // Assert
+            }
             
             [Test]
             public void ShouldBuildInsertForSqlLite()
