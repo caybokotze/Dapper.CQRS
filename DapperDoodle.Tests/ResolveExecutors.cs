@@ -5,8 +5,8 @@ namespace DapperDoodle.Tests
 {
     public class ResolveExecutors
     {
-        public ICommandExecutor CommandExecutor { get; private set; }
-        public IQueryExecutor QueryExecutor { get; private set; }
+        protected ICommandExecutor CommandExecutor { get; private set; }
+        protected IQueryExecutor QueryExecutor { get; set; }
 
         [SetUp]
         public void Setup()
