@@ -12,9 +12,9 @@ namespace DapperDoodle
     {
         public abstract void Execute();
 
-        public List<T> BuildSelect<T>(object parameters)
+        public List<T> BuildSelect<T>()
         {
-            return QueryList<T>(this.BuildSelectStatement<T>(), parameters);
+            return QueryList<T>(this.BuildSelectStatement<T>());
         }
         
         public List<T> BuildSelect<T>(object parameters, string clause)
