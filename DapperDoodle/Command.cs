@@ -16,12 +16,7 @@ namespace DapperDoodle
     {
         public abstract void Execute();                                                                                                            
         
-        /// <summary>
-        /// Returns the ID of the Inserted record after inserting the record.
-        /// </summary>
-        /// <param name="parameters">Pass in the arguments or type as an argument that needs to be appended to the sql statement</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        # region BuildInsert
         public int BuildInsert<T>(object parameters)
         {
             return QueryFirst<int>(this.BuildInsertStatement<T>(), parameters: parameters);
@@ -29,7 +24,7 @@ namespace DapperDoodle
 
         public int BuildInsert<T>(object parameters, string table)
         {
-            return QueryFirst<int>(this.BuildInsertStatement<T>(table: table), parameters: parameters);
+            return QueryFirst<int>(this.BuildInsertStatement<T>(table), parameters: parameters);
         }
         
         public int BuildInsert<T>(object parameters, string table, Case @case)
@@ -41,39 +36,63 @@ namespace DapperDoodle
         {
             return QueryFirst<int>(this.BuildInsertStatement<T>(table: table, @case: @case, removeParameters: removeParameters), parameters: parameters);
         }
-        
-        public int BuildUpdate<T>(object parameters, string clause)
-        {
-            return QueryFirst<int>(this.BuildUpdateStatement<T>(table: null, clause: clause), parameters: parameters);
-        }
-        
-        public int BuildUpdate<T>(object parameters, string clause, string table)
-        {
-            return QueryFirst<int>(this.BuildUpdateStatement<T>(table: table, clause: clause), parameters: parameters);
-        }
-        
-        public int BuildUpdate<T>(object parameters, string clause, string table, object removeParameters)
-        {
-            return QueryFirst<int>(this.BuildUpdateStatement<T>(clause: clause,clause:, table: table, removeParameters: TODO :removeParameters: removeParameters), parameters: parameters);
-        }
+        # endregion
 
+        #region BuildUpdate
         public int BuildUpdate<T>(object parameters)
         {
             return QueryFirst<int>(this.BuildUpdateStatement<T>(), parameters: parameters);
         }
-
+        
+        public int BuildUpdate<T>(object parameters, string clause)
+        {
+            return QueryFirst<int>(this.BuildUpdateStatement<T>(clause), parameters: parameters);
+        }
+        
+        public int BuildUpdate<T>(object parameters, string clause, string table)
+        {
+            return QueryFirst<int>(this.BuildUpdateStatement<T>(clause, table), parameters: parameters);
+        }
+        
+        public int BuildUpdate<T>(object parameters, string clause, string table, Case @case)
+        {
+            return QueryFirst<int>(this.BuildUpdateStatement<T>(clause, table, @case), parameters: parameters);
+        }
+        
+        public int BuildUpdate<T>(object parameters, string clause, string table, Case @case, object removeParameters)
+        {
+            return QueryFirst<int>(this.BuildUpdateStatement<T>(clause, table, @case, removeParameters), parameters: parameters);
+        }
+        #endregion
+        
+        # region BuildDelete
         public int BuildDelete<T>(object parameters)
         {
             return QueryFirst<int>(this.BuildDeleteStatement<T>(), parameters: parameters);
         }
-
-        /// <summary>
-        /// This will automatically append the last inserted id for the record inserted.
-        /// </summary>
-        /// <param name="sql"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidSqlStatementException"></exception>
+        
+        public int BuildDelete<T>(object parameters, string clause)
+        {
+            return QueryFirst<int>(this.BuildDeleteStatement<T>(clause), parameters: parameters);
+        }
+        
+        public int BuildDelete<T>(object parameters, string clause, string table)
+        {
+            return QueryFirst<int>(this.BuildDeleteStatement<T>(clause, table), parameters: parameters);
+        }
+        
+        public int BuildDelete<T>(object parameters, string clause, string table, Case @case)
+        {
+            return QueryFirst<int>(this.BuildDeleteStatement<T>(clause, table, @case), parameters: parameters);
+        }
+        
+        public int BuildDelete<T>(object parameters, string clause, string table, Case @case, object removeParameters)
+        {
+            return QueryFirst<int>(this.BuildDeleteStatement<T>(clause, table, @case, removeParameters), parameters: parameters);
+        }
+        
+        # endregion
+        
         public int InsertAndReturnId(string sql, object parameters = null)
         {
             if (sql is null)

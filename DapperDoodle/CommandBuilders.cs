@@ -14,17 +14,17 @@ namespace DapperDoodle
         {
             return BuildInsertStatement<T>(command, null, Case.SnakeCase, null);
         }
-        
-        public static string BuildInsertStatement<T>(this Command command, string clause)
+
+        public static string BuildInsertStatement<T>(this Command command, string table)
         {
-            return BuildInsertStatement<T>(command, null, Case.SnakeCase);
+            return BuildInsertStatement<T>(command, table, Case.SnakeCase, null);
         }
         
         public static string BuildInsertStatement<T>(this Command command, string table, Case @case)
         {
             return BuildInsertStatement<T>(command, table, @case, null);
         }
-
+        
         /// <summary>
         /// Returns a string of the Insert Statement that will be inserted into the database.
         /// </summary>
