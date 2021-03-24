@@ -15,7 +15,7 @@ namespace DapperDoodle
             Dbms = options.Dbms;
         }
 
-        public IServiceProvider Provider;
+        protected IServiceProvider Provider;
 
         private IDbConnection _connection;
         public DBMS Dbms { get; set; }

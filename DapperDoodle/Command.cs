@@ -19,10 +19,10 @@ namespace DapperDoodle
             QueryExecutor = new QueryExecutor(Provider);
             CommandExecutor = new CommandExecutor(Provider);
         }
-        public abstract void Execute();
+        public abstract void Execute();                                                                                                            
         
-        public IQueryExecutor QueryExecutor { get; set; }
-        public ICommandExecutor CommandExecutor { get; set; }
+        public IQueryExecutor QueryExecutor { get; }
+        public ICommandExecutor CommandExecutor { get; }
 
         /// <summary>
         /// Returns the ID of the Inserted record after inserting the record.
