@@ -10,14 +10,14 @@
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.Doodle</PackageId>
-        <Version>1.3.1</Version>
-        <PackageReleaseNotes>Add default queryBuilder with no required parameters.</PackageReleaseNotes>
+        <Version>1.3.2</Version>
+        <PackageReleaseNotes>Fixed update statement for update statement builder.</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>1.3.1</PackageVersion>
+        <PackageVersion>1.3.2</PackageVersion>
         <Title>Dapper Doodle</Title>
         <PackageProjectUrl>https://mergedigital.io</PackageProjectUrl>
     </PropertyGroup>
