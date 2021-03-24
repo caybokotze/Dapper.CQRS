@@ -12,29 +12,29 @@ namespace DapperDoodle
     {
         public abstract void Execute();
 
-        public List<T> BuildSelect<T>(object parameters = null)
+        public List<T> BuildSelect<T>(object parameters)
         {
             return QueryList<T>(this.BuildSelectStatement<T>(), parameters);
         }
         
-        public List<T> BuildSelect<T>(Case @case)
+        public List<T> BuildSelect<T>(object parameters, string clause)
         {
-            return QueryList<T>(this.BuildSelectStatement<T>(@case));
+            return QueryList<T>(this.BuildSelectStatement<T>(clause), parameters);
         }
 
-        public List<T> BuildSelect<T>(string clause, object parameters = null)
+        public List<T> BuildSelect<T>(object parameters, string clause, string table)
         {
-            return QueryList<T>(this.BuildSelectStatement<T>(null, clause), parameters);
+            return QueryList<T>(this.BuildSelectStatement<T>(clause, table), parameters);
         }
         
-        public List<T> BuildSelect<T>(string table, string clause, object parameters = null)
+        public List<T> BuildSelect<T>(object parameters, string clause, string table, Case @case)
         {
-            return QueryList<T>(this.BuildSelectStatement<T>(table, clause), parameters: parameters);
+            return QueryList<T>(this.BuildSelectStatement<T>(clause, table, @case), parameters);
         }
-        
-        public List<T> BuildSelect<T>(string table, string clause, Case @case, object parameters = null, object ignoreParameters = null)
+
+        public List<T> BuildSelect<T>(object parameters, string clause, string table, Case @case, object ignoreParameters)
         {
-            return QueryList<T>(this.BuildSelectStatement<T>(table, @case, clause, ignoreParameters), parameters: parameters);
+            return QueryList<T>(this.BuildSelectStatement<T>(clause, table, @case, ignoreParameters), parameters: parameters);
         }
     }
 }

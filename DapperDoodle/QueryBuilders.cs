@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Reflection;
+﻿using System.Data;
 using System.Text;
 using DapperDoodle.Exceptions;
 
@@ -11,43 +8,39 @@ namespace DapperDoodle
     {
         public static string BuildSelectStatement<T>(this Query query)
         {
-            return BuildSelectStatement<T>(query, null, Case.Lowercase);
+            return BuildSelectStatement<T>(query, null, null, Case.SnakeCase, null);
         }
         
-        public static string BuildSelectStatement<T>(this Query query, string table, string clause)
+        public static string BuildSelectStatement<T>(this Query query, string clause)
         {
-            return BuildSelectStatement<T>(query, table, Case.Lowercase, clause);
+            return BuildSelectStatement<T>(query, clause, null, Case.SnakeCase, null);
         }
         
-        public static string BuildSelectStatement<T>(this Query query, Case @case)
+        public static string BuildSelectStatement<T>(this Query query, string clause, string table)
         {
-            return BuildSelectStatement<T>(query, null, @case);
+            return BuildSelectStatement<T>(query, clause, table, Case.SnakeCase, null);
         }
         
-        public static string BuildSelectStatement<T>(this Query query, string table, Case casing, string clause = null, object removeParameters = null)
+        public static string BuildSelectStatement<T>(this Query query, string clause, string table, Case @case)
+        {
+            return BuildSelectStatement<T>(query, clause, table, @case, null);
+        }
+        
+        public static string BuildSelectStatement<T>(this Query query, string clause, string table, Case @case, object removeParameters)
         {
             var dt = typeof(T).DataTableForType();
 
-            table ??= typeof(T).Name.Pluralize().ConvertCase(casing);
+            table ??= typeof(T).Name.Pluralize().ConvertCase(@case);
             
             var sqlStatement = new StringBuilder();
             
             var variables = new StringBuilder();
 
-            if (removeParameters != null)
-            {
-                var type = removeParameters.GetType();
-                var props = new List<PropertyInfo>(type.GetProperties());
-
-                foreach (var prop in props)
-                {
-                    dt.Columns.Remove(prop.Name);
-                }
-            }
+            dt = BuilderHelpers.RemovePropertiesFromDataTable(dt, removeParameters);
 
             foreach (DataColumn column in dt.Columns)
             {
-                variables.Append($"{column.ColumnName.ConvertCase(casing)}, ");
+                variables.Append($"{column.ColumnName.ConvertCase(@case)}, ");
             }
 
             variables.Remove(variables.Length - 2, 2);

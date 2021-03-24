@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Reflection;
 using System.Text;
 using DapperDoodle.Exceptions;
 
@@ -43,7 +40,7 @@ namespace DapperDoodle
 
             var sqlStatement = new StringBuilder();
 
-            dt = RemovePropertiesFromDataTable(dt, removeParameters);
+            dt = BuilderHelpers.RemovePropertiesFromDataTable(dt, removeParameters);
 
             switch (command.Dbms)
             {
@@ -124,7 +121,7 @@ namespace DapperDoodle
 
             var sqlStatement = new StringBuilder();
             
-            dt = RemovePropertiesFromDataTable(dt, removeParameters);
+            dt = BuilderHelpers.RemovePropertiesFromDataTable(dt, removeParameters);
 
             switch (command.Dbms)
             {
@@ -201,7 +198,7 @@ namespace DapperDoodle
             
             var sqlStatement = new StringBuilder();
             
-            dt = RemovePropertiesFromDataTable(dt, removeParameters);
+            dt = BuilderHelpers.RemovePropertiesFromDataTable(dt, removeParameters);
 
             switch (command.Dbms)
             {
@@ -222,24 +219,6 @@ namespace DapperDoodle
             sqlStatement.Append(clause);
 
             return sqlStatement.ToString();
-        }
-
-        private static DataTable RemovePropertiesFromDataTable(DataTable dt, object properties)
-        {
-            if (properties == null)
-            {
-                return dt;
-            }
-
-            var type = properties.GetType();
-            var props = new List<PropertyInfo>(type.GetProperties());
-
-            foreach (var prop in props)
-            {
-                dt.Columns.Remove(prop.Name);
-            }
-
-            return dt;
         }
     }
 }

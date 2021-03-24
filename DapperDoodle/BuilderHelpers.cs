@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,24 @@ namespace DapperDoodle
 {
     public static class BuilderHelpers
     {
+        public static DataTable RemovePropertiesFromDataTable(DataTable dt, object properties)
+        {
+            if (properties == null)
+            {
+                return dt;
+            }
+
+            var type = properties.GetType();
+            var props = new List<PropertyInfo>(type.GetProperties());
+
+            foreach (var prop in props)
+            {
+                dt.Columns.Remove(prop.Name);
+            }
+
+            return dt;
+        }
+        
         public static DataTable DataTableForType(this Type type)
         {
             return (type?.GetProperties() ?? Array.Empty<PropertyInfo>())
