@@ -16,7 +16,6 @@ namespace DapperDoodle.Tests
             // Arrange
             var expected = $"SELECT id, name, surname, email, date_created FROM `people`;";
             
-            // Act
             var person = new Person
             {
                 Id = GetRandomInt(),
@@ -26,6 +25,7 @@ namespace DapperDoodle.Tests
                 DateCreated = DateTime.Now
             };
             
+            // Act
             var selectStatementBuilder = new TestBuildSelect<Person>(Case.SnakeCase);
             selectStatementBuilder.Execute();
             var actual = selectStatementBuilder.Result;
