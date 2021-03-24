@@ -47,9 +47,14 @@ namespace DapperDoodle
             return QueryFirst<int>(this.BuildUpdateStatement<T>(table: null, clause: clause), parameters: parameters);
         }
         
-        public int BuildUpdate<T>(object parameters, string table, string clause)
+        public int BuildUpdate<T>(object parameters, string clause, string table)
         {
             return QueryFirst<int>(this.BuildUpdateStatement<T>(table: table, clause: clause), parameters: parameters);
+        }
+        
+        public int BuildUpdate<T>(object parameters, string clause, string table, object removeParameters)
+        {
+            return QueryFirst<int>(this.BuildUpdateStatement<T>(clause: clause,clause:, table: table, removeParameters: TODO :removeParameters: removeParameters), parameters: parameters);
         }
 
         public int BuildUpdate<T>(object parameters)

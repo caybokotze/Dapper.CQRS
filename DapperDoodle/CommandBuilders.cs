@@ -10,40 +10,19 @@ namespace DapperDoodle
 {
     public static class CommandBuilders
     {
-        /// <summary>
-        /// Default Insert Statement returns a SQL INSERT statement.
-        /// </summary>
-        /// <param name="command"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static string BuildInsertStatement<T>(this Command command)
         {
-            return BuildInsertStatement<T>(command, null, Case.Lowercase);
+            return BuildInsertStatement<T>(command, null, Case.SnakeCase, null);
         }
         
-        /// <summary>
-        /// Table name override for when naming conventions do not match normal pluralization.
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="table"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        
-        public static string BuildInsertStatement<T>(this Command command, string table)
+        public static string BuildInsertStatement<T>(this Command command, string clause)
         {
-            return BuildInsertStatement<T>(command, table, Case.Lowercase);
+            return BuildInsertStatement<T>(command, null, Case.SnakeCase);
         }
-
-        /// <summary>
-        /// Override to specify the casing that should be used for the table and variable names.
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="case"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static string BuildInsertStatement<T>(this Command command, Case @case)
+        
+        public static string BuildInsertStatement<T>(this Command command, string table, Case @case)
         {
-            return BuildInsertStatement<T>(command, null, @case);
+            return BuildInsertStatement<T>(command, table, @case, null);
         }
 
         /// <summary>
@@ -56,25 +35,16 @@ namespace DapperDoodle
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static string BuildInsertStatement<T>(this Command command, string table, Case @case, object removeParameters = null)
+        public static string BuildInsertStatement<T>(this Command command, string table, Case @case, object removeParameters)
         {
             var dt = typeof(T).DataTableForType();
 
             table ??= typeof(T).Name.Pluralize().ConvertCase(@case);
-            
+
             var sqlStatement = new StringBuilder();
 
-            if (removeParameters != null)
-            {
-                var type = removeParameters.GetType();
-                var props = new List<PropertyInfo>(type.GetProperties());
+            dt = RemovePropertiesFromDataTable(dt, removeParameters);
 
-                foreach (var prop in props)
-                {
-                    dt.Columns.Remove(prop.Name);
-                }
-            }
-            
             switch (command.Dbms)
             {
                 case DBMS.MySQL:
@@ -113,51 +83,48 @@ namespace DapperDoodle
             return sqlStatement.ToString();
         }
         
-        
         public static string BuildUpdateStatement<T>(this Command command)
         {
-            return BuildUpdateStatement<T>(command, null, Case.Lowercase, null);
+            return BuildUpdateStatement<T>(command, null, null, Case.SnakeCase, null);
         }
         
-        public static string BuildUpdateStatement<T>(this Command command, string table, string clause)
+        public static string BuildUpdateStatement<T>(this Command command, string clause)
         {
-            return BuildUpdateStatement<T>(command, table, Case.Lowercase, clause);
+            return BuildUpdateStatement<T>(command, clause, null, Case.SnakeCase, null);
+        }
+        
+        public static string BuildUpdateStatement<T>(this Command command, string clause, string table)
+        {
+            return BuildUpdateStatement<T>(command, clause, table, Case.SnakeCase, null);
         }
 
-        /// <summary>
-        /// Returns a SQL UPDATE statement with the override for a where clause to specify the where condition.
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="case"></param>
-        /// <param name="clause"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static string BuildUpdateStatement<T>(this Command command, Case @case, string clause)
+        public static string BuildUpdateStatement<T>(this Command command, string clause, string table, Case @case)
         {
-            return BuildUpdateStatement<T>(command, null, @case, clause);
+            return BuildUpdateStatement<T>(command, clause, table, @case, null);
         }
-        
+
         /// <summary>
         /// Returns a SQL UPDATE statement with the override for a where clause and an override for the case and table name.
         /// </summary>
         /// <param name="command"></param>
-        /// <param name="table"></param>
         /// <param name="case"></param>
         /// <param name="clause"></param>
+        /// <param name="table"></param>
+        /// <param name="removeParameters"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="InvalidDatabaseTypeException"></exception>
-        public static string BuildUpdateStatement<T>(this Command command, string table, Case @case, string clause)
+        public static string BuildUpdateStatement<T>(this Command command, string clause, string table, Case @case, object removeParameters)
         {
             var dt = typeof(T).DataTableForType();
 
-            if (table is null)
-                table = typeof(T).Name.Pluralize().ConvertCase(@case);
+            table ??= typeof(T).Name.Pluralize().ConvertCase(@case);
             
-            if (clause is null)
-                clause = "WHERE id = @Id;";
+            clause ??= "WHERE id = @Id;";
 
             var sqlStatement = new StringBuilder();
+            
+            dt = RemovePropertiesFromDataTable(dt, removeParameters);
 
             switch (command.Dbms)
             {
@@ -195,28 +162,46 @@ namespace DapperDoodle
 
         public static string BuildDeleteStatement<T>(this Command command)
         {
-            return BuildDeleteStatement<T>(command, null, Case.Lowercase, null);
+            return BuildDeleteStatement<T>(command, null, null, Case.SnakeCase, null);
         }
         
+        public static string BuildDeleteStatement<T>(this Command command, string clause)
+        {
+            return BuildDeleteStatement<T>(command, clause, null, Case.SnakeCase, null);
+        }
+        
+        public static string BuildDeleteStatement<T>(this Command command, string clause, string table)
+        {
+            return BuildDeleteStatement<T>(command, clause, table, Case.SnakeCase, null);
+        }
+        
+        public static string BuildDeleteStatement<T>(this Command command, string clause, string table, Case @case)
+        {
+            return BuildDeleteStatement<T>(command, clause, table, @case, null);
+        }
+
         /// <summary>
         /// Returns a SQL DELETE statement.
         /// </summary>
         /// <param name="command"></param>
-        /// <param name="table"></param>
-        /// <param name="casing"></param>
         /// <param name="clause"></param>
+        /// <param name="table"></param>
+        /// <param name="removeParameters"></param>
+        /// <param name="case"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         /// <exception cref="InvalidDatabaseTypeException"></exception>
-        public static string BuildDeleteStatement<T>(this Command command, string table, Case @case, string clause)
+        public static string BuildDeleteStatement<T>(this Command command, string clause, string table, Case @case, object removeParameters)
         {
-            if (table is null)
-                table = typeof(T).Name.Pluralize().ConvertCase(@case);
-                
-            if (clause is null)
-                clause = "WHERE id = @Id";
+            var dt = typeof(T).DataTableForType();
+            
+            table ??= typeof(T).Name.Pluralize().ConvertCase(@case);
+
+            clause ??= "WHERE id = @Id";
             
             var sqlStatement = new StringBuilder();
+            
+            dt = RemovePropertiesFromDataTable(dt, removeParameters);
 
             switch (command.Dbms)
             {
@@ -237,6 +222,24 @@ namespace DapperDoodle
             sqlStatement.Append(clause);
 
             return sqlStatement.ToString();
+        }
+
+        private static DataTable RemovePropertiesFromDataTable(DataTable dt, object properties)
+        {
+            if (properties == null)
+            {
+                return dt;
+            }
+
+            var type = properties.GetType();
+            var props = new List<PropertyInfo>(type.GetProperties());
+
+            foreach (var prop in props)
+            {
+                dt.Columns.Remove(prop.Name);
+            }
+
+            return dt;
         }
     }
 }
