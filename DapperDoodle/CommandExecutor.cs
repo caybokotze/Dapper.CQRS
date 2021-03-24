@@ -8,7 +8,7 @@ namespace DapperDoodle
 {
     public class CommandExecutor : ICommandExecutor
     {
-        public IBaseSqlExecutorOptions Options { get; }
+        private IBaseSqlExecutorOptions Options { get; }
 
         public CommandExecutor(IServiceProvider provider)
         {

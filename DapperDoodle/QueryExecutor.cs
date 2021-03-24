@@ -7,7 +7,7 @@ namespace DapperDoodle
 {
     public class QueryExecutor : IQueryExecutor
     {
-        public IBaseSqlExecutorOptions Options { get; }
+        private IBaseSqlExecutorOptions Options { get; }
 
         public QueryExecutor(IServiceProvider services)
         {

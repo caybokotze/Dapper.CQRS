@@ -8,11 +8,8 @@ using static NExpect.Expectations;
 namespace DapperDoodle.Tests
 {
     [TestFixture]
-    public class CommandTests
+    public class CommandTests : ResolveExecutors
     {
-        private IServiceProvider _serviceProvider;
-        private ICommandExecutor _commandExecutor;
-
         [TestFixture]
         public class Behaviour
         {
