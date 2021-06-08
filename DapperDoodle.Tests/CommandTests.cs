@@ -15,55 +15,6 @@ namespace DapperDoodle.Tests
         private ICommandExecutor _commandExecutor;
 
         [TestFixture]
-        public class Behaviour
-        {
-            [Test]
-            public void ShouldBuildInsertForMySql()
-            {
-                // Arrange
-                var command = Create();
-                command.Dbms = DBMS.MySQL;
-
-                // Act
-                var insertStatement = command.BuildInsertStatement<Person>();
-                var expected = @"INSERT INTO `people` (id, name, surname, email) VALUES (@Id, @Name, @Surname, @Email); SELECT LAST_INSERT_ID();";
-                
-                // Assert
-                Expect(insertStatement).To.Equal(expected);
-            }
-            
-            [Test]
-            public void ShouldBuildInsertForSqlLite()
-            {
-                // Arrange
-                var command = Create();
-                command.Dbms = DBMS.SQLite;
-
-                // Act
-                var insertStatement = command.BuildInsertStatement<Person>();
-                var expected = @"INSERT INTO people (id, name, surname, email) VALUES (@Id, @Name, @Surname, @Email); SELECT last_insert_rowid();";
-                
-                // Assert
-                Expect(insertStatement).To.Equal(expected);
-            }
-            
-            [Test]
-            public void ShouldBuildInsertForMsSql()
-            {
-                // Arrange
-                var command = Create();
-                command.Dbms = DBMS.MSSQL;
-
-                // Act
-                var insertStatement = command.BuildInsertStatement<Person>();
-                var expected = @"INSERT INTO [people] (id, name, surname, email) VALUES (@Id, @Name, @Surname, @Email); SELECT SCOPE_IDENTITY();";
-                
-                // Assert
-                Expect(insertStatement).To.Equal(expected);
-            }
-        }
-
-        [TestFixture]
         public class Transactions
         {
             [Test]
@@ -105,7 +56,7 @@ namespace DapperDoodle.Tests
             
             public override void Execute()
             {
-                BuildInsert<Person>(_person);
+                // BuildInsert<Person>(_person);
             }
         }
 
