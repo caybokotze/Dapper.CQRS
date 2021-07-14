@@ -1,8 +1,7 @@
 using System;
-using System.Runtime.CompilerServices;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace DapperDoodle.Tests.TestModels
+namespace Dapper.CQRS.Tests.TestModels
 {
     public class Person
     {

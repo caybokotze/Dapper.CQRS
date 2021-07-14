@@ -8,7 +8,7 @@ namespace Dapper.CQRS
 {
     public static class ConfigurationHelpers
     {
-        public static void ConfigureDapperDoodle(
+        public static void ConfigureDefaults(
             this IServiceCollection services, 
             string connectionString,
             DBMS dbms)

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Transactions;
-using Dapper.CQRS;
-using DapperDoodle.Tests.TestModels;
+using Dapper.CQRS.Tests.TestModels;
 using NUnit.Framework;
 
-namespace DapperDoodle.Tests
+namespace Dapper.CQRS.Tests
 {
     [TestFixture]
     public class CommandTests

@@ -1,10 +1,8 @@
-﻿using Dapper.CQRS;
-using NExpect;
+﻿using NExpect;
+using NUnit.Framework;
 using static NExpect.Expectations;
 
-using NUnit.Framework;
-
-namespace DapperDoodle.Tests
+namespace Dapper.CQRS.Tests
 {
     [TestFixture]
     public class CaseHelperTests

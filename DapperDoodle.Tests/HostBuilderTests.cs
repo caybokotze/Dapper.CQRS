@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 
-namespace DapperDoodle.Tests
+namespace Dapper.CQRS.Tests
 {
     public class HostBuilderTests
     {
