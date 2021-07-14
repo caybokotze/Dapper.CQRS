@@ -2,9 +2,7 @@
 using System.Transactions;
 using Dapper.CQRS;
 using DapperDoodle.Tests.TestModels;
-using NExpect;
 using NUnit.Framework;
-using static NExpect.Expectations;
 
 namespace DapperDoodle.Tests
 {

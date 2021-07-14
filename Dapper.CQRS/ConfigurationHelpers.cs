@@ -51,12 +51,15 @@ namespace Dapper.CQRS
             string connectionString,
             DBMS dbms)
         {
-            if(connectionString is null)
+            if (connectionString is null)
+            {
                 throw new ArgumentNullException("Please specify a valid connection string for MySql to use.");
+            }
             
             services.AddScoped<IBaseSqlExecutorOptions>(provider =>
                 new BaseSqlExecutorOptions()
                 {
+                    ServiceProvider = provider,
                     Connection = new MySqlConnection(connectionString),
                     Dbms = dbms
                 });
@@ -72,6 +75,7 @@ namespace Dapper.CQRS
             services.AddScoped<IBaseSqlExecutorOptions>(provider => 
                 new BaseSqlExecutorOptions()
             {
+                ServiceProvider = provider,
                 Connection = new SqliteConnection(connectionString),
                 Dbms = dbms
             });

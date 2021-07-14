@@ -5,11 +5,11 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>Caybo Kotze</Authors>
         <Company>Merge Digital</Company>
-        <Description>Dapper Doodle is a CQRS wrapper for dapper to speed up getting started with dapper and create your own dapper doodles. Dependency injection setup is all done on your behalf to make life bearable.</Description>
+        <Description>Dapper.CQRS is a CQRS wrapper for dapper to force a CQRS pattern implementation in your code base.</Description>
         <RepositoryUrl>https://github.com/caybokotze/dapper-doodle</RepositoryUrl>
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
-        <PackageId>Dapper.Doodle</PackageId>
+        <PackageId>Dapper.CQRS</PackageId>
         <Version>1.2.1</Version>
         <PackageReleaseNotes>Fixed up the issues with the case helper strategy pattern.</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -17,9 +17,9 @@
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>1.2.1</PackageVersion>
-        <Title>Dapper Doodle</Title>
-        <PackageProjectUrl>https://mergedigital.io</PackageProjectUrl>
+        <PackageVersion>1.0.0</PackageVersion>
+        <Title>Dapper.CQRS</Title>
+        <PackageProjectUrl></PackageProjectUrl>
         <AssemblyName>Dapper.CQRS</AssemblyName>
         <RootNamespace>Dapper.CQRS</RootNamespace>
     </PropertyGroup>
