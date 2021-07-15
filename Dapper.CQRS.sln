@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.CQRS", "Dapper.CQRS\Dapper.CQRS.csproj", "{980AF083-B265-43E0-9DBF-79E7520CDBF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DapperDoodle.Tests", "DapperDoodle.Tests\DapperDoodle.Tests.csproj", "{EAC95ECE-2EBA-4B7D-A226-0D90194035A4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.CQRS.Tests", "Dapper.CQRS.Tests\Dapper.CQRS.Tests.csproj", "{EAC95ECE-2EBA-4B7D-A226-0D90194035A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
