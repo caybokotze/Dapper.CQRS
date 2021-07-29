@@ -10,7 +10,7 @@
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.CQRS</PackageId>
-        <PackageReleaseNotes>Fixed up the issues with the case helper strategy pattern.</PackageReleaseNotes>
+        <PackageReleaseNotes>GetIDbConnection is now called raw</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
