@@ -10,14 +10,13 @@
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.CQRS</PackageId>
-        <Version>1.2.1</Version>
         <PackageReleaseNotes>Fixed up the issues with the case helper strategy pattern.</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>1.1.0</PackageVersion>
+        <PackageVersion>1.1.1</PackageVersion>
         <Title>Dapper.CQRS</Title>
         <PackageProjectUrl></PackageProjectUrl>
         <AssemblyName>Dapper.CQRS</AssemblyName>
