@@ -30,7 +30,7 @@ namespace Dapper.CQRS
             return (List<T>)_connection.Query<T>(sql, parameters);
         }
 
-        public IDbConnection GetIDbConnection()
+        public IDbConnection Raw()
         {
             return _connection;
         }

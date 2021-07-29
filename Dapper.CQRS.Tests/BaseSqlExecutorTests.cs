@@ -44,7 +44,7 @@ namespace Dapper.CQRS.Tests
                     Dbms = DBMS.MySQL
                 });
 
-                Expect(baseSqlExecutor.GetIDbConnection().ConnectionString)
+                Expect(baseSqlExecutor.Raw().ConnectionString)
                     .To.Contain("server=");
             }
 
