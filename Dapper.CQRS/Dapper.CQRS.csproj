@@ -6,7 +6,7 @@
         <Authors>Caybo Kotze</Authors>
         <Company>Merge Digital</Company>
         <Description>Dapper.CQRS is a CQRS wrapper for dapper to force a CQRS pattern implementation in your code base.</Description>
-        <RepositoryUrl>https://github.com/caybokotze/dapper-doodle</RepositoryUrl>
+        <RepositoryUrl>https://github.com/caybokotze/Dapper.CQRS</RepositoryUrl>
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.CQRS</PackageId>
@@ -18,7 +18,7 @@
         <LangVersion>9</LangVersion>
         <PackageVersion>1.1.1</PackageVersion>
         <Title>Dapper.CQRS</Title>
-        <PackageProjectUrl></PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/caybokotze/Dapper.CQRS</PackageProjectUrl>
         <AssemblyName>Dapper.CQRS</AssemblyName>
         <RootNamespace>Dapper.CQRS</RootNamespace>
     </PropertyGroup>

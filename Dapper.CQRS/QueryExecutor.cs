@@ -6,11 +6,11 @@ namespace Dapper.CQRS
 {
     public class QueryExecutor : IQueryExecutor
     {
-        public IBaseSqlExecutorOptions Options { get; }
+        public CQRSSqlExecutorOptions Options { get; }
 
         public QueryExecutor(IServiceProvider services)
         {
-            Options = services.GetService<IBaseSqlExecutorOptions>();
+            Options = services.GetService<CQRSSqlExecutorOptions>();
         }
 
         private void ExecuteWithNoResult(Query query)

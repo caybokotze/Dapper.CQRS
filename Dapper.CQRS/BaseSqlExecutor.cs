@@ -9,7 +9,7 @@ namespace Dapper.CQRS
     {
         public IQueryExecutor QueryExecutor { get; private set; }
         public ICommandExecutor CommandExecutor { get; private set; }
-        public void InitialiseDependencies(IBaseSqlExecutorOptions options)
+        public void InitialiseDependencies(CQRSSqlExecutorOptions options)
         {
             QueryExecutor = new QueryExecutor(options.ServiceProvider);
             CommandExecutor = new CommandExecutor(options.ServiceProvider);

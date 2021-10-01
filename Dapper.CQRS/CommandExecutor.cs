@@ -8,11 +8,11 @@ namespace Dapper.CQRS
 {
     public class CommandExecutor : ICommandExecutor
     {
-        public IBaseSqlExecutorOptions Options { get; }
+        public CQRSSqlExecutorOptions Options { get; }
 
         public CommandExecutor(IServiceProvider provider)
         {
-            Options = provider.GetService<IBaseSqlExecutorOptions>();
+            Options = provider.GetService<CQRSSqlExecutorOptions>();
         }
         
         public void Execute(Command command)

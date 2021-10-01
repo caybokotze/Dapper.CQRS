@@ -56,8 +56,8 @@ namespace Dapper.CQRS
                 throw new ArgumentNullException("Please specify a valid connection string for MySql to use.");
             }
             
-            services.AddScoped<IBaseSqlExecutorOptions>(provider =>
-                new BaseSqlExecutorOptions()
+            services.AddScoped<CQRSSqlExecutorOptions>(provider =>
+                new CqrsSqlExecutorOptions()
                 {
                     ServiceProvider = provider,
                     Connection = new MySqlConnection(connectionString),
@@ -72,8 +72,8 @@ namespace Dapper.CQRS
         {
             if (connectionString is null) connectionString = "Data Source=app.db";
             
-            services.AddScoped<IBaseSqlExecutorOptions>(provider => 
-                new BaseSqlExecutorOptions()
+            services.AddScoped<CQRSSqlExecutorOptions>(provider => 
+                new CqrsSqlExecutorOptions()
             {
                 ServiceProvider = provider,
                 Connection = new SqliteConnection(connectionString),

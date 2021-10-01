@@ -3,14 +3,14 @@ using System.Data;
 
 namespace Dapper.CQRS.Interfaces
 {
-    public interface IBaseSqlExecutorOptions
+    public interface CQRSSqlExecutorOptions
     {
         IDbConnection Connection { get; set; }
         DBMS Dbms { get; set; }
         IServiceProvider ServiceProvider { get; set; }
     }
 
-    public class BaseSqlExecutorOptions : IBaseSqlExecutorOptions
+    public class CqrsSqlExecutorOptions : CQRSSqlExecutorOptions
     {
         public IDbConnection Connection { get; set; }
         public DBMS Dbms { get; set; }

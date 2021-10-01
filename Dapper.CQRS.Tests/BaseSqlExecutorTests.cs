@@ -37,7 +37,7 @@ namespace Dapper.CQRS.Tests
                 var baseSqlExecutor = For<BaseSqlExecutor>();
                 var dbConnection = new MySqlConnection(GenerateValidMySqlConnectionString());
 
-                baseSqlExecutor.InitialiseDependencies(new BaseSqlExecutorOptions
+                baseSqlExecutor.InitialiseDependencies(new CqrsSqlExecutorOptions
                 {
                     ServiceProvider = serviceProvider,
                     Connection = dbConnection,
@@ -55,7 +55,7 @@ namespace Dapper.CQRS.Tests
                 var baseSqlExecutor = For<BaseSqlExecutor>();
                 var dbConnection = new MySqlConnection(GenerateValidMySqlConnectionString());
 
-                baseSqlExecutor.InitialiseDependencies(new BaseSqlExecutorOptions
+                baseSqlExecutor.InitialiseDependencies(new CqrsSqlExecutorOptions
                 {
                     ServiceProvider = serviceProvider,
                     Connection = dbConnection,
