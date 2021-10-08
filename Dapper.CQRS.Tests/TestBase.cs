@@ -1,12 +1,15 @@
 ﻿using System;
-using System.Configuration;
+using System.Data;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
-using static PeanutButter.RandomGenerators.RandomValueGen;
+using static ScopeFunction.Utils.AppSettingsBuilder;
 
 namespace Dapper.CQRS.Tests
 {
@@ -30,7 +33,10 @@ namespace Dapper.CQRS.Tests
 
                 webHost.ConfigureServices(config =>
                 {
-                    config.ConfigureDefaults(GenerateValidMySqlConnectionString(), DBMS.MySQL);
+                    config.AddTransient<ICommandExecutor, CommandExecutor>();
+                    config.AddTransient<IQueryExecutor, QueryExecutor>();
+                    config.AddTransient<IDbConnection, MySqlConnection>(
+                        s => new MySqlConnection(GetConnectionString()));
                 });
             });
 
@@ -39,11 +45,12 @@ namespace Dapper.CQRS.Tests
 
             ServiceProvider = serviceProvider;
         }
-        
-        public static string GenerateValidMySqlConnectionString()
+
+        private string GetConnectionString()
         {
-            return
-                $"Server=localhost;Database={GetRandomString(20)};Uid={GetRandomString(20)};Pwd={GetRandomString(20)}";
+            var configurationRoot = CreateConfigurationRoot();
+            return configurationRoot
+                .GetConnectionString("DefaultConnection");
         }
     }
 }

@@ -1,9 +1,11 @@
+using System.Data;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -30,8 +32,10 @@ namespace Dapper.CQRS.Tests
 
                     webhost.ConfigureServices(config =>
                     {
-                        config
-                            .ConfigureDefaults(null, DBMS.SQLite);
+                        config.AddTransient<ICommandExecutor, CommandExecutor>();
+                        config.AddTransient<IQueryExecutor, QueryExecutor>();
+                        config.AddTransient<IDbConnection, MySqlConnection>();
+                        config.AddTransient(_ => new MySqlConnection(""));
                     });
                 });
 

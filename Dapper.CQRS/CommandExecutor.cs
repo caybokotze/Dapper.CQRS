@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
-using Dapper.CQRS.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dapper.CQRS
 {
     public class CommandExecutor : ICommandExecutor
     {
-        public CQRSSqlExecutorOptions Options { get; }
+        private readonly IDbConnection _connection;
 
-        public CommandExecutor(IServiceProvider provider)
+        public CommandExecutor(IDbConnection connection)
         {
-            Options = provider.GetService<CQRSSqlExecutorOptions>();
+            _connection = connection;
         }
         
         public void Execute(Command command)
         {
-            command.InitialiseDependencies(Options);
+            command.InitialiseIDbConnection(_connection);
             command.Execute();
         }
 

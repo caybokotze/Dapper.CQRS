@@ -1,16 +1,15 @@
 ﻿using System;
-using Dapper.CQRS.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+using System.Data;
 
 namespace Dapper.CQRS
 {
     public class QueryExecutor : IQueryExecutor
     {
-        public CQRSSqlExecutorOptions Options { get; }
+        private readonly IDbConnection _connection;
 
-        public QueryExecutor(IServiceProvider services)
+        public QueryExecutor(IDbConnection connection)
         {
-            Options = services.GetService<CQRSSqlExecutorOptions>();
+            _connection = connection;
         }
 
         private void ExecuteWithNoResult(Query query)
@@ -25,7 +24,7 @@ namespace Dapper.CQRS
 
         public T Execute<T>(Query<T> query)
         {
-            query.InitialiseDependencies(Options);
+            query.InitialiseIDbConnection(_connection);
             ExecuteWithNoResult(query);
             return query.Result;
         }

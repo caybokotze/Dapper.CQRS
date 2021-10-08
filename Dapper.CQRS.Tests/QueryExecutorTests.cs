@@ -13,42 +13,24 @@ namespace Dapper.CQRS.Tests
     public class QueryExecutorTests
     {
         [TestFixture]
-        public class Registrations
+        public class Registrations : TestBase
         {
             [Test]
-            public async Task AssertThatIApplicationBuilderRegistersIQueryExecutor()
+            public void AssertThatIApplicationBuilderRegistersIQueryExecutor()
             {
-                var hostBuilder = new HostBuilder().ConfigureWebHost(webhost =>
-                {
-                    webhost.UseTestServer();
-                    webhost.Configure(app =>
-                    {
-                        app.Run(handle => handle
-                            .Response
-                            .StartAsync());
-                    });
-
-                    webhost.ConfigureServices(config =>
-                    {
-                        config
-                            .ConfigureDefaults(null, DBMS.SQLite);
-                    });
-                });
-
-                var host = await hostBuilder.StartAsync();
-                var serviceProvider = host.Services;
-                
-                var queryExecutor = serviceProvider
+                var queryExecutor = ServiceProvider
                     .GetService<IQueryExecutor>();
 
                 var actual = GetRandomInt();
-                var expected = queryExecutor.Execute(new QueryInheritor(actual));
+                
+                var expected = queryExecutor?
+                    .Execute(new QueryInheritor(actual));
             
                 Assert.That(expected.Equals(actual));
             }
         }
 
-        public class QueryInheritor : Query<int>
+        private class QueryInheritor : Query<int>
         {
             private readonly int _expectedReturnValue;
 

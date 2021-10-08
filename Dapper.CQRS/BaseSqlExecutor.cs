@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Dapper.CQRS.Interfaces;
+using System.Linq;
 
 namespace Dapper.CQRS
 {
@@ -9,30 +9,32 @@ namespace Dapper.CQRS
     {
         public IQueryExecutor QueryExecutor { get; private set; }
         public ICommandExecutor CommandExecutor { get; private set; }
-        public void InitialiseDependencies(CQRSSqlExecutorOptions options)
+        
+        public void InitialiseIDbConnection(IDbConnection connection)
         {
-            QueryExecutor = new QueryExecutor(options.ServiceProvider);
-            CommandExecutor = new CommandExecutor(options.ServiceProvider);
-            _connection = options.Connection;
-            Dbms = options.Dbms;
+            QueryExecutor = new QueryExecutor(connection);
+            CommandExecutor = new CommandExecutor(connection);
+            _connection = connection;
         }
 
         private IDbConnection _connection;
-        public DBMS Dbms { get; set; }
 
         public T QueryFirst<T>(string sql, object parameters = null)
         {
             return _connection.QueryFirst<T>(sql, parameters);
         }
-        
-        public List<T> QueryList<T>(string sql, object parameters = null)
+
+        public IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(
+            string sql, 
+            Func<TFirst, TSecond, TReturn> map, 
+            object parameters = null)
         {
-            return (List<T>)_connection.Query<T>(sql, parameters);
+            return _connection.Query<TFirst, TSecond, TReturn>(sql, map, parameters);
         }
 
-        public IDbConnection Raw()
+        public List<T> QueryList<T>(string sql, object parameters = null)
         {
-            return _connection;
+            return _connection.Query<T>(sql, parameters).ToList();
         }
 
         protected int Execute(string sql, object parameters = null)
