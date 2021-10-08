@@ -1,11 +1,7 @@
 using System.Data;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using MySql.Data.MySqlClient;
+using NExpect;
+using NSubstitute;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -15,56 +11,45 @@ namespace Dapper.CQRS.Tests
     public class CommandExecutorTests
     {
         [TestFixture]
-        public class Registrations
+        public class Registrations : TestBase
         {
             [Test]
-            public async Task AssertThatIApplicationBuilderRegistersCommandExecutor()
+            public void AssertThatIApplicationBuilderRegistersCommandExecutor()
             {
-                var hostBuilder = new HostBuilder().ConfigureWebHost(webhost =>
-                {
-                    webhost.UseTestServer();
-                    webhost.Configure(app =>
-                    {
-                        app.Run(handle => handle
-                            .Response
-                            .StartAsync());
-                    });
-
-                    webhost.ConfigureServices(config =>
-                    {
-                        config.AddTransient<ICommandExecutor, CommandExecutor>();
-                        config.AddTransient<IQueryExecutor, QueryExecutor>();
-                        config.AddTransient<IDbConnection, MySqlConnection>();
-                        config.AddTransient(_ => new MySqlConnection(""));
-                    });
-                });
-
-                var host = await hostBuilder.StartAsync();
-                var serviceProvider = host.Services;
-                
-                var commandExecutor = serviceProvider
+                var commandExecutor = ServiceProvider
                     .GetService<ICommandExecutor>();
                 
                 var actual = GetRandomInt();
                 var expected = commandExecutor?
-                    .Execute(new CommandInheritor(actual));
+                    .Execute(new GenericCommand<int>(actual));
             
                 Assert.AreEqual(actual, expected);
             }
-            
-            public class CommandInheritor : Command<int>
-            {
-                private readonly int _expectedReturnValue;
+        }
 
-                public CommandInheritor(int expectedReturnValue)
-                {
-                    _expectedReturnValue = expectedReturnValue;
-                }
-                public override void Execute()
-                {
-                    Result = QueryFirst<int>($"Select {_expectedReturnValue};");
-                }
+        [TestFixture]
+        public class WhenExecutingCommand : TestBase
+        {
+            public class User
+            {
+                public string Username { get; set; }
+                public string Password { get; set; }
+            }
+            
+            [Test]
+            public void ShouldReturnCorrectType()
+            {
+                // arrange
+                var user = GetRandom<User>();
+                var command = new GenericCommand<int>(1);
+                var commandExecutor = new CommandExecutor(Substitute.For<IDbConnection>());
+                // act
+                var result = commandExecutor.Execute(command);
+                // assert
+                Expectations.Expect(result).To.Equal(1);
             }
         }
+        
+        
     }
 }

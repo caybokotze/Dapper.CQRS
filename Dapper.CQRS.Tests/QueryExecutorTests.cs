@@ -1,10 +1,9 @@
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
+using System.Data;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using NExpect;
+using NSubstitute;
 using NUnit.Framework;
+using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace Dapper.CQRS.Tests
@@ -24,25 +23,33 @@ namespace Dapper.CQRS.Tests
                 var actual = GetRandomInt();
                 
                 var expected = queryExecutor?
-                    .Execute(new QueryInheritor(actual));
+                    .Execute(new GenericQuery<int>(actual));
             
                 Assert.That(expected.Equals(actual));
             }
         }
-
-        private class QueryInheritor : Query<int>
+    }
+    
+    [TestFixture]
+    public class WhenExecutingCommand : TestBase
+    {
+        public class User
         {
-            private readonly int _expectedReturnValue;
-
-            public QueryInheritor(int expectedReturnValue)
-            {
-                _expectedReturnValue = expectedReturnValue;
-            }
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
             
-            public override void Execute()
-            {
-                Result = QueryFirst<int>($"SELECT {_expectedReturnValue};");
-            }
+        [Test]
+        public void ShouldReturnCorrectType()
+        {
+            // arrange
+            var user = GetRandom<User>();
+            var command = new GenericQuery<User>(user);
+            var commandExecutor = new QueryExecutor(Substitute.For<IDbConnection>());
+            // act
+            var result = commandExecutor.Execute(command);
+            // assert
+            Expect(result).To.Equal(user);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace Dapper.CQRS.Tests
         {
             var hostBuilder = new HostBuilder().ConfigureWebHost(webHost =>
             {
+                DefaultTypeMap.MatchNamesWithUnderscores = true;
                 webHost.UseTestServer();
                 webHost.Configure(app =>
                 {
