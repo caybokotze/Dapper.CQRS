@@ -25,11 +25,19 @@ namespace Dapper.CQRS
         }
 
         public IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(
-            string sql, 
-            Func<TFirst, TSecond, TReturn> map, 
+            string sql,
+            Func<TFirst, TSecond, TReturn> map,
             object parameters = null)
         {
             return _connection.Query<TFirst, TSecond, TReturn>(sql, map, parameters);
+        }
+        
+        public IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TReturn> map,
+            object parameters = null)
+        {
+            return _connection.Query<TFirst, TSecond, TThird, TReturn>(sql, map, parameters);
         }
 
         public List<T> QueryList<T>(string sql, object parameters = null)
