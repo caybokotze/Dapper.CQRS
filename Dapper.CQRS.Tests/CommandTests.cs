@@ -1,14 +1,9 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Transactions;
-using Dapper.CQRS.Tests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.MySqlClient;
 using NExpect;
 using NUnit.Framework;
-using Org.BouncyCastle.Crypto.Tls;
 using static NExpect.Expectations;
-using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Dapper.CQRS.Tests
 {
@@ -26,7 +21,7 @@ namespace Dapper.CQRS.Tests
         public class Transactions : TestBase
         {
             [Test]
-            public void ShouldInsertRecordForMySql()
+            public void ShouldInsertRecord()
             {
                 using (new TransactionScope())
                 {
@@ -65,7 +60,7 @@ namespace Dapper.CQRS.Tests
             }
 
             [Test]
-            public void ShouldUpdateRecordForMySql()
+            public void ShouldUpdateRecord()
             {
                 using (new TransactionScope())
                 {
@@ -119,41 +114,13 @@ namespace Dapper.CQRS.Tests
             }
             
             [Test]
-            public void ShouldDeleteRecordForMySql()
+            public void ShouldDeleteRecord()
             {
                 using (var scope = new TransactionScope())
                 {
                     // todo: complete...
                 }
             }
-        }
-
-        public class InsertPerson : Command
-        {
-            private readonly Person _person;
-
-            public InsertPerson(Person person)
-            {
-                _person = person;
-            }
-            
-            public override void Execute()
-            {
-                // BuildInsert<Person>(_person);
-            }
-        }
-
-        public class RandomCommand : Command
-        {
-            public override void Execute()
-            {
-                
-            }
-        }
-
-        public static Command Create()
-        {
-            return new RandomCommand();
         }
     }
 }
