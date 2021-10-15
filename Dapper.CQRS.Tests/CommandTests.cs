@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Transactions;
+using Dapper.CQRS.Tests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using NExpect;
 using NUnit.Framework;
@@ -10,13 +11,6 @@ namespace Dapper.CQRS.Tests
     [TestFixture]
     public class CommandTests
     {
-        public class User
-        {
-            public int Id { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-        }
-        
         [TestFixture]
         public class Transactions : TestBase
         {
@@ -34,14 +28,15 @@ namespace Dapper.CQRS.Tests
                     
                     var user = new User
                     {
-                        FirstName = Faker.Name.First(),
-                        LastName = Faker.Name.Last()
+                        Name = Faker.Name.First(),
+                        Surname = Faker.Name.Last(),
+                        Email = Faker.Internet.Email()
                     };
                     
                     // act
                     var userId = commandExecutor
                         .Execute(new GenericCommand<int>(
-                            "INSERT INTO users (first_name, last_name) VALUES (@FirstName, @LastName); SELECT LAST_INSERT_ID();",
+                            "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
                             user));
 
                     var expectedUser =
@@ -73,14 +68,14 @@ namespace Dapper.CQRS.Tests
                     
                     var user = new User
                     {
-                        FirstName = Faker.Name.First(),
-                        LastName = Faker.Name.Last()
+                        Name = Faker.Name.First(),
+                        Surname = Faker.Name.Last()
                     };
                     
                     // act
                     var userId = commandExecutor
                         .Execute(new GenericCommand<int>(
-                            "INSERT INTO users (first_name, last_name) VALUES (@FirstName, @LastName); SELECT LAST_INSERT_ID();",
+                            "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
                             user));
 
                     user.Id = userId;
@@ -92,12 +87,12 @@ namespace Dapper.CQRS.Tests
                     var updatedUser = new User
                     {
                         Id = userId,
-                        FirstName = Faker.Name.First(),
-                        LastName = Faker.Name.Last()
+                        Name = Faker.Name.First(),
+                        Surname = Faker.Name.Last()
                     };
 
                     commandExecutor
-                        .Execute(new GenericCommand<int>("UPDATE users SET first_name = @FirstName, last_name = @LastName WHERE id = @Id; SELECT LAST_INSERT_ID();", updatedUser));
+                        .Execute(new GenericCommand<int>("UPDATE users SET name = @Name, surname = @Surname WHERE id = @Id; SELECT LAST_INSERT_ID();", updatedUser));
 
                     var expectedUpdatedUser =
                         queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
@@ -116,7 +111,7 @@ namespace Dapper.CQRS.Tests
             [Test]
             public void ShouldDeleteRecord()
             {
-                using (var scope = new TransactionScope())
+                using (new TransactionScope())
                 {
                     // todo: complete...
                 }

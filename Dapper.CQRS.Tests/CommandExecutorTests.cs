@@ -1,4 +1,5 @@
 using System.Data;
+using Dapper.CQRS.Tests.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 using NExpect;
 using NSubstitute;
@@ -30,12 +31,7 @@ namespace Dapper.CQRS.Tests
         [TestFixture]
         public class WhenExecutingCommand : TestBase
         {
-            public class User
-            {
-                public string Username { get; set; }
-                public string Password { get; set; }
-            }
-            
+
             [Test]
             public void ShouldReturnCorrectType()
             {
