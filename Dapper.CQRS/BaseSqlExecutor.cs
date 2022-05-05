@@ -24,6 +24,8 @@ namespace Dapper.CQRS
             return _connection.QueryFirst<T>(sql, parameters);
         }
 
+        public IDbConnection Db => _connection;
+
         public IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(
             string sql,
             Func<TFirst, TSecond, TReturn> map,
@@ -37,7 +39,7 @@ namespace Dapper.CQRS
             Func<TFirst, TSecond, TThird, TReturn> map,
             object parameters = null)
         {
-            return _connection.Query<TFirst, TSecond, TThird, TReturn>(sql, map, parameters);
+            return _connection.Query(sql, map, parameters);
         }
 
         public List<T> QueryList<T>(string sql, object parameters = null)
