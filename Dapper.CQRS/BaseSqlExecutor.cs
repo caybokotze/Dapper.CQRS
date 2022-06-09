@@ -2,49 +2,52 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
     public class BaseSqlExecutor
     {
-        public IQueryExecutor QueryExecutor { get; private set; }
-        public ICommandExecutor CommandExecutor { get; private set; }
+        public IQueryExecutor QueryExecutor { get; set; }
+        public ICommandExecutor CommandExecutor { get; set; }
         
-        public void InitialiseIDbConnection(IDbConnection connection)
+        public void Initialise(IDbConnection connection, ILogger<BaseSqlExecutor> logger)
         {
-            QueryExecutor = new QueryExecutor(connection);
-            CommandExecutor = new CommandExecutor(connection);
-            _connection = connection;
+            
+            QueryExecutor = new QueryExecutor(connection, logger);
+            CommandExecutor = new CommandExecutor(connection, logger);
+            Db = connection;
+            Logger = logger;
         }
 
-        private IDbConnection _connection;
+        protected ILogger Logger { get; private set; }
 
-        public T QueryFirst<T>(string sql, object parameters = null)
+        protected T QueryFirst<T>(string sql, object parameters = null)
         {
-            return _connection.QueryFirst<T>(sql, parameters);
+            return Db.QueryFirst<T>(sql, parameters);
         }
 
-        public IDbConnection Db => _connection;
+        protected IDbConnection Db { get; private set; }
 
         public IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(
             string sql,
             Func<TFirst, TSecond, TReturn> map,
             object parameters = null)
         {
-            return _connection.Query<TFirst, TSecond, TReturn>(sql, map, parameters);
+            return Db.Query<TFirst, TSecond, TReturn>(sql, map, parameters);
         }
-        
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TReturn>(
+
+        protected IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TReturn> map,
             object parameters = null)
         {
-            return _connection.Query(sql, map, parameters);
+            return Db.Query(sql, map, parameters);
         }
 
         public List<T> QueryList<T>(string sql, object parameters = null)
         {
-            return _connection.Query<T>(sql, parameters).ToList();
+            return Db.Query<T>(sql, parameters).ToList();
         }
 
         protected int Execute(string sql, object parameters = null)
@@ -54,7 +57,7 @@ namespace Dapper.CQRS
                 throw new ArgumentException("Please specify a value for the sql attribute.");
             }
             
-            return _connection.Execute(sql, parameters);
+            return Db.Execute(sql, parameters);
         }
     }
 }

@@ -1,4 +1,15 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=24bd3b43_002D84fb_002D41b3_002Dad81_002Da31a81049b92/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Dapper.CQRS.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=099f5bea_002D5a0e_002D4cbe_002Da54c_002Db3058b1fa320/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ShouldBeMockable" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net6.0::Dapper.CQRS.Tests.CommandTests+WithCommandEmbeddedInCommands.ShouldBeMockable&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=24bd3b43_002D84fb_002D41b3_002Dad81_002Da31a81049b92/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;Dapper.CQRS.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="C:\code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=27b0d788_002D4238_002D451c_002D8c71_002Daa00f7b5c703/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldBeMockable #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="C:\code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=93a9debc_002Db987_002D42c9_002D988c_002Dcfba3e5439e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ShouldBeMockable #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

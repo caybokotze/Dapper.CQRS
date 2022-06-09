@@ -1,6 +1,4 @@
-﻿using NExpect;
-
-namespace Dapper.CQRS.Tests
+﻿namespace Dapper.CQRS.Tests
 {
     public class GenericCommand<T> : Command<T>
     {

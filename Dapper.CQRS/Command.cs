@@ -1,4 +1,4 @@
-﻿using Dapper.CQRS.Exceptions;
+﻿using System.Transactions;
 
 namespace Dapper.CQRS
 {
@@ -14,6 +14,11 @@ namespace Dapper.CQRS
     
     public abstract class Command : BaseSqlExecutor, ICommand
     {
+        public Command()
+        {
+            
+        }
+
         public abstract void Execute();
     }
 }

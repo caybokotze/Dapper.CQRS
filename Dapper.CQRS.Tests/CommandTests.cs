@@ -1,9 +1,14 @@
 ﻿using System.Data;
 using System.Transactions;
+using Dapper.CQRS.Tests.Commands;
 using Dapper.CQRS.Tests.TestModels;
+using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NExpect;
+using NSubstitute;
 using NUnit.Framework;
+using PeanutButter.RandomGenerators;
 using static NExpect.Expectations;
 
 namespace Dapper.CQRS.Tests
@@ -12,7 +17,7 @@ namespace Dapper.CQRS.Tests
     public class CommandTests
     {
         [TestFixture]
-        public class Transactions : TestBase
+        public class Transactions : TestFixtureRequiringServiceProvider
         {
             [Test]
             public void ShouldInsertRecord()
@@ -21,10 +26,10 @@ namespace Dapper.CQRS.Tests
                 {
                     // arrange
                     var commandExecutor = new CommandExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>());
+                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
 
                     var queryExecutor = new QueryExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>());
+                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
                     
                     var user = new User
                     {
@@ -61,10 +66,10 @@ namespace Dapper.CQRS.Tests
                 {
                     // arrange
                     var commandExecutor = new CommandExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>());
+                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
 
                     var queryExecutor = new QueryExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>());
+                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
                     
                     var user = new User
                     {
@@ -115,6 +120,28 @@ namespace Dapper.CQRS.Tests
                 {
                     // todo: complete...
                 }
+            }
+        }
+
+
+        [TestFixture]
+        public class WithCommandEmbeddedInCommands
+        {
+            [Test]
+            public void ShouldBeReceivable()
+            {
+                // arrange
+                var idbConnection = Substitute.For<IDbConnection>();
+                var commandExecutor = Substitute.For<CommandExecutor>(idbConnection, Substitute.For<ILogger<BaseSqlExecutor>>());
+                var user = RandomValueGen.GetRandom<User>();
+
+                var command = new InsertUser(user);
+                var insertUserType = new InsertUserType(user.UserType);
+                // act 
+                commandExecutor.Execute(command);
+                // assert
+                Expect(commandExecutor).To.Have.Received(1).Execute(command);
+                Expect(commandExecutor).To.Have.Received(1).Execute(insertUserType);
             }
         }
     }

@@ -3,8 +3,11 @@ using System.Data;
 using System.Linq;
 using System.Transactions;
 using Dapper.CQRS.Tests.TestModels;
+using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NExpect;
+using NSubstitute;
 using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static NExpect.Expectations;
@@ -14,10 +17,8 @@ namespace Dapper.CQRS.Tests
     [TestFixture]
     public class QueryTests
     {
-        
-        
         [TestFixture]
-        public class SelectionTests : TestBase
+        public class SelectionTests : TestFixtureRequiringServiceProvider
         {
             [Test]
             public void ShouldSelectAndReturnUser()
@@ -25,8 +26,8 @@ namespace Dapper.CQRS.Tests
                 using (new TransactionScope())
                 {
                     // arrange
-                    var queryExecutor = new QueryExecutor(ServiceProvider.GetRequiredService<IDbConnection>());
-                    var commandExecutor = new CommandExecutor(ServiceProvider.GetRequiredService<IDbConnection>());
+                    var queryExecutor = new QueryExecutor(ServiceProvider.GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var commandExecutor = new CommandExecutor(ServiceProvider.GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
                     // act
                     var randomUser = RandomValueGen.GetRandom<User>();
                     var id = commandExecutor.Execute(
@@ -76,6 +77,19 @@ namespace Dapper.CQRS.Tests
                     // act
                     // assert
                 }
+            }
+        }
+
+        [TestFixture]
+        public class WithQueriesEmbeddedInQueries
+        {
+            [Test]
+            public void ShouldBeMockable()
+            {
+                // arrange
+                
+                // act
+                // assert
             }
         }
     }

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
     public class QueryExecutor : IQueryExecutor
     {
         private readonly IDbConnection _connection;
+        private readonly ILogger<BaseSqlExecutor> _logger;
 
-        public QueryExecutor(IDbConnection connection)
+        public QueryExecutor(IDbConnection connection, ILogger<BaseSqlExecutor> logger)
         {
             _connection = connection;
+            _logger = logger;
         }
 
         private void ExecuteWithNoResult(Query query)
@@ -24,7 +27,7 @@ namespace Dapper.CQRS
 
         public T Execute<T>(Query<T> query)
         {
-            query.InitialiseIDbConnection(_connection);
+            query.Initialise(_connection, _logger);
             ExecuteWithNoResult(query);
             return query.Result;
         }

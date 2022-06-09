@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Dapper.CQRS.Tests
+﻿namespace Dapper.CQRS.Tests
 {
     public class GenericQuery<T> : Query<T>
     {

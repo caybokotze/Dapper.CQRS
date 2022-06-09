@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Dapper.CQRS
+﻿namespace Dapper.CQRS
 {
     public abstract class Query<T> : Query
     {

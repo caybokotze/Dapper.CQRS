@@ -1,6 +1,8 @@
 using System.Data;
 using Dapper.CQRS.Tests.TestModels;
+using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
 using NUnit.Framework;
@@ -13,7 +15,7 @@ namespace Dapper.CQRS.Tests
     public class QueryExecutorTests
     {
         [TestFixture]
-        public class Registrations : TestBase
+        public class Registrations : TestFixtureRequiringServiceProvider
         {
             [Test]
             public void AssertThatIApplicationBuilderRegistersIQueryExecutor()
@@ -32,7 +34,7 @@ namespace Dapper.CQRS.Tests
     }
     
     [TestFixture]
-    public class WhenExecutingCommand : TestBase
+    public class WhenExecutingCommand : TestFixtureRequiringServiceProvider
     {
 
         [Test]
@@ -41,7 +43,7 @@ namespace Dapper.CQRS.Tests
             // arrange
             var user = GetRandom<User>();
             var command = new GenericQuery<User>(user);
-            var commandExecutor = new QueryExecutor(Substitute.For<IDbConnection>());
+            var commandExecutor = new QueryExecutor(Substitute.For<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
             // act
             var result = commandExecutor.Execute(command);
             // assert

@@ -16,7 +16,7 @@
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>1.2.3</PackageVersion>
+        <PackageVersion>1.2.4</PackageVersion>
         <Title>Dapper.CQRS</Title>
         <PackageProjectUrl>https://github.com/caybokotze/Dapper.CQRS</PackageProjectUrl>
         <AssemblyName>Dapper.CQRS</AssemblyName>
@@ -24,7 +24,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Dapper" Version="2.0.78" />
+      <PackageReference Include="Dapper" Version="2.0.123" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0-preview.4.22229.4" />
     </ItemGroup>
 
     <ItemGroup>

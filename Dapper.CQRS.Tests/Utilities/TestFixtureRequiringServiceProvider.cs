@@ -7,16 +7,22 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using static ScopeFunction.Utils.AppSettingsBuilder;
 
-namespace Dapper.CQRS.Tests
+namespace Dapper.CQRS.Tests.Utilities
 {
     [TestFixture]
-    public class TestBase
+    public class TestFixtureRequiringServiceProvider
     {
         public IServiceProvider ServiceProvider { get; set; }
+
+        public T Resolve<T>()
+        {
+            return ServiceProvider.GetRequiredService<T>();
+        }
 
         [SetUp]
         public async Task SetupHostEnvironment()
@@ -39,6 +45,12 @@ namespace Dapper.CQRS.Tests
                     config.AddTransient<IDbConnection, MySqlConnection>(
                         s => new MySqlConnection(GetConnectionString()));
                 });
+            });
+            
+            hostBuilder.ConfigureLogging(l =>
+            {
+                l.ClearProviders();
+                l.AddConsole();
             });
 
             var host = await hostBuilder.StartAsync();
