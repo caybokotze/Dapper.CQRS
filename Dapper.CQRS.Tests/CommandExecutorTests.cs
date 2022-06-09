@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
+using NSubstitute.Core;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -40,7 +41,10 @@ namespace Dapper.CQRS.Tests
                 // arrange
                 var user = GetRandom<User>();
                 var command = new GenericCommand<int>(1);
-                var commandExecutor = new CommandExecutor(Substitute.For<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+                var commandExecutor = new CommandExecutor(
+                    Substitute.For<IExecutor>(), 
+                    Substitute.For<IQueryable>(), 
+                    Substitute.For<ILogger<BaseSqlExecutor>>());
                 // act
                 var result = commandExecutor.Execute(command);
                 // assert

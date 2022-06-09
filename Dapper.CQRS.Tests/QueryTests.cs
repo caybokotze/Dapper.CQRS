@@ -26,8 +26,11 @@ namespace Dapper.CQRS.Tests
                 using (new TransactionScope())
                 {
                     // arrange
-                    var queryExecutor = new QueryExecutor(ServiceProvider.GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
-                    var commandExecutor = new CommandExecutor(ServiceProvider.GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var queryable = ServiceProvider.GetRequiredService<IQueryable>();
+                    var executor = ServiceProvider.GetRequiredService<IExecutor>();
+                    
+                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
                     // act
                     var randomUser = RandomValueGen.GetRandom<User>();
                     var id = commandExecutor.Execute(
@@ -55,7 +58,7 @@ namespace Dapper.CQRS.Tests
             {
                 public override void Execute()
                 {
-                    Result = Query<User, UserType, UserDetails, User>(
+                    Result = QueryList<User, UserType, UserDetails, User>(
                         "SELECT * FROM users LEFT JOIN user_type ON users.id = user_type.user_id;",
                         (user, type, details) =>
                         {

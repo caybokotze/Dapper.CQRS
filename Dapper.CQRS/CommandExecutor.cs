@@ -5,18 +5,20 @@ namespace Dapper.CQRS
 {
     public class CommandExecutor : ICommandExecutor
     {
-        private readonly IDbConnection _connection;
+        private readonly IExecutor _executor;
+        private readonly IQueryable _queryable;
         private readonly ILogger<BaseSqlExecutor> _logger;
 
-        public CommandExecutor(IDbConnection connection, ILogger<BaseSqlExecutor> logger)
+        public CommandExecutor(IExecutor executor, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
         {
-            _connection = connection;
+            _executor = executor;
+            _queryable = queryable;
             _logger = logger;
         }
         
         public void Execute(Command command)
         {
-            command.Initialise(_connection, _logger);
+            command.Initialise(_executor, _queryable, _logger);
             command.Execute();
         }
 

@@ -40,6 +40,8 @@ namespace Dapper.CQRS.Tests.Utilities
 
                 webHost.ConfigureServices(config =>
                 {
+                    config.AddTransient<IQueryable, Queryable>();
+                    config.AddTransient<IExecutor, Executor>();
                     config.AddTransient<ICommandExecutor, CommandExecutor>();
                     config.AddTransient<IQueryExecutor, QueryExecutor>();
                     config.AddTransient<IDbConnection, MySqlConnection>(

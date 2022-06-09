@@ -24,12 +24,12 @@ namespace Dapper.CQRS.Tests
             {
                 using (new TransactionScope())
                 {
+                    var queryable = ServiceProvider.GetRequiredService<IQueryable>();
+                    var executor = ServiceProvider.GetRequiredService<IExecutor>();
                     // arrange
-                    var commandExecutor = new CommandExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
 
-                    var queryExecutor = new QueryExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
                     
                     var user = new User
                     {
@@ -65,11 +65,12 @@ namespace Dapper.CQRS.Tests
                 using (new TransactionScope())
                 {
                     // arrange
-                    var commandExecutor = new CommandExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var queryable = ServiceProvider.GetRequiredService<IQueryable>();
+                    var executor = ServiceProvider.GetRequiredService<IExecutor>();
+                    
+                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
 
-                    var queryExecutor = new QueryExecutor(ServiceProvider
-                        .GetRequiredService<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
                     
                     var user = new User
                     {
@@ -131,8 +132,9 @@ namespace Dapper.CQRS.Tests
             public void ShouldBeReceivable()
             {
                 // arrange
-                var idbConnection = Substitute.For<IDbConnection>();
-                var commandExecutor = Substitute.For<CommandExecutor>(idbConnection, Substitute.For<ILogger<BaseSqlExecutor>>());
+                var queryable = Substitute.For<IQueryable>();
+                var executor = Substitute.For<IExecutor>();
+                var commandExecutor = Substitute.For<CommandExecutor>(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
                 var user = RandomValueGen.GetRandom<User>();
 
                 var command = new InsertUser(user);

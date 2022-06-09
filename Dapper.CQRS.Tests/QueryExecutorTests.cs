@@ -41,9 +41,12 @@ namespace Dapper.CQRS.Tests
         public void ShouldReturnCorrectType()
         {
             // arrange
+            var queryable = ServiceProvider.GetRequiredService<IQueryable>();
+            var executor = ServiceProvider.GetRequiredService<IExecutor>();
+            
             var user = GetRandom<User>();
             var command = new GenericQuery<User>(user);
-            var commandExecutor = new QueryExecutor(Substitute.For<IDbConnection>(), Substitute.For<ILogger<BaseSqlExecutor>>());
+            var commandExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
             // act
             var result = commandExecutor.Execute(command);
             // assert

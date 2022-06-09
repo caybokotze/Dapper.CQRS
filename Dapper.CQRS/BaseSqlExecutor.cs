@@ -1,63 +1,66 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
     public class BaseSqlExecutor
     {
-        public IQueryExecutor QueryExecutor { get; set; }
-        public ICommandExecutor CommandExecutor { get; set; }
+        protected IQueryExecutor QueryExecutor { get; set; }
+        protected ICommandExecutor CommandExecutor { get; set; }
+
+        private IExecutor Executor { get; set; }
+        private IQueryable Queryable { get; set; }
         
-        public void Initialise(IDbConnection connection, ILogger<BaseSqlExecutor> logger)
+        public void Initialise(IExecutor executor, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
         {
-            
-            QueryExecutor = new QueryExecutor(connection, logger);
-            CommandExecutor = new CommandExecutor(connection, logger);
-            Db = connection;
+            Executor = executor;
+            Queryable = queryable;
+            Db = queryable.Db;
             Logger = logger;
+            QueryExecutor = new QueryExecutor(executor, queryable, logger);
+            CommandExecutor = new CommandExecutor(executor, queryable, logger);
         }
 
         protected ILogger Logger { get; private set; }
 
         protected T QueryFirst<T>(string sql, object parameters = null)
         {
-            return Db.QueryFirst<T>(sql, parameters);
+            return Queryable.QueryFirst<T>(sql, parameters);
         }
 
         protected IDbConnection Db { get; private set; }
 
-        public IEnumerable<TReturn> Query<TFirst, TSecond, TReturn>(
+        protected List<TReturn> QueryList<TFirst, TSecond, TReturn>(
             string sql,
             Func<TFirst, TSecond, TReturn> map,
             object parameters = null)
         {
-            return Db.Query<TFirst, TSecond, TReturn>(sql, map, parameters);
+            return Queryable.QueryList(sql, map, parameters);
         }
 
-        protected IEnumerable<TReturn> Query<TFirst, TSecond, TThird, TReturn>(
+        protected IEnumerable<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TReturn> map,
             object parameters = null)
         {
-            return Db.Query(sql, map, parameters);
+            return Queryable.QueryList(sql, map, parameters);
         }
 
-        public List<T> QueryList<T>(string sql, object parameters = null)
+        protected List<T> QueryList<T>(string sql, object parameters = null)
         {
-            return Db.Query<T>(sql, parameters).ToList();
+            return Queryable.QueryList<T>(sql, parameters);
         }
 
-        public virtual int Execute(string sql, object parameters = null)
+        protected int Execute(string sql, object parameters = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
             {
                 throw new ArgumentException("Please specify a value for the sql attribute.");
             }
-            
-            return Db.Execute(sql, parameters);
+
+            return Executor.Execute(sql, parameters);
         }
     }
 }
