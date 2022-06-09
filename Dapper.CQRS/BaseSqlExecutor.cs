@@ -50,7 +50,7 @@ namespace Dapper.CQRS
             return Db.Query<T>(sql, parameters).ToList();
         }
 
-        protected int Execute(string sql, object parameters = null)
+        public virtual int Execute(string sql, object parameters = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
             {
