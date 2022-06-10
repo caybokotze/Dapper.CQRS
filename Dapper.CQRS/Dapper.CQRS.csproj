@@ -10,13 +10,13 @@
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.CQRS</PackageId>
-        <PackageReleaseNotes>Added Db to query executor.</PackageReleaseNotes>
+        <PackageReleaseNotes>Introduce IQueryable and IExecutable to make unit tests easier to mock</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>1.2.8</PackageVersion>
+        <PackageVersion>1.3.0</PackageVersion>
         <Title>Dapper.CQRS</Title>
         <PackageProjectUrl>https://github.com/caybokotze/Dapper.CQRS</PackageProjectUrl>
         <AssemblyName>Dapper.CQRS</AssemblyName>
