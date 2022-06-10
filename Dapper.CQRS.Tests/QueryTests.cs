@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Transactions;
+using Dapper.CQRS;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,8 +11,8 @@ using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace Dapper.CQRS.Tests
 {
@@ -27,12 +29,12 @@ namespace Dapper.CQRS.Tests
                 {
                     // arrange
                     var queryable = ServiceProvider.GetRequiredService<IQueryable>();
-                    var executor = ServiceProvider.GetRequiredService<IExecutor>();
+                    var executor = ServiceProvider.GetRequiredService<IExecutable>();
                     
                     var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
                     var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
                     // act
-                    var randomUser = RandomValueGen.GetRandom<User>();
+                    var randomUser = GetRandom<User>();
                     var id = commandExecutor.Execute(
                         new GenericCommand<int>(@"INSERT INTO users (name, surname, email) 
                     VALUES(@Name, @Surname, @Email); SELECT LAST_INSERT_ID();", randomUser));
@@ -90,10 +92,53 @@ namespace Dapper.CQRS.Tests
             public void ShouldBeMockable()
             {
                 // arrange
-                
+                var queryable = Substitute.For<IQueryable>();
+                queryable.QueryList<User>(Arg.Any<string>())
+                    .Returns(new List<User>()
+                    {
+                        new()
+                        {
+                            Name = GetRandomWords(1, 2)
+                        }
+                    });
+                queryable.QueryList<UserDetails>(Arg.Any<string>())
+                    .Returns(new List<UserDetails>()
+                    {
+                        new()
+                        {
+                            IdNumber = GetRandomString()
+                        }
+                    });
+                var executor = Substitute.For<IExecutable>();
+                var queryExecutor =
+                    Substitute.For<QueryExecutor>(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                var sut = new QueryUsers();
                 // act
+                var result = queryExecutor.Execute(sut);
                 // assert
+                Expect(result).To.Not.Be.Null();
+                Expect(queryable).To.Have.Received(1)
+                    .QueryList<User>("select * from users;");
+                Expect(queryable).To.Have.Received(1)
+                    .QueryList<UserDetails>("select * from user_details;");
             }
         }
+    }
+}
+
+public class QueryUsers : Query<List<User>>
+{
+    public override void Execute()
+    {
+        var userDetails = QueryExecutor.Execute(new QueryUserDetails());
+        Result = QueryList<User>("select * from users;");
+    }
+}
+
+public class QueryUserDetails : Query<List<UserDetails>>
+{
+    public override void Execute()
+    {
+        Result = QueryList<UserDetails>("select * from user_details;");
     }
 }

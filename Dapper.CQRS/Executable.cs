@@ -2,11 +2,11 @@
 
 namespace Dapper.CQRS
 {
-    public class Executor : IExecutor
+    public class Executable : IExecutable
     {
         private readonly IDbConnection _connection;
 
-        public Executor(IDbConnection connection)
+        public Executable(IDbConnection connection)
         {
             _connection = connection;
         }

@@ -6,13 +6,13 @@ namespace Dapper.CQRS
 {
     public class QueryExecutor : IQueryExecutor
     {
-        private readonly IExecutor _executor;
+        private readonly IExecutable _executable;
         private readonly IQueryable _queryable;
         private readonly ILogger<BaseSqlExecutor> _logger;
 
-        public QueryExecutor(IExecutor executor, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
+        public QueryExecutor(IExecutable executable, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
         {
-            _executor = executor;
+            _executable = executable;
             _queryable = queryable;
             _logger = logger;
         }
@@ -29,7 +29,7 @@ namespace Dapper.CQRS
 
         public T Execute<T>(Query<T> query)
         {
-            query.Initialise(_executor, _queryable, _logger);
+            query.Initialise(_executable, _queryable, _logger);
             ExecuteWithNoResult(query);
             return query.Result;
         }

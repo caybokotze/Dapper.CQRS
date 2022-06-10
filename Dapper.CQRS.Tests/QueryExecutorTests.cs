@@ -42,7 +42,7 @@ namespace Dapper.CQRS.Tests
         {
             // arrange
             var queryable = ServiceProvider.GetRequiredService<IQueryable>();
-            var executor = ServiceProvider.GetRequiredService<IExecutor>();
+            var executor = ServiceProvider.GetRequiredService<IExecutable>();
             
             var user = GetRandom<User>();
             var command = new GenericQuery<User>(user);

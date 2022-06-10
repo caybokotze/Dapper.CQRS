@@ -17,9 +17,11 @@ namespace Dapper.CQRS.Tests.Commands
             var sql = new SqlBuilder()
                 .Insert<UserType>("user_types")
                 .Values()
-                .Build();
+                .AppendStatement()
+                .Select()
+                .LastInserted(Version.MySql);
 
-            Execute(sql);
+            Result = QueryFirst<int>(sql);
         }
     }
 }

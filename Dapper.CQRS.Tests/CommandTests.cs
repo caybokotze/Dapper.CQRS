@@ -1,15 +1,17 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Transactions;
 using Dapper.CQRS.Tests.Commands;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
+using GenericSqlBuilder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
 using NUnit.Framework;
-using PeanutButter.RandomGenerators;
 using static NExpect.Expectations;
+using static PeanutButter.RandomGenerators.RandomValueGen;
 
 namespace Dapper.CQRS.Tests
 {
@@ -25,7 +27,7 @@ namespace Dapper.CQRS.Tests
                 using (new TransactionScope())
                 {
                     var queryable = ServiceProvider.GetRequiredService<IQueryable>();
-                    var executor = ServiceProvider.GetRequiredService<IExecutor>();
+                    var executor = ServiceProvider.GetRequiredService<IExecutable>();
                     // arrange
                     var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
 
@@ -66,7 +68,7 @@ namespace Dapper.CQRS.Tests
                 {
                     // arrange
                     var queryable = ServiceProvider.GetRequiredService<IQueryable>();
-                    var executor = ServiceProvider.GetRequiredService<IExecutor>();
+                    var executor = ServiceProvider.GetRequiredService<IExecutable>();
                     
                     var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
 
@@ -129,21 +131,42 @@ namespace Dapper.CQRS.Tests
         public class WithCommandEmbeddedInCommands
         {
             [Test]
-            public void ShouldBeReceivable()
+            public void ShouldBeMockable()
             {
                 // arrange
                 var queryable = Substitute.For<IQueryable>();
-                var executor = Substitute.For<IExecutor>();
-                var commandExecutor = Substitute.For<CommandExecutor>(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
-                var user = RandomValueGen.GetRandom<User>();
+                var executable = Substitute.For<IExecutable>();
+                
+                var commandExecutor =
+                    Substitute.For<CommandExecutor>(executable, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                var user = GetRandom<User>();
+                var sut = new InsertUser(user);
+                
+                var sql = new SqlBuilder()
+                    .Insert<User>("users", i =>
+                    {
+                        i.RemoveProperty(nameof(User.UserType));
+                        i.RemoveProperty(nameof(User.UserDetails));
+                    })
+                    .Values()
+                    .Build();
 
-                var command = new InsertUser(user);
-                var insertUserType = new InsertUserType(user.UserType);
-                // act 
-                commandExecutor.Execute(command);
+                var insertUserTypeQuery = new SqlBuilder()
+                    .Insert<UserType>("user_types")
+                    .Values()
+                    .AppendStatement()
+                    .Select()
+                    .LastInserted(Version.MySql);
+                
+                var randomNumber = GetRandomInt();
+                queryable.QueryFirst<int>(insertUserTypeQuery).Returns(randomNumber);
+
+                // act
+                var result = commandExecutor.Execute(sut);
                 // assert
-                Expect(commandExecutor).To.Have.Received(1).Execute(command);
-                Expect(commandExecutor).To.Have.Received(1).Execute(insertUserType);
+                Expect(executable).To.Have.Received(1).Execute(sql, user);
+                Expect(queryable).To.Have.Received(1).QueryFirst<int>(insertUserTypeQuery);
+                Expect(result).To.Equal(randomNumber);
             }
         }
     }

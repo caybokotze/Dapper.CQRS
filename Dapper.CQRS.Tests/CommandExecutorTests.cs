@@ -42,7 +42,7 @@ namespace Dapper.CQRS.Tests
                 var user = GetRandom<User>();
                 var command = new GenericCommand<int>(1);
                 var commandExecutor = new CommandExecutor(
-                    Substitute.For<IExecutor>(), 
+                    Substitute.For<IExecutable>(), 
                     Substitute.For<IQueryable>(), 
                     Substitute.For<ILogger<BaseSqlExecutor>>());
                 // act

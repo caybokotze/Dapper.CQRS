@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using NExpect;
 using NSubstitute;
 using NUnit.Framework;
@@ -81,7 +80,7 @@ namespace Dapper.CQRS.Tests
                         host.ConfigureServices(config =>
                         {
                             config.AddTransient(_ => idbConnection);
-                            config.AddTransient<IExecutor, Executor>();
+                            config.AddTransient<IExecutable, Executable>();
                             config.AddTransient<IQueryable, Queryable>();
                             config.AddTransient<ICommandExecutor, CommandExecutor>();
                             config.AddSingleton<ILogger<BaseSqlExecutor>, GenericLogger>(_ => gl);

@@ -10,17 +10,17 @@ namespace Dapper.CQRS
         protected IQueryExecutor QueryExecutor { get; set; }
         protected ICommandExecutor CommandExecutor { get; set; }
 
-        private IExecutor Executor { get; set; }
+        private IExecutable Executable { get; set; }
         private IQueryable Queryable { get; set; }
         
-        public void Initialise(IExecutor executor, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
+        public void Initialise(IExecutable executable, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
         {
-            Executor = executor;
+            Executable = executable;
             Queryable = queryable;
             Db = queryable.Db;
             Logger = logger;
-            QueryExecutor = new QueryExecutor(executor, queryable, logger);
-            CommandExecutor = new CommandExecutor(executor, queryable, logger);
+            QueryExecutor = new QueryExecutor(executable, queryable, logger);
+            CommandExecutor = new CommandExecutor(executable, queryable, logger);
         }
 
         protected ILogger Logger { get; private set; }
@@ -60,7 +60,7 @@ namespace Dapper.CQRS
                 throw new ArgumentException("Please specify a value for the sql attribute.");
             }
 
-            return Executor.Execute(sql, parameters);
+            return Executable.Execute(sql, parameters);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Dapper.CQRS
 {
-    public interface IExecutor
+    public interface IExecutable
     {
         int Execute(string sql, object parameters = null);
     }
