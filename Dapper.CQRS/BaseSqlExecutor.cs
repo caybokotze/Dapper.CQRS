@@ -40,7 +40,7 @@ namespace Dapper.CQRS
             return Queryable.QueryList(sql, map, parameters);
         }
 
-        protected IEnumerable<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
+        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TReturn> map,
             object parameters = null)
