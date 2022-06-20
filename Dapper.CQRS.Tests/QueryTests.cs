@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Transactions;
 using Dapper.CQRS;
@@ -31,8 +29,8 @@ namespace Dapper.CQRS.Tests
                     var queryable = ServiceProvider.GetRequiredService<IQueryable>();
                     var executor = ServiceProvider.GetRequiredService<IExecutable>();
                     
-                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
-                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
+                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
                     // act
                     var randomUser = GetRandom<User>();
                     var id = commandExecutor.Execute(
@@ -111,7 +109,7 @@ namespace Dapper.CQRS.Tests
                     });
                 var executor = Substitute.For<IExecutable>();
                 var queryExecutor =
-                    Substitute.For<QueryExecutor>(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    Substitute.For<QueryExecutor>(executor, queryable, Substitute.For<ILoggerFactory>());
                 var sut = new QueryUsers();
                 // act
                 var result = queryExecutor.Execute(sut);

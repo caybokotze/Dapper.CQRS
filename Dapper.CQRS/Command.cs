@@ -1,6 +1,4 @@
-﻿using System.Transactions;
-
-namespace Dapper.CQRS
+﻿namespace Dapper.CQRS
 {
     public interface ICommand
     {

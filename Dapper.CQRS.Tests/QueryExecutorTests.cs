@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +45,7 @@ namespace Dapper.CQRS.Tests
             
             var user = GetRandom<User>();
             var command = new GenericQuery<User>(user);
-            var commandExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+            var commandExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
             // act
             var result = commandExecutor.Execute(command);
             // assert

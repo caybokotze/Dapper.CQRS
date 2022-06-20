@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
@@ -7,18 +6,18 @@ namespace Dapper.CQRS
     {
         private readonly IExecutable _executable;
         private readonly IQueryable _queryable;
-        private readonly ILogger<BaseSqlExecutor> _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public CommandExecutor(IExecutable executable, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
+        public CommandExecutor(IExecutable executable, IQueryable queryable, ILoggerFactory loggerFactory)
         {
             _executable = executable;
             _queryable = queryable;
-            _logger = logger;
+            _loggerFactory = loggerFactory;
         }
         
         public void Execute(Command command)
         {
-            command.Initialise(_executable, _queryable, _logger);
+            command.Initialise(_executable, _queryable, _loggerFactory);
             command.Execute();
         }
 

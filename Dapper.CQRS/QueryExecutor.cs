@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
@@ -8,13 +7,14 @@ namespace Dapper.CQRS
     {
         private readonly IExecutable _executable;
         private readonly IQueryable _queryable;
-        private readonly ILogger<BaseSqlExecutor> _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public QueryExecutor(IExecutable executable, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
+        // ReSharper disable once ContextualLoggerProblem
+        public QueryExecutor(IExecutable executable, IQueryable queryable, ILoggerFactory loggerFactory)
         {
             _executable = executable;
             _queryable = queryable;
-            _logger = logger;
+            _loggerFactory = loggerFactory;
         }
 
         private void ExecuteWithNoResult(Query query)
@@ -29,7 +29,7 @@ namespace Dapper.CQRS
 
         public T Execute<T>(Query<T> query)
         {
-            query.Initialise(_executable, _queryable, _logger);
+            query.Initialise(_executable, _queryable, _loggerFactory);
             ExecuteWithNoResult(query);
             return query.Result;
         }

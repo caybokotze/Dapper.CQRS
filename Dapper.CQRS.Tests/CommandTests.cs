@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.Transactions;
+﻿using System.Transactions;
 using Dapper.CQRS.Tests.Commands;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
@@ -29,9 +27,9 @@ namespace Dapper.CQRS.Tests
                     var queryable = ServiceProvider.GetRequiredService<IQueryable>();
                     var executor = ServiceProvider.GetRequiredService<IExecutable>();
                     // arrange
-                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
 
-                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
                     
                     var user = new User
                     {
@@ -70,9 +68,9 @@ namespace Dapper.CQRS.Tests
                     var queryable = ServiceProvider.GetRequiredService<IQueryable>();
                     var executor = ServiceProvider.GetRequiredService<IExecutable>();
                     
-                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
 
-                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
                     
                     var user = new User
                     {
@@ -138,7 +136,7 @@ namespace Dapper.CQRS.Tests
                 var executable = Substitute.For<IExecutable>();
                 
                 var commandExecutor =
-                    Substitute.For<CommandExecutor>(executable, queryable, Substitute.For<ILogger<BaseSqlExecutor>>());
+                    Substitute.For<CommandExecutor>(executable, queryable, Substitute.For<ILoggerFactory>());
                 var user = GetRandom<User>();
                 var sut = new InsertUser(user);
                 

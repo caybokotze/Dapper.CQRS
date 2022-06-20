@@ -13,17 +13,17 @@ namespace Dapper.CQRS
         private IExecutable Executable { get; set; }
         private IQueryable Queryable { get; set; }
         
-        public void Initialise(IExecutable executable, IQueryable queryable, ILogger<BaseSqlExecutor> logger)
+        public void Initialise(IExecutable executable, IQueryable queryable, ILoggerFactory loggerFactory)
         {
             Executable = executable;
             Queryable = queryable;
             Db = queryable.Db;
-            Logger = logger;
-            QueryExecutor = new QueryExecutor(executable, queryable, logger);
-            CommandExecutor = new CommandExecutor(executable, queryable, logger);
+            Logger = loggerFactory.CreateLogger<BaseSqlExecutor>();
+            QueryExecutor = new QueryExecutor(executable, queryable, loggerFactory);
+            CommandExecutor = new CommandExecutor(executable, queryable, loggerFactory);
         }
 
-        protected ILogger Logger { get; private set; }
+        protected ILogger Logger { get; set; }
 
         protected T QueryFirst<T>(string sql, object parameters = null)
         {

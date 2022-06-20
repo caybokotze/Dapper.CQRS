@@ -1,11 +1,9 @@
-using System.Data;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
-using NSubstitute.Core;
 using NUnit.Framework;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
@@ -44,7 +42,7 @@ namespace Dapper.CQRS.Tests
                 var commandExecutor = new CommandExecutor(
                     Substitute.For<IExecutable>(), 
                     Substitute.For<IQueryable>(), 
-                    Substitute.For<ILogger<BaseSqlExecutor>>());
+                    Substitute.For<ILoggerFactory>());
                 // act
                 var result = commandExecutor.Execute(command);
                 // assert

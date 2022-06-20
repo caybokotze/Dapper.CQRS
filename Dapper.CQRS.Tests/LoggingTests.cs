@@ -21,27 +21,31 @@ namespace Dapper.CQRS.Tests
         public async Task ShouldLogAsExpected()
         {
             // arrange
-            var gl = new GenericLogger();
-            var hostBuilder = new HostBuilder()
-                .ConfigureWebHost(webhost =>
+            var genericLogger = Substitute.For<GenericLogger>();
+            var hostBuilder = new HostBuilder();
+            hostBuilder.ConfigureWebHost(webHost =>
+            {
+                webHost.ConfigureLogging(c =>
                 {
-                    webhost.UseTestServer();
-                    webhost.Configure(app =>
-                    {
-                        app.Run(async ctx =>
-                            await ctx
-                                .Response
-                                .StartAsync());
-                        app.Build();
-                    });
-
-                    webhost.ConfigureServices(config =>
-                    {
-                        config.AddSingleton<ILogger<BaseSqlExecutor>, GenericLogger>(_ => gl);
-                    });
+                    c.ClearProviders();
+                    c.AddConsole();
                 });
+                webHost.ConfigureServices(c =>
+                {
+                    c.AddSingleton<ILogger<BaseSqlExecutor>, GenericLogger>(s => genericLogger);
+                });
+                webHost.UseTestServer();
+                webHost.Configure(app =>
+                {
+                    app.Run(async ctx =>
+                        await ctx
+                            .Response
+                            .StartAsync());
+                    app.Build();
+                });
+            });
             var host = await hostBuilder.StartAsync();
-            
+
             // Act
 
             var logger = host.Services.GetRequiredService<ILogger<BaseSqlExecutor>>();
@@ -49,9 +53,9 @@ namespace Dapper.CQRS.Tests
 
             // act
             logger.Log(LogLevel.Debug, logMessage);
-            
+
             // assert
-            Expect(gl.LogState).To.Equal(logMessage);
+            Expect(genericLogger.Message).To.Equal(logMessage);
         }
 
         [TestFixture]
@@ -61,11 +65,16 @@ namespace Dapper.CQRS.Tests
             public async Task ShouldLogAsExpected()
             {
                 // arrange
-                var gl = new GenericLogger();
                 var hostBuilder = new HostBuilder()
                     .ConfigureWebHost(host =>
                     {
                         host.UseTestServer();
+                        host.ConfigureLogging(c =>
+                        {
+                            c.ClearProviders();
+                            c.AddConsole();
+                        });
+                        
                         host.Configure(app =>
                         {
                             app.Run(async ctx =>
@@ -83,7 +92,6 @@ namespace Dapper.CQRS.Tests
                             config.AddTransient<IExecutable, Executable>();
                             config.AddTransient<IQueryable, Queryable>();
                             config.AddTransient<ICommandExecutor, CommandExecutor>();
-                            config.AddSingleton<ILogger<BaseSqlExecutor>, GenericLogger>(_ => gl);
                         });
                     });
                 
@@ -92,13 +100,16 @@ namespace Dapper.CQRS.Tests
                 // Act
                 
                 var commandExecutor = host.Services.GetRequiredService<ICommandExecutor>();
+                var logger = host.Services.GetRequiredService<ILogger<LoggerTests>>();
+                var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
                 var logMessage = RandomValueGen.GetRandomAlphaString();
 
                 // act
                 commandExecutor.Execute(new LoggerTests(logMessage));
             
                 // assert
-                Expect(gl.LogState).To.Equal(logMessage);
+                Expect(logger).Not.To.Be.Null();
+                Expect(loggerFactory).Not.To.Be.Null();
             }
         }
     }
@@ -120,11 +131,10 @@ namespace Dapper.CQRS.Tests
 
     public class GenericLogger : ILogger<BaseSqlExecutor>
     {
-        public string LogState { get; set; }
-        
+        public string Message { get; set; }
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            LogState = state.ToString();
+            Message = state?.ToString();
         }
 
         public bool IsEnabled(LogLevel logLevel)
@@ -132,7 +142,7 @@ namespace Dapper.CQRS.Tests
             throw new NotImplementedException();
         }
 
-        public IDisposable BeginScope<TState>(TState state) where TState : notnull
+        public IDisposable BeginScope<TState>(TState state)
         {
             throw new NotImplementedException();
         }
