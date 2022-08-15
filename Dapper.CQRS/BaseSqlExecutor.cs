@@ -17,7 +17,6 @@ namespace Dapper.CQRS
         {
             Executable = executable;
             Queryable = queryable;
-            Db = queryable.Db;
             Logger = loggerFactory.CreateLogger<BaseSqlExecutor>();
             QueryExecutor = new QueryExecutor(executable, queryable, loggerFactory);
             CommandExecutor = new CommandExecutor(executable, queryable, loggerFactory);
@@ -30,9 +29,7 @@ namespace Dapper.CQRS
             return Queryable.QueryFirst<T>(sql, parameters);
         }
 
-        protected IDbConnection Db { get; private set; }
-
-        protected List<TReturn> QueryList<TFirst, TSecond, TReturn>(
+        protected IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
             string sql,
             Func<TFirst, TSecond, TReturn> map,
             object parameters = null)
@@ -47,8 +44,40 @@ namespace Dapper.CQRS
         {
             return Queryable.QueryList(sql, map, parameters);
         }
+        
+        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TReturn> map,
+            object parameters = null)
+        {
+            return Queryable.QueryList(sql, map, parameters);
+        }
+        
+        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map,
+            object parameters = null)
+        {
+            return Queryable.QueryList(sql, map, parameters);
+        }
+        
+        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map,
+            object parameters = null)
+        {
+            return Queryable.QueryList(sql, map, parameters);
+        }
+        
+        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
+            object parameters = null)
+        {
+            return Queryable.QueryList(sql, map, parameters);
+        }
 
-        protected List<T> QueryList<T>(string sql, object parameters = null)
+        protected IList<T> QueryList<T>(string sql, object parameters = null)
         {
             return Queryable.QueryList<T>(sql, parameters);
         }

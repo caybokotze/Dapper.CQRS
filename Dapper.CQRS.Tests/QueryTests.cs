@@ -124,7 +124,7 @@ namespace Dapper.CQRS.Tests
     }
 }
 
-public class QueryUsers : Query<List<User>>
+public class QueryUsers : Query<IList<User>>
 {
     public override void Execute()
     {
@@ -133,7 +133,7 @@ public class QueryUsers : Query<List<User>>
     }
 }
 
-public class QueryUserDetails : Query<List<UserDetails>>
+public class QueryUserDetails : Query<IList<UserDetails>>
 {
     public override void Execute()
     {

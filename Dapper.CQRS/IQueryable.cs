@@ -7,15 +7,30 @@ namespace Dapper.CQRS
     public interface IQueryable
     {
         T QueryFirst<T>(string sql, object parameters = null);
-        List<TReturn> QueryList<TFirst, TSecond, TReturn>(
+        IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
             string sql,
             Func<TFirst, TSecond, TReturn> map,
             object parameters = null);
-        List<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TReturn> map, object parameters = null);
+        
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TReturn> map, object parameters = null);
+        
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map, object parameters = null);
+        
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map, object parameters = null);
+        
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map, object parameters = null);
 
-        List<T> QueryList<T>(string sql, object parameters = null);
-        IDbConnection Db { get; set; }
+        IList<T> QueryList<T>(string sql, object parameters = null);
     }
 }

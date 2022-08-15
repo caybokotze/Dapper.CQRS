@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 
 namespace Dapper.CQRS
 {
@@ -11,7 +12,6 @@ namespace Dapper.CQRS
 
         public Queryable(IDbConnection connection)
         {
-            Db = connection;
             _connection = connection;
         }
 
@@ -20,27 +20,64 @@ namespace Dapper.CQRS
             return _connection.QueryFirst<T>(sql, parameters);
         }
 
-        public List<TReturn> QueryList<TFirst, TSecond, TReturn>(string sql, Func<TFirst, TSecond, TReturn> map, object parameters = null)
+        public IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
+            string sql, Func<TFirst, TSecond, TReturn> map, 
+            object parameters = null)
         {
             return _connection
                 .Query(sql, map, parameters)
                 .ToList();
         }
 
-        public List<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
             string sql,
-            Func<TFirst, TSecond, TThird, TReturn> map, object parameters = null)
+            Func<TFirst, TSecond, TThird, TReturn> map, 
+            object parameters = null)
         {
             return _connection
                 .Query(sql, map, parameters)
                 .ToList();
         }
 
-        public List<T> QueryList<T>(string sql, object parameters = null)
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
+            string sql, Func<TFirst, TSecond, TThird, TFourth, TReturn> map, 
+            object parameters = null)
+        {
+            return _connection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+            string sql, Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map, 
+            object parameters = null)
+        {
+            return _connection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+            string sql, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map,
+            object parameters = null)
+        {
+            return _connection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+            string sql, Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
+            object parameters = null)
+        {
+            return _connection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+
+        public IList<T> QueryList<T>(string sql, object parameters = null)
         {
             return _connection.Query<T>(sql, parameters).ToList();
         }
-        
-        public IDbConnection Db { get; set; }
     }
 }

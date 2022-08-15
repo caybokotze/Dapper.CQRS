@@ -7,9 +7,9 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=24bd3b43_002D84fb_002D41b3_002Dad81_002Da31a81049b92/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;Dapper.CQRS.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=27b0d788_002D4238_002D451c_002D8c71_002Daa00f7b5c703/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldBeMockable #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=27b0d788_002D4238_002D451c_002D8c71_002Daa00f7b5c703/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ShouldBeMockable #3" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=93a9debc_002Db987_002D42c9_002D988c_002Dcfba3e5439e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ShouldBeMockable #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=93a9debc_002Db987_002D42c9_002D988c_002Dcfba3e5439e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldBeMockable #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
