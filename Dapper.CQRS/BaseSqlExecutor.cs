@@ -52,6 +52,7 @@ namespace Dapper.CQRS
     {
         private IQueryExecutor? _queryExecutor;
         private ICommandExecutor? _commandExecutor;
+        private ILogger? _logger;
 
         protected IQueryExecutor QueryExecutor => _queryExecutor
                                                   ?? throw new NullReferenceException(
@@ -59,8 +60,9 @@ namespace Dapper.CQRS
         protected ICommandExecutor CommandExecutor => _commandExecutor
                                                       ?? throw new NullReferenceException(
                                                           "The command executor has not been initialised");
-
-        protected ILogger? Logger { get; set; }
+        protected ILogger Logger => _logger
+                                    ?? throw new NullReferenceException(
+                                        "The logger has not been initialised");
 
         private IDbConnection? _dbConnection;
 
@@ -69,7 +71,7 @@ namespace Dapper.CQRS
             _dbConnection = serviceProvider.GetRequiredService<IDbConnection>();
             _queryExecutor = serviceProvider.GetRequiredService<IQueryExecutor>();
             _commandExecutor = serviceProvider.GetRequiredService<ICommandExecutor>();
-            Logger = serviceProvider.GetRequiredService<ILogger<BaseSqlExecutor>>();
+            _logger = serviceProvider.GetRequiredService<ILogger<BaseSqlExecutor>>();
         }
 
         public T QueryFirst<T>(string sql, object? parameters = null)
