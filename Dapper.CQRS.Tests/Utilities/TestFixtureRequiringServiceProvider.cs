@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,17 +13,20 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
-using static ScopeFunction.Utils.AppSettingsBuilder;
-
 namespace Dapper.CQRS.Tests.Utilities
 {
     [TestFixture]
     public class TestFixtureRequiringServiceProvider
     {
-        public IServiceProvider ServiceProvider { get; set; }
+        public IServiceProvider? ServiceProvider { get; set; }
 
-        public T Resolve<T>()
+        public T Resolve<T>() where T : notnull
         {
+            if (ServiceProvider is null)
+            {
+                throw new NullReferenceException("The service provider has not been configured correctly");
+            }
+            
             return ServiceProvider.GetRequiredService<T>();
         }
 
@@ -65,6 +70,27 @@ namespace Dapper.CQRS.Tests.Utilities
             var configurationRoot = CreateConfigurationRoot();
             return configurationRoot
                 .GetConnectionString("DefaultConnection");
+        }
+        
+        private static IConfigurationRoot CreateConfigurationRoot()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json");
+            
+            if (CanLoad("appsettings.deploy.json"))
+                builder.AddJsonFile("appsettings.deploy.json");
+            
+            return builder.Build();
+        }
+
+        private static bool CanLoad(string deployConfig)
+        {
+            if (!File.Exists(deployConfig))
+                return false;
+            var source = File.ReadAllLines(deployConfig);
+            var re = new Regex("#{.+}");
+            return source.All(l => !re.Match(l).Success);
         }
     }
 }

@@ -144,7 +144,7 @@ namespace Dapper.CQRS
                 .ToList();
         }
 
-        public int Execute(string sql, object? parameters = null)
+        public virtual int Execute(string sql, object? parameters = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
             {

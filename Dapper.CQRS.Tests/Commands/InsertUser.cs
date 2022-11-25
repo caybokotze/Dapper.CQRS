@@ -5,7 +5,7 @@ using GenericSqlBuilder;
 
 namespace Dapper.CQRS.Tests.Commands
 {
-    public class InsertUser : Command
+    public class InsertUser : Command<int>
     {
         public User User { get; }
 
@@ -14,7 +14,7 @@ namespace Dapper.CQRS.Tests.Commands
             User = user;
         }
         
-        public override void Execute()
+        public override int Execute()
         {
             using var scope = new TransactionScope();
             var insertUser = new SqlBuilder()
@@ -30,10 +30,11 @@ namespace Dapper.CQRS.Tests.Commands
 
             if (existingUser is null)
             {
-                Execute(insertUser, User);
+                return Execute(insertUser, User);
             }
             
             scope.Complete();
+            return existingUser.Id;
         }
     }
 }

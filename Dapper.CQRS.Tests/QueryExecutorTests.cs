@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
+using NSubstitute.Core;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -35,14 +36,24 @@ namespace Dapper.CQRS.Tests
     }
     
     [TestFixture]
-    public class WhenExecutingCommand : TestFixtureRequiringServiceProvider
+    public class WhenExecutingCommand
     {
 
         [Test]
         public void ShouldReturnCorrectType()
         {
             // arrange
+            var dbConnection = Substitute.For<IDbConnection>();
+            var mockableQueryExecutor = Substitute.For<IQueryExecutor>();
+            var commandExecutor = Substitute.For<ICommandExecutor>();
+            var logger = Substitute.For<ILogger<BaseSqlExecutor>>();
+            
             var serviceProvider = Substitute.For<IServiceProvider>();
+
+            serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
+            serviceProvider.GetService(typeof(IQueryExecutor)).Returns(mockableQueryExecutor);
+            serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
+            serviceProvider.GetService(typeof(ILogger<BaseSqlExecutor>)).Returns(logger);
             
             var user = GetRandom<User>();
             var command = new GenericQuery<User>(user);

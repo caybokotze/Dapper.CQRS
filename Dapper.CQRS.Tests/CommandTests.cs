@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Transactions;
+using System.Windows.Input;
 using Dapper.CQRS.Tests.Commands;
 using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
@@ -8,6 +9,7 @@ using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
+using NSubstitute.Core;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -18,96 +20,96 @@ namespace Dapper.CQRS.Tests
     public class CommandTests
     {
         [TestFixture]
-        public class Transactions : TestFixtureRequiringServiceProvider
+        public class Isolated : TestFixtureRequiringServiceProvider
         {
             [Test]
             public void ShouldInsertRecord()
             {
-                using (new TransactionScope())
+                using var scope = new TransactionScope();
+                // arrange
+                var commandExecutor = Resolve<ICommandExecutor>();
+                var queryExecutor = Resolve<IQueryExecutor>();
+
+                var user = new User
                 {
-                    // arrange
-                    var serviceProvider = Substitute.For<IServiceProvider>();
-                    var commandExecutor = new CommandExecutor(serviceProvider);
-                    var queryExecutor = new QueryExecutor(serviceProvider);
-                    
-                    var user = new User
-                    {
-                        Name = Faker.Name.First(),
-                        Surname = Faker.Name.Last(),
-                        Email = Faker.Internet.Email()
-                    };
-                    
-                    // act
-                    var userId = commandExecutor
-                        .Execute(new GenericCommand<int>(
-                            "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
-                            user));
+                    Name = Faker.Name.First(),
+                    Surname = Faker.Name.Last(),
+                    Email = Faker.Internet.Email()
+                };
 
-                    var expectedUser =
-                        queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id",
-                            new {Id = userId}));
+                // act
+                var userId = commandExecutor
+                    .Execute(new GenericCommand<int>(
+                        "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
+                        user));
 
-                    user.Id = userId;
-                    
-                    // assert
-                    Expect(userId)
-                        .To
-                        .Be.Greater.Than(0);
-                    
-                    Expect(user).To.Deep.Equal(expectedUser);
-                }
+                var expectedUser =
+                    queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id",
+                        new
+                        {
+                            Id = userId
+                        }));
+
+                user.Id = userId;
+
+                // assert
+                Expect(userId)
+                    .To
+                    .Be.Greater.Than(0);
+
+                Expect(user).To.Deep.Equal(expectedUser);
             }
 
             [Test]
             public void ShouldUpdateRecord()
             {
-                using (new TransactionScope())
+                using var scope = new TransactionScope();
+
+                // arrange
+                var commandExecutor = Resolve<ICommandExecutor>();
+                var queryExecutor = Resolve<IQueryExecutor>();
+
+                var user = new User
                 {
-                    // arrange
-                    var serviceProvider = Substitute.For<IServiceProvider>();
-                    var commandExecutor = new CommandExecutor(serviceProvider);
-                    var queryExecutor = new QueryExecutor(serviceProvider);
+                    Name = Faker.Name.First(),
+                    Surname = Faker.Name.Last()
+                };
 
-                    var user = new User
-                    {
-                        Name = Faker.Name.First(),
-                        Surname = Faker.Name.Last()
-                    };
-                    
-                    // act
-                    var userId = commandExecutor
-                        .Execute(new GenericCommand<int>(
-                            "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
-                            user));
+                // act
+                var userId = commandExecutor
+                    .Execute(new GenericCommand<int>(
+                        "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
+                        user));
 
-                    user.Id = userId;
-                    
-                    var expectedFirstUser =
-                        queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
-                            new { Id = userId }));
+                user.Id = userId;
 
-                    var updatedUser = new User
-                    {
-                        Id = userId,
-                        Name = Faker.Name.First(),
-                        Surname = Faker.Name.Last()
-                    };
+                var expectedFirstUser =
+                    queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
+                        new {Id = userId}));
 
-                    commandExecutor
-                        .Execute(new GenericCommand<int>("UPDATE users SET name = @Name, surname = @Surname WHERE id = @Id; SELECT LAST_INSERT_ID();", updatedUser));
+                var updatedUser = new User
+                {
+                    Id = userId,
+                    Name = Faker.Name.First(),
+                    Surname = Faker.Name.Last()
+                };
 
-                    var expectedUpdatedUser =
-                        queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
-                            new { Id = userId }));
+                commandExecutor
+                    .Execute(new GenericCommand<int>(
+                        "UPDATE users SET name = @Name, surname = @Surname WHERE id = @Id; SELECT LAST_INSERT_ID();",
+                        updatedUser));
 
-                    // assert
-                    Expect(userId)
-                        .To
-                        .Be.Greater.Than(0);
-                    
-                    Expect(user).To.Deep.Equal(expectedFirstUser);
-                    Expect(updatedUser).To.Deep.Equal(expectedUpdatedUser);
-                }
+                var expectedUpdatedUser =
+                    queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
+                        new {Id = userId}));
+
+                // assert
+                Expect(userId)
+                    .To
+                    .Be.Greater.Than(0);
+
+                Expect(user).To.Deep.Equal(expectedFirstUser);
+                Expect(updatedUser).To.Deep.Equal(expectedUpdatedUser);
             }
             
             [Test]
@@ -186,18 +188,36 @@ namespace Dapper.CQRS.Tests
             {
                 // arrange
                 var queryExecutor = Substitute.For<IQueryExecutor>();
+                var commandExecutor = Substitute.For<ICommandExecutor>();
                 var dbConnection = Substitute.For<IDbConnection>();
-                
-                var commandExecutor =
-                    Substitute.For<CommandExecutor>(queryExecutor, dbConnection, Substitute.For<ILoggerFactory>());
-                
+                var logger = Substitute.For<ILogger<BaseSqlExecutor>>();
+
+                var serviceProvider = Substitute.For<IServiceProvider>();
+
+                serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
+                serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
+                serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
+                serviceProvider.GetService(typeof(ILogger<BaseSqlExecutor>)).Returns(logger);
+
                 var user = GetRandom<User>();
-                queryExecutor.Execute(Arg.Any<FetchUser>()).Returns(user);
                 
-                var sut = new InsertUser(user);
+                queryExecutor
+                    .Execute(Arg.Any<FetchUser>())
+                    .Returns(user);
+
+                var sut = Substitute.ForPartsOf<InsertUser>(user);
+                
+                sut.Initialise(serviceProvider);
+                
                 // act
-                commandExecutor.Execute(sut);
+                var result = sut.Execute();
+                
                 // assert
+                Expect(sut)
+                    .To.Have.Received(0)
+                    .Execute(Arg.Any<string>(), Arg.Any<object>());
+
+                Expect(result).To.Equal(user.Id);
             }
         }
     }

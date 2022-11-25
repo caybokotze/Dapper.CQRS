@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Dapper.CQRS
+﻿namespace Dapper.CQRS
 {
     public abstract class Command<T> : BaseSqlExecutor
     {
