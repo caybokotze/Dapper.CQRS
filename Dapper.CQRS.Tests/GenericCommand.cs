@@ -11,24 +11,17 @@
             _expectedReturnValue = expectedReturnValue;
         }
 
-        public GenericCommand(string sql, object parameters = null)
+        public GenericCommand(string sql, object? parameters = null)
         {
             _sql = sql;
             _parameters = parameters;
         }
             
-        public override void Execute()
+        public override T Execute()
         {
-            if (_sql != null)
-            {
-                Result = QueryFirst<T>(_sql, _parameters);
-                return;
-            }
-
-            if (_sql is null)
-            {
-                Result = _expectedReturnValue;
-            }
+            return _sql != null
+                ? QueryFirst<T>(_sql, _parameters) 
+                : _expectedReturnValue;
         }
     }
 }

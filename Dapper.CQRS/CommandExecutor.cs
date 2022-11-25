@@ -1,30 +1,26 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
 
 namespace Dapper.CQRS
 {
     public class CommandExecutor : ICommandExecutor
     {
-        private readonly IExecutable _executable;
-        private readonly IQueryable _queryable;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly IServiceProvider _serviceProvider;
 
-        public CommandExecutor(IExecutable executable, IQueryable queryable, ILoggerFactory loggerFactory)
+        public CommandExecutor(IServiceProvider serviceProvider)
         {
-            _executable = executable;
-            _queryable = queryable;
-            _loggerFactory = loggerFactory;
+            _serviceProvider = serviceProvider;
         }
         
         public void Execute(Command command)
         {
-            command.Initialise(_executable, _queryable, _loggerFactory);
+            command.Initialise(_serviceProvider);
             command.Execute();
         }
 
         public T Execute<T>(Command<T> command)
         {
-            Execute((Command) command);
-            return command.Result;
+            command.Initialise(_serviceProvider);
+            return command.Execute();
         }
     }
 }

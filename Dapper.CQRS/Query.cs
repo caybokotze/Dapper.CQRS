@@ -1,12 +1,7 @@
 ﻿namespace Dapper.CQRS
 {
-    public abstract class Query<T> : Query
+    public abstract class Query<T> : BaseSqlExecutor
     {
-        public T Result { get; protected set; }
-    }
-    
-    public abstract class Query : BaseSqlExecutor
-    {
-        public abstract void Execute();
+        public abstract T Execute();
     }
 }

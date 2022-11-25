@@ -1,22 +1,14 @@
-﻿namespace Dapper.CQRS
-{
-    public interface ICommand
-    {
-        void Execute();
-    }
-    
-    public abstract class Command<T> : Command
-    {
-        public T Result { get; set; }
-    }
-    
-    public abstract class Command : BaseSqlExecutor, ICommand
-    {
-        public Command()
-        {
-            
-        }
+﻿using System;
 
+namespace Dapper.CQRS
+{
+    public abstract class Command<T> : BaseSqlExecutor
+    {
+        public abstract T Execute();
+    }
+
+    public abstract class Command : BaseSqlExecutor
+    {
         public abstract void Execute();
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System.Transactions;
+using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
 namespace Dapper.CQRS.Tests.Commands
 {
-    public class InsertUser : Command<int>
+    public class InsertUser : Command
     {
         public User User { get; }
 
@@ -16,17 +17,22 @@ namespace Dapper.CQRS.Tests.Commands
         public override void Execute()
         {
             using var scope = new TransactionScope();
-            var sql = new SqlBuilder()
+            var insertUser = new SqlBuilder()
                 .Insert<User>("users", i =>
                 {
-                    i.RemoveProperty(nameof(User.UserType));
-                    i.RemoveProperty(nameof(User.UserDetails));
+                    i.RemoveMultipleProperties(User.NotMapped());
+                    i.UsePropertyCase(Casing.SnakeCase);
                 })
                 .Values()
                 .Build();
+
+            var existingUser = QueryExecutor.Execute(new FetchUser(User.Id));
+
+            if (existingUser is null)
+            {
+                Execute(insertUser, User);
+            }
             
-            Execute(sql, User);
-            Result = CommandExecutor.Execute(new InsertUserType(User.UserType));
             scope.Complete();
         }
     }

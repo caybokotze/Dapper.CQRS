@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -40,8 +41,6 @@ namespace Dapper.CQRS.Tests.Utilities
 
                 webHost.ConfigureServices(config =>
                 {
-                    config.AddTransient<IQueryable, Queryable>();
-                    config.AddTransient<IExecutable, Executable>();
                     config.AddTransient<ICommandExecutor, CommandExecutor>();
                     config.AddTransient<IQueryExecutor, QueryExecutor>();
                     config.AddTransient<IDbConnection, MySqlConnection>(

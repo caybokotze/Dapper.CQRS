@@ -89,9 +89,8 @@ namespace Dapper.CQRS.Tests
                         host.ConfigureServices(config =>
                         {
                             config.AddTransient(_ => idbConnection);
-                            config.AddTransient<IExecutable, Executable>();
-                            config.AddTransient<IQueryable, Queryable>();
                             config.AddTransient<ICommandExecutor, CommandExecutor>();
+                            config.AddTransient<IQueryExecutor, QueryExecutor>();
                         });
                     });
                 

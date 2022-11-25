@@ -1,95 +1,157 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
-    public class BaseSqlExecutor
+    public interface IBaseSqlExecutor
     {
-        protected IQueryExecutor QueryExecutor { get; set; }
-        protected ICommandExecutor CommandExecutor { get; set; }
+        void Initialise(IServiceProvider serviceProvider);
 
-        private IExecutable Executable { get; set; }
-        private IQueryable Queryable { get; set; }
-        
-        public void Initialise(IExecutable executable, IQueryable queryable, ILoggerFactory loggerFactory)
-        {
-            Executable = executable;
-            Queryable = queryable;
-            Logger = loggerFactory.CreateLogger<BaseSqlExecutor>();
-            QueryExecutor = new QueryExecutor(executable, queryable, loggerFactory);
-            CommandExecutor = new CommandExecutor(executable, queryable, loggerFactory);
-        }
+        T QueryFirst<T>(string sql, object? parameters = null);
 
-        protected ILogger Logger { get; set; }
-
-        protected T QueryFirst<T>(string sql, object parameters = null)
-        {
-            return Queryable.QueryFirst<T>(sql, parameters);
-        }
-
-        protected IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
+        IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
             string sql,
             Func<TFirst, TSecond, TReturn> map,
-            object parameters = null)
-        {
-            return Queryable.QueryList(sql, map, parameters);
-        }
+            object? parameters = null);
 
-        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TReturn> map,
-            object parameters = null)
-        {
-            return Queryable.QueryList(sql, map, parameters);
-        }
-        
-        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
+            object? parameters = null);
+
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TReturn> map,
-            object parameters = null)
-        {
-            return Queryable.QueryList(sql, map, parameters);
-        }
-        
-        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+            object? parameters = null);
+
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map,
-            object parameters = null)
-        {
-            return Queryable.QueryList(sql, map, parameters);
-        }
-        
-        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+            object? parameters = null);
+
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map,
-            object parameters = null)
-        {
-            return Queryable.QueryList(sql, map, parameters);
-        }
-        
-        protected IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+            object? parameters = null);
+
+        IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
-            object parameters = null)
+            object? parameters = null);
+
+        IList<T> QueryList<T>(string sql, object? parameters = null);
+        int Execute(string sql, object? parameters = null);
+    }
+
+    public class BaseSqlExecutor : IBaseSqlExecutor
+    {
+        private IQueryExecutor? _queryExecutor;
+        private ICommandExecutor? _commandExecutor;
+
+        protected IQueryExecutor QueryExecutor => _queryExecutor
+                                                  ?? throw new NullReferenceException(
+                                                      "The query executor has not been initialised");
+        protected ICommandExecutor CommandExecutor => _commandExecutor
+                                                      ?? throw new NullReferenceException(
+                                                          "The command executor has not been initialised");
+
+        protected ILogger? Logger { get; set; }
+
+        private IDbConnection? _dbConnection;
+
+        public void Initialise(IServiceProvider serviceProvider)
         {
-            return Queryable.QueryList(sql, map, parameters);
+            _dbConnection = serviceProvider.GetRequiredService<IDbConnection>();
+            _queryExecutor = serviceProvider.GetRequiredService<IQueryExecutor>();
+            _commandExecutor = serviceProvider.GetRequiredService<ICommandExecutor>();
+            Logger = serviceProvider.GetRequiredService<ILogger<BaseSqlExecutor>>();
         }
 
-        protected IList<T> QueryList<T>(string sql, object parameters = null)
+        public T QueryFirst<T>(string sql, object? parameters = null)
         {
-            return Queryable.QueryList<T>(sql, parameters);
+            return _dbConnection.QueryFirst<T>(sql, parameters);
         }
 
-        protected int Execute(string sql, object parameters = null)
+        public IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TReturn> map,
+            object? parameters = null)
+        {
+            return _dbConnection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TReturn> map,
+            object? parameters = null)
+        {
+            return _dbConnection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+        
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TReturn> map,
+            object? parameters = null)
+        {
+            return _dbConnection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+        
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map,
+            object? parameters = null)
+        {
+            return _dbConnection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+        
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map,
+            object? parameters = null)
+        {
+            return _dbConnection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+        
+        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+            string sql,
+            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
+            object? parameters = null)
+        {
+            return _dbConnection
+                .Query(sql, map, parameters)
+                .ToList();
+        }
+
+        public virtual IList<T> QueryList<T>(string sql, object? parameters = null)
+        {
+            return _dbConnection
+                .Query<T>(sql, parameters)
+                .ToList();
+        }
+
+        public int Execute(string sql, object? parameters = null)
         {
             if (string.IsNullOrWhiteSpace(sql))
             {
                 throw new ArgumentException("Please specify a value for the sql attribute.");
             }
-
-            return Executable.Execute(sql, parameters);
+        
+            return _dbConnection.Execute(sql, parameters);
         }
     }
 }

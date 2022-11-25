@@ -1,3 +1,5 @@
+using System;
+using System.Data;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,14 +42,13 @@ namespace Dapper.CQRS.Tests
         public void ShouldReturnCorrectType()
         {
             // arrange
-            var queryable = ServiceProvider.GetRequiredService<IQueryable>();
-            var executor = ServiceProvider.GetRequiredService<IExecutable>();
+            var serviceProvider = Substitute.For<IServiceProvider>();
             
             var user = GetRandom<User>();
             var command = new GenericQuery<User>(user);
-            var commandExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
+            var queryExecutor = new QueryExecutor(serviceProvider);
             // act
-            var result = commandExecutor.Execute(command);
+            var result = queryExecutor.Execute(command);
             // assert
             Expect(result).To.Equal(user);
         }

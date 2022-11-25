@@ -10,11 +10,13 @@
         <LangVersion>9</LangVersion>
 
         <AssemblyName>Dapper.CQRS.Tests</AssemblyName>
+
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Faker.Net" Version="1.5.126" />
-        <PackageReference Include="GenericSqlBuilder" Version="1.1.6" />
+        <PackageReference Include="GenericSqlBuilder" Version="1.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.4" />
         <PackageReference Include="MySql.Data" Version="8.0.29" />
         <PackageReference Include="NExpect" Version="1.0.264" />
@@ -35,10 +37,6 @@
       <None Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Queries" />
     </ItemGroup>
 
 </Project>

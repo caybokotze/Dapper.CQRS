@@ -1,9 +1,10 @@
-﻿using System.Transactions;
+﻿using System;
+using System.Data;
+using System.Transactions;
 using Dapper.CQRS.Tests.Commands;
+using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
-using GenericSqlBuilder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
@@ -24,12 +25,10 @@ namespace Dapper.CQRS.Tests
             {
                 using (new TransactionScope())
                 {
-                    var queryable = ServiceProvider.GetRequiredService<IQueryable>();
-                    var executor = ServiceProvider.GetRequiredService<IExecutable>();
                     // arrange
-                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
-
-                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
+                    var serviceProvider = Substitute.For<IServiceProvider>();
+                    var commandExecutor = new CommandExecutor(serviceProvider);
+                    var queryExecutor = new QueryExecutor(serviceProvider);
                     
                     var user = new User
                     {
@@ -65,13 +64,10 @@ namespace Dapper.CQRS.Tests
                 using (new TransactionScope())
                 {
                     // arrange
-                    var queryable = ServiceProvider.GetRequiredService<IQueryable>();
-                    var executor = ServiceProvider.GetRequiredService<IExecutable>();
-                    
-                    var commandExecutor = new CommandExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
+                    var serviceProvider = Substitute.For<IServiceProvider>();
+                    var commandExecutor = new CommandExecutor(serviceProvider);
+                    var queryExecutor = new QueryExecutor(serviceProvider);
 
-                    var queryExecutor = new QueryExecutor(executor, queryable, Substitute.For<ILoggerFactory>());
-                    
                     var user = new User
                     {
                         Name = Faker.Name.First(),
@@ -125,46 +121,83 @@ namespace Dapper.CQRS.Tests
         }
 
 
+        // todo: complete for queries...
         [TestFixture]
-        public class WithCommandEmbeddedInCommands
+        public class WhenMocking
+        {
+            [TestFixture]
+            public class WithQueryInCommand
+            {
+                [Test]
+                public void ShouldReturnExpectedResult()
+                {
+                    // arrange
+                    
+                    // act
+                    // assert
+                }
+            }
+
+            [TestFixture]
+            public class WithCommandInCommand
+            {
+                [Test]
+                public void ShouldReturnExpectedResult()
+                {
+                    // arrange
+                    
+                    // act
+                    // assert
+                }
+            }
+
+            [TestFixture]
+            public class WithQueryInQuery
+            {
+                [Test]
+                public void ShouldReturnExpectedResult()
+                {
+                    // arrange
+                    
+                    // act
+                    // assert
+                }
+            }
+
+            [TestFixture]
+            public class WithCommandInQuery
+            {
+                [Test]
+                public void ShouldReturnExpectedResult()
+                {
+                    // arrange
+                    
+                    // act
+                    // assert
+                }
+            }
+        }
+        
+        [TestFixture]
+        public class WithQueryEmbeddedInCommand
         {
             [Test]
             public void ShouldBeMockable()
             {
                 // arrange
-                var queryable = Substitute.For<IQueryable>();
-                var executable = Substitute.For<IExecutable>();
+                var queryExecutor = Substitute.For<IQueryExecutor>();
+                var dbConnection = Substitute.For<IDbConnection>();
                 
                 var commandExecutor =
-                    Substitute.For<CommandExecutor>(executable, queryable, Substitute.For<ILoggerFactory>());
+                    Substitute.For<CommandExecutor>(queryExecutor, dbConnection, Substitute.For<ILoggerFactory>());
+                
                 var user = GetRandom<User>();
+                queryExecutor.Execute(Arg.Any<FetchUser>()).Returns(user);
+                
                 var sut = new InsertUser(user);
-                
-                var sql = new SqlBuilder()
-                    .Insert<User>("users", i =>
-                    {
-                        i.RemoveProperty(nameof(User.UserType));
-                        i.RemoveProperty(nameof(User.UserDetails));
-                    })
-                    .Values()
-                    .Build();
-
-                var insertUserTypeQuery = new SqlBuilder()
-                    .Insert<UserType>("user_types")
-                    .Values()
-                    .AppendStatement()
-                    .Select()
-                    .LastInserted(Version.MySql);
-                
-                var randomNumber = GetRandomInt();
-                queryable.QueryFirst<int>(insertUserTypeQuery).Returns(randomNumber);
-
                 // act
-                var result = commandExecutor.Execute(sut);
+                commandExecutor.Execute(sut);
                 // assert
-                Expect(executable).To.Have.Received(1).Execute(sql, user);
-                Expect(queryable).To.Have.Received(1).QueryFirst<int>(insertUserTypeQuery);
-                Expect(result).To.Equal(randomNumber);
             }
         }
     }
