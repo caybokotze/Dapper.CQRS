@@ -10,13 +10,13 @@
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.CQRS</PackageId>
-        <PackageReleaseNotes>Implement ILoggerFactory in BaseSqlExecutor</PackageReleaseNotes>
+        <PackageReleaseNotes>Mark all BaseSqlExecutor members as virtual for testing purposes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>2.0.1-beta</PackageVersion>
+        <PackageVersion>2.0.3</PackageVersion>
         <Title>Dapper.CQRS</Title>
         <PackageProjectUrl>https://github.com/caybokotze/Dapper.CQRS</PackageProjectUrl>
         <AssemblyName>Dapper.CQRS</AssemblyName>
@@ -26,7 +26,7 @@
     <ItemGroup>
       <PackageReference Include="Dapper" Version="2.0.123" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
     </ItemGroup>
 
     <ItemGroup>

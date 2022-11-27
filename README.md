@@ -1,6 +1,6 @@
 # Description
 
-> Dapper doodle is a CQRS wrapper for dapper. The idea behind dapper doodle is to get up and running with dapper quickly, by providing a set of base classes and interfaces that can assist you to get up and running without much fuss, while still offering the flexibility to drop down to native SQL queries.
+> Dapper.CQRS is a CQRS pattern wrapper for Dapper (micro-orm). It provides you with a basic set of classes and interfaces to write complex queries structured according to the CQRS pattern. This helps you to maintain a clean code architecture for small and very large applications alike.
 
 # WTF is Dapper?
 
@@ -12,36 +12,107 @@ CQRS stands for Command Query Responsibility Segregation. The idea behind it is 
 
 # Getting Started
 
-To get started you need to go and download the main DapperDoodle nuget package from nuget.org. The package is called DapperDoodle if you would prefer to download it directly from Nuget. Or you can download the .dll here and import the dependency directly into your project.
+Get Dapper.CQRS nuget lives here: https://www.nuget.org/packages/Dapper.CQRS
 
-After creating a [ASP.NET](http://asp.NET) Web app you can follow these steps to hook up dapper doodle to your project.
+You can also skip that and just install directly into your project of choice.
+
+```shell
+dotnet add package Dapper.CQRS --version 2.0.2
+```
+
+
+## Register in your service container
+Some basic setup of the Query and Command Executor is all that is required.
+
+```csharp
+container.AddTransient<ICommandExecutor, CommandExecutor>();
+container.AddTransient<IQueryExecutor, QueryExecutor>();
+// Note: You can use the database provider of your own choosing...
+container.AddTransient<IDbConnection, MySqlConnection>(_ => new MySqlDatabaseConnection(GetConnectionString()));
+```
 
 ## Examples
 
-If you would like to view a few examples of how to implement this in a live production application, look no further. [https://github.com/caybokotze/dapper-doodle-examples](https://github.com/caybokotze/dapper-doodle-examples)
-
-## Startup.cs
-
-Below, you can register DapperDoodle, which will setup all the required dependencies for DapperDoodle to work. The `ConfigureDapperDoodle()` method has support for 2 parameters, the connection string and the Database type.
-
-> Note: You can only use the null parameter with the DBMS.SQLite option which will create a default connection string on your behalf. All other database types will throw a Argument Null Exception.
-
+### Our basic models
 ```csharp
-public void ConfigureServices(IServiceCollection services)
+public class User
 {
-		services.AddControllers();
-    services.ConfigureDapperDoodle(null, DBMS.SQLite);
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Surname { get; set; }
+    public string Email { get; set; }
+    public virtual UserDetails UserDetails { get; set; }
+}
+
+public class UserDetails
+{
+    [Key]
+    public int Id { get; set; }
+    public string? IdNumber { get; set; }
+    
+    public int UserId { get; set; }
 }
 ```
 
-Now you are ready to get started using the CQRS setup within the project. All you have to do now is to start creating your command and query classes and plug them into your controllers.
+### Queries
+Define your queries as such. As you see in this example a query is being executed within a query. If the use case fits that problem you are free to do so.
 
-## Resolving Dependencies within Controllers
+Most queries you write will probably not be nested within each other. However, this is just to illustrate is can be done easily even though it might not always be the right solution.
 
-Because the decencies are already setup, no need to go about registering your own manual dependencies. All you need to do is insert ICommandExecutor and IQueryExecutor into the constructor and your dependencies will resolve.
+Note how clear this is and how easy it is to figure out what is being done without a lot of additional context required.
 
 ```csharp
-public class HomeController : Controller
+public class FetchUserById : Query<User?>
+{
+    private readonly int _userId;
+    
+    public FetchUserById(int userId) {
+        _userId = userId;
+    }
+    
+    public override User? Execute()
+    {
+        var userDetails = QueryExecutor.Execute(new FetchUserDetailsByUserId(_userId));
+        var user = QueryFirst<User>("select * from users where id = @Id", new {Id = _userId});
+        user.UserDetails = userDetails;
+        return user;
+    }
+}
+```
+
+If we need to bind these two queries within a transaction scope we can easily do that as well.
+
+```csharp
+public class FetchUserById : Query<User?>
+{
+    private readonly int _userId;
+    
+    public FetchUserById(int userId) {
+        _userId = userId;
+    }
+    
+    public override User? Execute()
+    {
+        using var scope = new TransactionScope();
+        var userDetails = QueryExecutor.Execute(new FetchUserDetailsByUserId(_userId));
+        var user = QueryFirst<User>("select * from users where id = @Id", new {Id = _userId});
+        user.UserDetails = userDetails;
+        scope.Complete();
+        return user;
+    }
+}
+```
+
+### Commands
+
+Now you are ready to get started using the CQRS setup within the project. All you have to do now is to start creating your command and query classes and plug them into your controllers.
+
+## Dependency resolution example
+Making use of your queries and commands is very straight forward. All you have to do is inject them into your desired service of choice and get on with it.
+
+```csharp
+public class HomeController : ControllerBase
 {
 	public ICommandExecutor CommandExecutor { get; }
 	public IQueryExecutor QueryExecutor { get; }
@@ -53,250 +124,62 @@ public class HomeController : Controller
 	    CommandExecutor = commandExecutor;
 	    QueryExecutor = queryExecutor;
 	}
+	
+	publid User Foo(int id) {
+	    return QueryExecutor.Execute(new FetchUserById(id));
+	}
 }
 ```
 
-## Commands
 
-> When calling the Execute() method, you do need to supply at least 1 parameter. Otherwise you end up with a recursive call, in this case it will lead to a stack overflow exception.
+## Typical project structure
+This is typically what a CQRS based project would be structured like. This is very beautiful and clear. The responsibility of every query and command is very clear and this scales very well as the project grows larger. No messy interfaces and that gooby mess that happens with the UnitOfWork/Repository pattern. All reponsibilities should be clearly defined.
 
-### Non-Generic
-
-Non-Generic 
-
-```csharp
-public class PersistSomething : Command
-{
-    public override void Execute()
-    {
-        Execute("INSERT INTO People(name, surname) VALUES ('John', 'Williams');");
-    }
-}
+```bash
+├───Data
+│   └───Queries
+│   │   └───User
+│   │       ├───FetchUserById.cs
+│   │       ├───FetchUserByEmail.cs
+│   │       └───FetchUserByGuid.cs   
+│   │
+│   └───Commands
+│       └───User
+│           └───FetchUserByGuid.cs   
 ```
 
-### Generic
 
-With Generic implementations you can define the expected return type in the base class. For commands this will commonly only be an integer in use cases where retrieving the ID of the inserted record is required.
+# Package dependencies
 
-```csharp
-public class PersistSomething : Command<int>
-{
-    public override void Execute()
-    {
-        var returnId = 
-                Execute("INSERT INTO People(name, surname) VALUES ('John', 'Williams'); SELECT last_insert_id();");
-    }
-}
-```
+The Dapper.CQRS Core library is built with .NET Standard 2.1. There are some other dependencies on .NET 6 which include...
 
-### Using the Command Builder
-
----
-
-> The command builder is a set of extensions build into dapper doodle to allow you to be able to build up SQL queries a bit faster using CQRS, for the common queries where writing them manually might not be necessary.
-
-When using the command builder, there is no need to define any generics for the command class as they are defined in the command builder.
-
-```csharp
-public class PersistSomething : Command
-{
-    public override void Execute()
-    {
-        var id = InsertAndReturnId("INSERT INTO People(name, surname) VALUES ('John', 'Williams');");
-    }
-}
-```
-
-**Insert Builder**
-
-The insert builder is overloaded with update by default, so if the record does already exist, it will just update the information, not insert it again, which will most likely lead to an exception.
-
-The insert builder returns the id of the created record, which can be persisted.
-
-```csharp
-public override void Execute()
-{
-    var id = BuildInsert<Person>();
-}
-```
-
-**Update Builder**
-
-```csharp
-public override void Execute()
-{
-    var id = BuildUpdate<Person>();
-}
-```
-
-**Person Model**
-
-```csharp
-public class Person
-{
-    public string Name { get; set; }
-    public string Surname { get; set; }
-}
-```
-
-## Queries
-
-> Query results are mapped onto the Result Interface which also specifies the return type of the Generically defined class. When you would like to build a query you need to create a class that inherits from Query and specify the return type as a generic argument.
-
-### Generic
-
-```csharp
-public class SelectAPerson : Query<Person>
-{
-    private readonly int _id;
-
-    public SelectAPerson(int Id)
-    {
-        _id = Id;
-    }
-    public override void Execute()
-    {
-        Result = BuildSelect<Person>("where id = @Id", new { Id = _id });
-    }
-}
-```
-
-`BuildSelect` has a override for the where clause that can be appended to the end of the select statement. The second argument exists to specify the SQL query parameters.
-
-### Non-Generic
-
-Although this is possible it doesn't really make sense to do so because if you are writing a query, you would always expect something in return. You can in turn follow the same pattern as a Command and just call the `Execute()` override method if return values are not important.
-
-## Writing Native Commands
-
-You can also use the Dapper Doodle package to write native (SQL) commands if the command builders do not quite solve your problem.
-
-### List Parameter Arguments
-
-The DapperDoodle package supports the option for list parameters for Commands.
-
-```csharp
-public class InsertManyPeople : Command
-{
-    public List<Person> People = new List<Person>()
-    {
-        new Person()
-        {
-            Name = GetRandomString(),
-            Surname = GetRandomString(),
-            Email = GetRandomEmail()
-        },
-        new Person()
-        {
-            Name = GetRandomString(),
-            Surname = GetRandomString(),
-            Email = GetRandomEmail()
-        }
-    };
-    
-    public override void Execute()
-    {
-        Execute(@"INSERT INTO People ( name, surname, email )
-                VALUES (@Name, @Surname, @Email)",
-                People);
-    }
-}
-```
-
-## Using Dapper Directly
-
-### Fetching the IDbConnection Instance
-
-The dapper library is an extension library that sits on top of the `IDbConnection` interface. So we can use Dapper Doodle's dependency registrations to fetch our `IDbConnection` instance to write Dapper queries natively for more complex queries.
-
-```csharp
-public class TestBaseExecutor : Query<int>
-{
-    public override void Execute()
-    {
-        var connectionInstance = GetIDbConnection();
-        var result = connectionInstance.QueryFirst("SELECT 1;");
-        Result = result;
-    }
-}
-```
-
-More complex join statements to achieve deep linking (Eager Loading)
-
-```csharp
-public Person MapPersonAndAddress(int personId)
-{
-    using(IDbConnection cnn = GetIDbConnection()))
-    {
-        var param = new
-        {
-            Id = personId
-        };
-        // This SqlCommand returns a person with the address of that person.
-        var sql = @"select u.*, a.* from `USERS` u 
-        left join ADDRESSES a 
-        on u.address_id = a.Id WHERE u.Id = @Id";
-        
-        // This is a dapper command that takes in two generic parameter objects and the last one will be the one that is mapped to, which in this case is the same model
-        var people = cnn.Query<Person, Address, Person>(sql, (person, address) =>
-            {
-                person.Address = address;
-                return person;
-            },
-            param
-        );
-        return people.FirstOrDefault();
-    }
-}
-```
-
-# Extension Libraries
-
-Core library is built with .NET Standard 2.1. However currently the main package dependencies are for:
-
-- Dapper (2.0.78)
-- Microsoft.Exentions.DependencyInjection (5.0.1)
-- MySql.Data (8.0.22)
-- PluralizeService.Core (1.2.19)
-- Microsoft.Data.Sqlite (5.0.1)
+- Dapper (2.0.123)
+- Microsoft.Extensions.DependencyInjection.Abstractions (6.0.0)
+- Microsoft.Extensions.Logging.Abstractions (6.0.3)
 
 # Database Support
 
-- SQLite
-- MySQL
-- MSSQL (Still needs to be added and tested)
+> This is really up to you. All database connections should inherit from IDbConnection. As long as this is the case it will be supported. That is the advantage of Dapper and Dapper.CQRS isn't any different.
 
 # Feature List
 
-- [x]  Command Builder
-- [x]  Query Builder
-- [x]  Auto-Insert Statements
-- [x]  Auto-Update Statements
-- [x]  Auto-Select Statements
-- [x]  CQRS Interface helpers
-- [x]  Support For MySql
-- [ ]  Support For MSSQL
-- [x]  Support For SqlLite
-- [ ]  Support For PostgreSql
+- [x] CommandExecutor execution interface
+- [X] QueryExecutor execution interface
+- [X] BaseSqlExecutor with virtual members for easy unit testing
+- [X] Commands which inherit from BaseSqlExecutor
+- [X] Queries which inherit from BaseSqlExecutor
 
 # Pull Requests
 
-If you would like to contribute to this package you are welcome to do so. Just fork this repository, create a PR against it and add me as a reviewer.
+If you would like to contribute to this package you are welcome to do so.
 
 ## Testing Coverage
 
 Testing coverage currently covers:
 
-- QueryExecutor dependency injection
-- CommandExecutor dependency Injection
-- CommandBuilder queries for MySql, Sqlite, MSSQL.
-
-### Coverage to be added
-
-- Query Builder
-- Variations on query builder
-- Variations on command builder
-- Testing Extension/Helper Classes
-- Dependency registrations for MSSQL.
-- Dependency registrations for MySql.
-- Dependency registrations for SqlLite.
+- QueryExecutor with return type
+- CommandExecutor with return type
+- CommandExecutor without return type
+- Queries
+- Commands with return types
+- Commands without return types

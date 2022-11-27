@@ -49,7 +49,7 @@ namespace Dapper.CQRS.Tests.Utilities
                     config.AddTransient<ICommandExecutor, CommandExecutor>();
                     config.AddTransient<IQueryExecutor, QueryExecutor>();
                     config.AddTransient<IDbConnection, MySqlConnection>(
-                        s => new MySqlConnection(GetConnectionString()));
+                        _ => new MySqlConnection(GetConnectionString()));
                 });
             });
             

@@ -74,12 +74,12 @@ namespace Dapper.CQRS
             _logger = serviceProvider.GetRequiredService<ILogger<BaseSqlExecutor>>();
         }
 
-        public T QueryFirst<T>(string sql, object? parameters = null)
+        public virtual T QueryFirst<T>(string sql, object? parameters = null)
         {
             return _dbConnection.QueryFirst<T>(sql, parameters);
         }
 
-        public IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
+        public virtual IList<TReturn> QueryList<TFirst, TSecond, TReturn>(
             string sql,
             Func<TFirst, TSecond, TReturn> map,
             object? parameters = null)
@@ -89,7 +89,7 @@ namespace Dapper.CQRS
                 .ToList();
         }
 
-        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
+        public virtual IList<TReturn> QueryList<TFirst, TSecond, TThird, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TReturn> map,
             object? parameters = null)
@@ -99,7 +99,7 @@ namespace Dapper.CQRS
                 .ToList();
         }
         
-        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
+        public virtual IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TReturn> map,
             object? parameters = null)
@@ -109,7 +109,7 @@ namespace Dapper.CQRS
                 .ToList();
         }
         
-        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+        public virtual IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map,
             object? parameters = null)
@@ -119,7 +119,7 @@ namespace Dapper.CQRS
                 .ToList();
         }
         
-        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+        public virtual IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map,
             object? parameters = null)
@@ -129,7 +129,7 @@ namespace Dapper.CQRS
                 .ToList();
         }
         
-        public IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
+        public virtual IList<TReturn> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
             string sql,
             Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
             object? parameters = null)
