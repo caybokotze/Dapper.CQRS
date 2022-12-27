@@ -32,7 +32,7 @@ namespace Dapper.CQRS.Tests
                 });
                 webHost.ConfigureServices(c =>
                 {
-                    c.AddSingleton<ILogger<BaseSqlExecutor>, GenericLogger>(s => genericLogger);
+                    c.AddSingleton<ILogger<SqlExecutor>, GenericLogger>(s => genericLogger);
                 });
                 webHost.UseTestServer();
                 webHost.Configure(app =>
@@ -48,7 +48,7 @@ namespace Dapper.CQRS.Tests
 
             // Act
 
-            var logger = host.Services.GetRequiredService<ILogger<BaseSqlExecutor>>();
+            var logger = host.Services.GetRequiredService<ILogger<SqlExecutor>>();
             var logMessage = RandomValueGen.GetRandomAlphaString();
 
             // act
@@ -128,7 +128,7 @@ namespace Dapper.CQRS.Tests
         }
     }
 
-    public class GenericLogger : ILogger<BaseSqlExecutor>
+    public class GenericLogger : ILogger<SqlExecutor>
     {
         public string Message { get; set; }
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)

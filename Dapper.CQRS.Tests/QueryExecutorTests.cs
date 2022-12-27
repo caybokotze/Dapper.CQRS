@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Threading.Tasks;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,15 +21,15 @@ namespace Dapper.CQRS.Tests
         public class Registrations : TestFixtureRequiringServiceProvider
         {
             [Test]
-            public void AssertThatIApplicationBuilderRegistersIQueryExecutor()
+            public async Task AssertThatIApplicationBuilderRegistersIQueryExecutor()
             {
-                var queryExecutor = ServiceProvider
+                var queryExecutor = ServiceProvider!
                     .GetService<IQueryExecutor>();
 
                 var actual = GetRandomInt();
                 
-                var expected = queryExecutor?
-                    .Execute(new GenericQuery<int>(actual));
+                var expected = await queryExecutor?
+                    .Execute(new GenericQuery<int>(actual))!;
             
                 Assert.That(expected.Equals(actual));
             }
@@ -40,26 +41,26 @@ namespace Dapper.CQRS.Tests
     {
 
         [Test]
-        public void ShouldReturnCorrectType()
+        public async Task ShouldReturnCorrectType()
         {
             // arrange
             var dbConnection = Substitute.For<IDbConnection>();
             var mockableQueryExecutor = Substitute.For<IQueryExecutor>();
             var commandExecutor = Substitute.For<ICommandExecutor>();
-            var logger = Substitute.For<ILogger<BaseSqlExecutor>>();
+            var logger = Substitute.For<ILogger<SqlExecutor>>();
             
             var serviceProvider = Substitute.For<IServiceProvider>();
 
             serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
             serviceProvider.GetService(typeof(IQueryExecutor)).Returns(mockableQueryExecutor);
             serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
-            serviceProvider.GetService(typeof(ILogger<BaseSqlExecutor>)).Returns(logger);
+            serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
             
             var user = GetRandom<User>();
             var command = new GenericQuery<User>(user);
             var queryExecutor = new QueryExecutor(serviceProvider);
             // act
-            var result = queryExecutor.Execute(command);
+            var result = await queryExecutor.Execute(command);
             // assert
             Expect(result).To.Equal(user);
         }

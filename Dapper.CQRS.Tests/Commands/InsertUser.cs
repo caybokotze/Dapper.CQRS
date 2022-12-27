@@ -1,4 +1,4 @@
-﻿using System.Transactions;
+﻿using System.Threading.Tasks;
 using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
@@ -14,26 +14,27 @@ namespace Dapper.CQRS.Tests.Commands
             User = user;
         }
         
-        public override int Execute()
+        public override async Task<int> Execute()
         {
-            using var scope = new TransactionScope();
-            var insertUser = new SqlBuilder()
+            var insertSql = new SqlBuilder()
                 .Insert<User>("users", i =>
                 {
+                    i.RemoveProperty(nameof(User.Id));
                     i.RemoveMultipleProperties(User.NotMapped());
                     i.UsePropertyCase(Casing.SnakeCase);
                 })
                 .Values()
-                .Build();
+                .AppendStatement()
+                .Select()
+                .LastInserted(Version.MySql);
 
-            var existingUser = QueryExecutor.Execute(new FetchUser(User.Id));
+            var existingUser = await QueryExecutor.Execute(new FetchUser(User.Id));
 
             if (existingUser is null)
             {
-                return Execute(insertUser, User);
+                return await QueryFirst<int>(insertSql);
             }
-            
-            scope.Complete();
+
             return existingUser.Id;
         }
     }

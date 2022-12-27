@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using System.Transactions;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
@@ -20,7 +21,7 @@ namespace Dapper.CQRS.Tests
         public class Isolated : TestFixtureRequiringServiceProvider
         {
             [Test]
-            public void ShouldSelectAndReturnUser()
+            public async Task ShouldSelectAndReturnUser()
             {
                 using var scope = new TransactionScope();
                 // arrange
@@ -29,13 +30,13 @@ namespace Dapper.CQRS.Tests
                 // act
                 var randomUser = GetRandom<User>();
 
-                var id = commandExecutor.Execute(new GenericCommand<int>(
+                var id = await commandExecutor.Execute(new GenericCommand<int>(
                     @"INSERT INTO users (name, surname, email) 
                     VALUES(@Name, @Surname, @Email); 
                     SELECT LAST_INSERT_ID();",
                     randomUser));
 
-                var user = queryExecutor
+                var user = await queryExecutor
                     .Execute(new GenericQuery<User>("SELECT * FROM users WHERE id = @Id;",
                         new
                         {
@@ -56,7 +57,7 @@ namespace Dapper.CQRS.Tests
         // todo: complete tests...
         public class QueryWith4GenericParameters : Query<IList<User>>
         {
-            public override IList<User> Execute()
+            public override Task<IList<User>> Execute()
             {
                 return QueryList<User, UserType, UserDetails, User>(
                     "SELECT * FROM users LEFT JOIN user_type ON users.id = user_type.user_id;",
@@ -105,10 +106,10 @@ namespace Dapper.CQRS.Tests
     public class WithQueriesEmbeddedInQueries
     {
         [Test]
-        public void ShouldBeMockable()
+        public async Task ShouldBeMockable()
         {
             // arrange
-            var logger = Substitute.For<ILogger<BaseSqlExecutor>>();
+            var logger = Substitute.For<ILogger<SqlExecutor>>();
             var dbConnection = Substitute.For<IDbConnection>();
             var commandExecutor = Substitute.For<ICommandExecutor>();
             var queryExecutor = Substitute.For<IQueryExecutor>();
@@ -117,7 +118,7 @@ namespace Dapper.CQRS.Tests
             serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
             serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
             serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
-            serviceProvider.GetService(typeof(ILogger<BaseSqlExecutor>)).Returns(logger);
+            serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
 
             var sut = Substitute.ForPartsOf<QueryUsers>();
 
@@ -140,9 +141,9 @@ namespace Dapper.CQRS.Tests
                 });
 
             // act
-            var result = sut.Execute();
+            var result = await sut.Execute();
             // assert
-            Expect(sut).To.Have.Received(1).QueryList<User>("select * from users;");
+            await Expect(sut).To.Have.Received(1).QueryList<User>("select * from users;");
             Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
             Expect(result.Count).To.Equal(1);
         }
@@ -151,29 +152,29 @@ namespace Dapper.CQRS.Tests
         public class WithoutDefiningReturnValue
         {
             [Test]
-            public void ShouldRecordMockedCalls()
+            public async Task ShouldRecordMockedCalls()
             {
                 // arrange
                 var queryExecutor = Substitute.For<IQueryExecutor>();
                 var commandExecutor = Substitute.For<ICommandExecutor>();
                 var dbConnection = Substitute.For<IDbConnection>();
-                var logger = Substitute.For<ILogger<BaseSqlExecutor>>();
+                var logger = Substitute.For<ILogger<SqlExecutor>>();
                 
                 var serviceProvider = Substitute.For<IServiceProvider>();
                 
                 serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
                 serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
                 serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
-                serviceProvider.GetService(typeof(ILogger<BaseSqlExecutor>)).Returns(logger);
+                serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
 
                 var sut = Substitute.ForPartsOf<QueryUsers>();
 
                 sut.Initialise(serviceProvider);
                 // act
-                var result = sut.Execute();
+                var result = await sut.Execute();
                 // assert
-                Expect(sut).To.Have.Received(1).QueryList<User>(Arg.Any<string>());
-                Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
+                await Expect(sut).To.Have.Received(1).QueryList<User>(Arg.Any<string>());
+                await Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
                 Expect(result).To.Deep.Equal(new List<User>());
             }
         }
@@ -181,7 +182,7 @@ namespace Dapper.CQRS.Tests
     
     public class QueryUsers : Query<IList<User>>
     {
-        public override IList<User> Execute()
+        public override Task<IList<User>> Execute()
         {
             var userDetails = QueryExecutor.Execute(new QueryUserDetails());
             return QueryList<User>("select * from users;");
@@ -190,7 +191,7 @@ namespace Dapper.CQRS.Tests
 
     public class QueryUserDetails : Query<IList<UserDetails>>
     {
-        public override IList<UserDetails> Execute()
+        public override Task<IList<UserDetails>> Execute()
         {
             return QueryList<UserDetails>("select * from user_details;");
         }

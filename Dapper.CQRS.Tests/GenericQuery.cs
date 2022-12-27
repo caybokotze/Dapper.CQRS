@@ -1,4 +1,6 @@
-﻿namespace Dapper.CQRS.Tests
+﻿using System.Threading.Tasks;
+
+namespace Dapper.CQRS.Tests
 {
     public class GenericQuery<T> : Query<T>
     {
@@ -17,9 +19,9 @@
             _parameters = parameters;
         }
             
-        public override T Execute()
+        public override async Task<T> Execute()
         {
-            return _expectedValue ?? QueryFirst<T>(_sql ?? string.Empty, _parameters);
+            return _expectedValue ?? await QueryFirst<T>(_sql ?? string.Empty, _parameters);
         }
     }
 }

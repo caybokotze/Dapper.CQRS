@@ -1,14 +1,17 @@
-﻿namespace Dapper.CQRS.Tests
+﻿using System.Threading.Tasks;
+
+namespace Dapper.CQRS.Tests
 {
     public class GenericCommand<T> : Command<T>
     {
         private readonly string _sql;
-        private readonly object _parameters;
-        private readonly T _expectedReturnValue;
+        private readonly object? _parameters;
+        private readonly T? _mockedReturnValue;
 
-        public GenericCommand(T expectedReturnValue)
+        public GenericCommand(T mockedReturnValue)
         {
-            _expectedReturnValue = expectedReturnValue;
+            _sql = string.Empty;
+            _mockedReturnValue = mockedReturnValue;
         }
 
         public GenericCommand(string sql, object? parameters = null)
@@ -17,11 +20,17 @@
             _parameters = parameters;
         }
             
-        public override T Execute()
+        public override async Task<T> Execute()
         {
-            return _sql != null
-                ? QueryFirst<T>(_sql, _parameters) 
-                : _expectedReturnValue;
+            if (_mockedReturnValue is > 0)
+            {
+                return _mockedReturnValue;
+            }
+            
+            Db.Open();
+            var result = await Db.QueryFirstAsync<T>(_sql, _parameters);
+            Db.Close();
+            return result;
         }
     }
 }

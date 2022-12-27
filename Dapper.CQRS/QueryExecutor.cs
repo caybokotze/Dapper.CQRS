@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Dapper.CQRS
 {
     public interface IQueryExecutor
     {
-        T Execute<T>(Query<T> query);
+        Task<T> Execute<T>(Query<T> query);
     }
     
     public class QueryExecutor : IQueryExecutor
@@ -16,10 +17,10 @@ namespace Dapper.CQRS
             _serviceProvider = serviceProvider;
         }
 
-        public T Execute<T>(Query<T> query)
+        public async Task<T> Execute<T>(Query<T> query)
         {
             query.Initialise(_serviceProvider);
-            return query.Execute();
+            return await query.Execute();
         }
     }
 }

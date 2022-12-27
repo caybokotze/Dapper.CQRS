@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
@@ -13,13 +14,14 @@ namespace Dapper.CQRS.Tests.Queries
             Id = id;
         }
         
-        public override User? Execute()
+        public override async Task<User?> Execute()
         {
-            var users =  QueryList<User>(
+            var users =  await QueryList<User>(
                 new SqlBuilder()
                 .Select<User>(s =>
                 {
                     s.UsePropertyCase(Casing.SnakeCase);
+                    s.RemoveMultipleProperties(User.NotMapped());
                 })
                 .From("users")
                 .Build());

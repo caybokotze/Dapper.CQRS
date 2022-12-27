@@ -1,8 +1,10 @@
-﻿namespace Dapper.CQRS
+﻿using System.Threading.Tasks;
+
+namespace Dapper.CQRS
 {
     public interface ICommandExecutor
     {
         void Execute(Command command);
-        T Execute<T>(Command<T> command);
+        Task<T> Execute<T>(Command<T> command);
     }
 }

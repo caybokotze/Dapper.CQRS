@@ -1,4 +1,5 @@
-﻿using Dapper.CQRS.Tests.TestModels;
+﻿using System.Threading.Tasks;
+using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
 namespace Dapper.CQRS.Tests.Commands
@@ -12,7 +13,7 @@ namespace Dapper.CQRS.Tests.Commands
             UserType = userType;
         }
         
-        public override int Execute()
+        public override Task<int> Execute()
         {
             var sql = new SqlBuilder()
                 .Insert<UserType>("user_types")

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Threading.Tasks;
 using System.Transactions;
 using System.Windows.Input;
 using Dapper.CQRS.Tests.Commands;
@@ -23,7 +24,7 @@ namespace Dapper.CQRS.Tests
         public class Isolated : TestFixtureRequiringServiceProvider
         {
             [Test]
-            public void ShouldInsertRecord()
+            public async Task ShouldInsertRecord()
             {
                 using var scope = new TransactionScope();
                 // arrange
@@ -38,13 +39,13 @@ namespace Dapper.CQRS.Tests
                 };
 
                 // act
-                var userId = commandExecutor
+                var userId = await commandExecutor
                     .Execute(new GenericCommand<int>(
                         "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
                         user));
 
                 var expectedUser =
-                    queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id",
+                    await queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id",
                         new
                         {
                             Id = userId
@@ -61,7 +62,7 @@ namespace Dapper.CQRS.Tests
             }
 
             [Test]
-            public void ShouldUpdateRecord()
+            public async Task ShouldUpdateRecord()
             {
                 using var scope = new TransactionScope();
 
@@ -76,7 +77,7 @@ namespace Dapper.CQRS.Tests
                 };
 
                 // act
-                var userId = commandExecutor
+                var userId = await commandExecutor
                     .Execute(new GenericCommand<int>(
                         "INSERT INTO users (name, surname, email) VALUES (@Name, @Surname, @Email); SELECT LAST_INSERT_ID();",
                         user));
@@ -84,7 +85,7 @@ namespace Dapper.CQRS.Tests
                 user.Id = userId;
 
                 var expectedFirstUser =
-                    queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
+                    await queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
                         new {Id = userId}));
 
                 var updatedUser = new User
@@ -94,13 +95,13 @@ namespace Dapper.CQRS.Tests
                     Surname = Faker.Name.Last()
                 };
 
-                commandExecutor
+                await commandExecutor
                     .Execute(new GenericCommand<int>(
                         "UPDATE users SET name = @Name, surname = @Surname WHERE id = @Id; SELECT LAST_INSERT_ID();",
                         updatedUser));
 
                 var expectedUpdatedUser =
-                    queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
+                    await queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
                         new {Id = userId}));
 
                 // assert
@@ -110,6 +111,24 @@ namespace Dapper.CQRS.Tests
 
                 Expect(user).To.Deep.Equal(expectedFirstUser);
                 Expect(updatedUser).To.Deep.Equal(expectedUpdatedUser);
+            }
+            
+            [TestFixture]
+            public class WhenCommandReturnsPrimaryKeyValue : TestFixtureRequiringServiceProvider
+            {
+                [Test]
+                public async Task ShouldReturnExpectedValue()
+                {
+                    // arrange
+                    var user = GetRandom<User>();
+                    var commandExecutor = Resolve<ICommandExecutor>();
+                    // act
+                    var sut = new InsertUser(user);
+                    var result = await commandExecutor.Execute(sut);
+                    // assert
+                    Expect(result).To.Be.Greater.Than(0);
+                    Expect(result).To.Not.Be.Equal.To(user.Id);
+                }
             }
             
             [Test]
@@ -184,20 +203,20 @@ namespace Dapper.CQRS.Tests
         public class WithQueryEmbeddedInCommand
         {
             [Test]
-            public void ShouldBeMockable()
+            public async Task ShouldBeMockable()
             {
                 // arrange
                 var queryExecutor = Substitute.For<IQueryExecutor>();
                 var commandExecutor = Substitute.For<ICommandExecutor>();
                 var dbConnection = Substitute.For<IDbConnection>();
-                var logger = Substitute.For<ILogger<BaseSqlExecutor>>();
+                var logger = Substitute.For<ILogger<SqlExecutor>>();
 
                 var serviceProvider = Substitute.For<IServiceProvider>();
 
                 serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
                 serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
                 serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
-                serviceProvider.GetService(typeof(ILogger<BaseSqlExecutor>)).Returns(logger);
+                serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
 
                 var user = GetRandom<User>();
                 
@@ -206,11 +225,10 @@ namespace Dapper.CQRS.Tests
                     .Returns(user);
 
                 var sut = Substitute.ForPartsOf<InsertUser>(user);
-                
                 sut.Initialise(serviceProvider);
                 
                 // act
-                var result = sut.Execute();
+                var result = await sut.Execute();
                 
                 // assert
                 Expect(sut)

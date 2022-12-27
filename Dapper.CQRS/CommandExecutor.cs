@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Dapper.CQRS
 {
@@ -17,10 +18,10 @@ namespace Dapper.CQRS
             command.Execute();
         }
 
-        public T Execute<T>(Command<T> command)
+        public async Task<T> Execute<T>(Command<T> command)
         {
             command.Initialise(_serviceProvider);
-            return command.Execute();
+            return await command.Execute();
         }
     }
 }

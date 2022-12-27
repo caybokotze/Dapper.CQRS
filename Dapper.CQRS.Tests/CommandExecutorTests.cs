@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Threading.Tasks;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,14 +21,15 @@ namespace Dapper.CQRS.Tests
         public class Registrations : TestFixtureRequiringServiceProvider
         {
             [Test]
-            public void AssertThatIApplicationBuilderRegistersCommandExecutor()
+            [Repeat(100)]
+            public async Task AssertThatIApplicationBuilderRegistersCommandExecutor()
             {
-                var commandExecutor = ServiceProvider
+                var commandExecutor = ServiceProvider!
                     .GetService<ICommandExecutor>();
                 
-                var actual = GetRandomInt();
-                var expected = commandExecutor?
-                    .Execute(new GenericCommand<int>(actual));
+                var actual = GetRandomInt(1);
+                var expected = await commandExecutor?
+                    .Execute(new GenericCommand<int>(actual))!;
             
                 Assert.AreEqual(actual, expected);
             }
@@ -38,26 +40,26 @@ namespace Dapper.CQRS.Tests
         {
 
             [Test]
-            public void ShouldReturnCorrectType()
+            public async Task ShouldReturnCorrectType()
             {
                 // arrange
                 var dbConnection = Substitute.For<IDbConnection>();
                 var queryExecutor = Substitute.For<IQueryExecutor>();
                 var mockCommandExecutor = Substitute.For<ICommandExecutor>();
-                var logger = Substitute.For<ILogger<BaseSqlExecutor>>();
+                var logger = Substitute.For<ILogger<SqlExecutor>>();
                 
                 var serviceProvider = Substitute.For<IServiceProvider>();
 
                 serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
                 serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
                 serviceProvider.GetService(typeof(ICommandExecutor)).Returns(mockCommandExecutor);
-                serviceProvider.GetService(typeof(ILogger<BaseSqlExecutor>)).Returns(logger);
+                serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
                 
                 var commandExecutor = new CommandExecutor(serviceProvider);
                 
                 var command = new GenericCommand<int>(15);
                 // act
-                var result = commandExecutor.Execute(command);
+                var result = await commandExecutor.Execute(command);
                 // assert
                 Expect(result).To.Equal(15);
             }
