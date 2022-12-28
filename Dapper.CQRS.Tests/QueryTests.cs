@@ -144,7 +144,7 @@ namespace Dapper.CQRS.Tests
             var result = await sut.Execute();
             // assert
             await Expect(sut).To.Have.Received(1).QueryList<User>("select * from users;");
-            Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
+            await Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
             Expect(result.Count).To.Equal(1);
         }
 

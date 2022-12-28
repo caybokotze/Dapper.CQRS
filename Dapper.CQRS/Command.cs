@@ -9,6 +9,6 @@ namespace Dapper.CQRS
 
     public abstract class Command : SqlExecutor
     {
-        public abstract void Execute();
+        public abstract Task Execute();
     }
 }

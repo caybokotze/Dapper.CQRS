@@ -12,10 +12,10 @@ namespace Dapper.CQRS
             _serviceProvider = serviceProvider;
         }
         
-        public void Execute(Command command)
+        public async Task Execute(Command command)
         {
             command.Initialise(_serviceProvider);
-            command.Execute();
+            await command.Execute();
         }
 
         public async Task<T> Execute<T>(Command<T> command)

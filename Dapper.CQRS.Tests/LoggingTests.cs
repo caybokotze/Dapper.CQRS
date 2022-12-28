@@ -104,7 +104,7 @@ namespace Dapper.CQRS.Tests
                 var logMessage = RandomValueGen.GetRandomAlphaString();
 
                 // act
-                commandExecutor.Execute(new LoggerTests(logMessage));
+                await commandExecutor.Execute(new LoggerTests(logMessage));
             
                 // assert
                 Expect(logger).Not.To.Be.Null();
@@ -122,16 +122,17 @@ namespace Dapper.CQRS.Tests
             LogMessage = logMessage;
         }
         
-        public override void Execute()
+        public override Task Execute()
         {
             Logger.Log(LogLevel.Debug, LogMessage);
+            return Task.CompletedTask;
         }
     }
 
     public class GenericLogger : ILogger<SqlExecutor>
     {
-        public string Message { get; set; }
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public string? Message { get; set; }
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
         {
             Message = state?.ToString();
         }

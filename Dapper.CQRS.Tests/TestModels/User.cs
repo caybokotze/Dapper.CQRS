@@ -8,8 +8,8 @@ namespace Dapper.CQRS.Tests.TestModels
         public string? Name { get; set; }
         public string? Surname { get; set; }
         public string? Email { get; set; }
-        public virtual UserType UserType { get; set; }
-        public virtual UserDetails UserDetails { get; set; }
+        public virtual UserType? UserType { get; set; }
+        public virtual UserDetails? UserDetails { get; set; }
 
         public static IEnumerable<string> NotMapped()
         {
