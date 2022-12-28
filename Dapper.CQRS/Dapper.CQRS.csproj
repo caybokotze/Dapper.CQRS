@@ -10,13 +10,13 @@
         <RepositoryType>github</RepositoryType>
         <PackageTags>dapper, micro-orm, asp.net, c#, cqrs</PackageTags>
         <PackageId>Dapper.CQRS</PackageId>
-        <PackageReleaseNotes>Make all of the command and query executors async and support dropping down to a raw db connection</PackageReleaseNotes>
+        <PackageReleaseNotes>Make the command executor void method a task to support async calls internally</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
         <LangVersion>9</LangVersion>
-        <PackageVersion>3.0.0</PackageVersion>
+        <PackageVersion>3.1.0</PackageVersion>
         <Title>Dapper.CQRS</Title>
         <PackageProjectUrl>https://github.com/caybokotze/Dapper.CQRS</PackageProjectUrl>
         <AssemblyName>Dapper.CQRS</AssemblyName>
