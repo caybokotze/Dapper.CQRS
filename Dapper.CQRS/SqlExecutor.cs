@@ -55,6 +55,7 @@ namespace Dapper.CQRS
         private ICommandExecutor? _commandExecutor;
         private ILogger? _logger;
         private IDbConnection? _dbConnection;
+        private IServiceProvider? _serviceProvider;
 
         protected IQueryExecutor QueryExecutor => _queryExecutor
                                                   ?? throw new NullReferenceException(
@@ -72,8 +73,13 @@ namespace Dapper.CQRS
                                                 ?? throw new NullReferenceException(
                                                     "The connection has not been initialised");
 
+        protected IServiceProvider Sp => _serviceProvider ??
+                                         throw new NullReferenceException(
+                                             "The service provider has not been initialised");
+
         public void Initialise(IServiceProvider serviceProvider)
         {
+            _serviceProvider = serviceProvider;
             _dbConnection = serviceProvider.GetRequiredService<IDbConnection>();
             _queryExecutor = serviceProvider.GetRequiredService<IQueryExecutor>();
             _commandExecutor = serviceProvider.GetRequiredService<ICommandExecutor>();

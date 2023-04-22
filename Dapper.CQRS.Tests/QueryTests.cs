@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Transactions;
+using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.Logging;
@@ -47,6 +50,39 @@ namespace Dapper.CQRS.Tests
                 Expect(user.Name).To.Equal(randomUser.Name);
                 Expect(user.Surname).To.Equal(randomUser.Surname);
                 Expect(user.Email).To.Equal(randomUser.Email);
+            }
+
+            [TestFixture]
+            public class AsyncBehaviour : TestFixtureRequiringServiceProvider
+            {
+                [Test]
+                public async Task ShouldExecuteInSequence()
+                {
+                    // arrange
+                    using var scope = new TransactionScope();
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    var queryExecutor = Resolve<IQueryExecutor>();
+                    // act
+                    await queryExecutor.Execute(new SequentialBenchmarkQuery());
+                    // assert
+                    stopwatch.Stop();
+                    Expect(stopwatch.Elapsed.TotalMilliseconds).To.Be.Greater.Than(6000);
+                }
+            }
+
+            [Test]
+            public async Task ShouldResolveServiceProvider()
+            {
+                // arrange
+                using var scope = new TransactionScope();
+                var queryExecutor = Resolve<IQueryExecutor>();
+                // act
+                var result = await queryExecutor.Execute(new ResolveDependenciesQuery());
+                var expectedConnectionString = Resolve<IDbConnection>().ConnectionString;
+                // assert
+                Expect(result).To.Not.Be.Null();
+                Expect(result.ConnectionString).To.Be.Equal.To(expectedConnectionString);
             }
         }
     }
