@@ -88,7 +88,10 @@ namespace Dapper.CQRS
 
         public virtual Task<T> QueryFirst<T>(string sql, object? parameters = null)
         {
-            return Task.FromResult(Db.QueryFirst<T>(sql, parameters));
+            Db.Open();
+            var result = Db.QueryFirst<T>(sql, parameters);
+            Db.Close();
+            return Task.FromResult(result);
         }
 
         public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TReturn>(
@@ -96,9 +99,7 @@ namespace Dapper.CQRS
             Func<TFirst, TSecond, TReturn> map,
             object? parameters = null)
         {
-            return Task.FromResult<IList<TReturn>>(Db
-                .Query(sql, map, parameters)
-                .ToList());
+            return Task.FromResult<IList<TReturn>>(Db.Query(sql, map, parameters).ToList());
         }
 
         public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TReturn>(

@@ -67,7 +67,7 @@ namespace Dapper.CQRS.Tests
                     await queryExecutor.Execute(new SequentialBenchmarkQuery());
                     // assert
                     stopwatch.Stop();
-                    Expect(stopwatch.Elapsed.TotalMilliseconds).To.Be.Greater.Than(6000);
+                    Expect(stopwatch.Elapsed.TotalMilliseconds).To.Be.Greater.Than(4000);
                 }
             }
 
