@@ -88,9 +88,7 @@ namespace Dapper.CQRS
 
         public virtual Task<T> QueryFirst<T>(string sql, object? parameters = null)
         {
-            Db.Open();
             var result = Db.QueryFirst<T>(sql, parameters);
-            Db.Close();
             return Task.FromResult(result);
         }
 
