@@ -5,7 +5,8 @@ namespace Dapper.CQRS
 {
     public interface IQueryExecutor
     {
-        Task<T> Execute<T>(Query<T> query);
+        Result<T> Execute<T>(Query<T> query);
+        Task<Result<T>> ExecuteAsync<T>(QueryAsync<T> query);
     }
     
     public class QueryExecutor : IQueryExecutor
@@ -17,10 +18,30 @@ namespace Dapper.CQRS
             _serviceProvider = serviceProvider;
         }
 
-        public async Task<T> Execute<T>(Query<T> query)
+        public Result<T> Execute<T>(Query<T> query)
         {
-            query.Initialise(_serviceProvider);
-            return await query.Execute();
+            ExecuteWithNoResult(query);
+            return query.Result;
+        }
+
+        public async Task<Result<T>> ExecuteAsync<T>(QueryAsync<T> query)
+        {
+            await ExecuteWithNoResultAsync(query);
+            return query.Result;
+        }
+
+        private void ExecuteWithNoResult(Query query)
+        {
+            query.QueryExecutor = this;
+            query.InitialiseExecutor(_serviceProvider);
+            query.Execute();
+        }
+
+        private async Task ExecuteWithNoResultAsync(QueryAsync query)
+        {
+            query.QueryExecutor = this;
+            query.InitialiseExecutor(_serviceProvider);
+            await query.ExecuteAsync();
         }
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Dapper.CQRS.Exceptions
 {
-    public class TransactionScopeRequiredException : Exception
+    public class TransactionScopeRequired : Exception
     {
-        public TransactionScopeRequiredException() : base("")
+        public TransactionScopeRequired() : base("The transaction scope has not been defined for the query/command")
         {
             
         }

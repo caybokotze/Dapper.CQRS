@@ -2,9 +2,9 @@ using System;
 
 namespace Dapper.CQRS.Exceptions
 {
-    public class InvalidSqlStatementException : ArgumentException
+    public class InvalidSqlStatement : ArgumentException
     {
-        public InvalidSqlStatementException() : base("Please provide a valid sql argument as a parameter.")
+        public InvalidSqlStatement() : base("Please provide a valid sql argument as a parameter.")
         {
         }
     }

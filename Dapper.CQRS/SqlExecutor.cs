@@ -9,153 +9,125 @@ using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
-    public interface ISqlExecutor
+    
+    public class SqlExecutor
     {
-        void Initialise(IServiceProvider serviceProvider);
-
-        Task<T> QueryFirst<T>(string sql, object? parameters = null);
-
-        Task<IList<TReturn>> QueryList<TFirst, TSecond, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TReturn> map,
-            object? parameters = null);
-
-        Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TThird, TReturn> map,
-            object? parameters = null);
-
-        Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TReturn> map,
-            object? parameters = null);
-
-        Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map,
-            object? parameters = null);
-
-        Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map,
-            object? parameters = null);
-
-        Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn>(
-            string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
-            object? parameters = null);
-
-        Task<IList<T>> QueryList<T>(string sql, object? parameters = null);
-        int Execute(string sql, object? parameters = null);
-    }
-
-    public class SqlExecutor : ISqlExecutor
-    {
-        private IQueryExecutor? _queryExecutor;
         private ICommandExecutor? _commandExecutor;
         private ILogger? _logger;
         private IDbConnection? _dbConnection;
         private IServiceProvider? _serviceProvider;
 
-        protected IQueryExecutor QueryExecutor => _queryExecutor
-                                                  ?? throw new NullReferenceException(
-                                                      "The query executor has not been initialised");
-
-        protected ICommandExecutor CommandExecutor => _commandExecutor
-                                                      ?? throw new NullReferenceException(
-                                                          "The command executor has not been initialised");
-
         protected ILogger Logger => _logger
-                                    ?? throw new NullReferenceException(
-                                        "The logger has not been initialised");
+                                    ?? throw new InvalidOperationException(
+                                        "The logger has not been correctly initialised. Make sure this is being executed via a ICommandExecutor / IQueryExecutor");
 
-        protected IDbConnection Db => _dbConnection
-                                                ?? throw new NullReferenceException(
-                                                    "The connection has not been initialised");
+        protected IDbConnection Connection => CreateOpenConnection();
 
-        protected IServiceProvider Sp => _serviceProvider ??
-                                         throw new NullReferenceException(
-                                             "The service provider has not been initialised");
+        protected T GetRequiredService<T>() where T : notnull
+        {
+            if (_serviceProvider is null)
+            {
+                throw new InvalidOperationException("The IServiceProvider instance is null. Check to see whether this has properly been initialised. The command/query needs to be executed via a IQueryExecutor or ICommandExecutor .Execute method");
+            }
 
-        public void Initialise(IServiceProvider serviceProvider)
+            return _serviceProvider.GetRequiredService<T>();
+        }
+
+        internal void InitialiseExecutor(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _dbConnection = serviceProvider.GetRequiredService<IDbConnection>();
-            _queryExecutor = serviceProvider.GetRequiredService<IQueryExecutor>();
             _commandExecutor = serviceProvider.GetRequiredService<ICommandExecutor>();
             _logger = serviceProvider.GetRequiredService<ILogger<SqlExecutor>>();
         }
 
-        public virtual Task<T> QueryFirst<T>(string sql, object? parameters = null)
+        private IDbConnection CreateOpenConnection()
         {
-            var result = Db.QueryFirst<T>(sql, parameters);
-            return Task.FromResult(result);
+            if (_serviceProvider is null)
+            {
+                throw new InvalidOperationException("The IDbConnection instance is null. Check to see whether this has properly been initialised. The command/query needs to be executed via a IQueryExecutor or ICommandExecutor .Execute method");
+            }
+            
+            var connection =  _serviceProvider.GetRequiredService<IDbConnection>();
+
+            if (connection.State != ConnectionState.Open)
+            {
+                connection.Open();
+            }
+
+            return connection;
         }
 
-        public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TReturn>(
+        public virtual T QueryFirstOrDefault<T>(string sql, object? parameters = null)
+        {
+            using var connection = CreateOpenConnection();
+            return connection.QueryFirstOrDefault<T>(sql, parameters);
+        }
+        
+        public virtual T QueryFirst<T>(string sql, object? parameters = null)
+        {
+            using var connection = CreateOpenConnection();
+            return connection.QueryFirst<T>(sql, parameters);
+        }
+
+        public virtual IEnumerable<T> QueryList<T>(string sql, object? parameters = null)
+        {
+            using var connection = CreateOpenConnection();
+            return connection.Query<T>(sql, parameters);
+        }
+
+        public virtual IEnumerable<TReturn> QueryList<T1, T2, TReturn>(
             string sql,
-            Func<TFirst, TSecond, TReturn> map,
+            Func<T1, T2, TReturn> map,
             object? parameters = null)
         {
-            return Task.FromResult<IList<TReturn>>(Db.Query(sql, map, parameters).ToList());
+            using var connection = CreateOpenConnection();
+            return connection.Query(sql, map, parameters);
         }
 
-        public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TReturn>(
+        public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, TReturn>(
             string sql,
-            Func<TFirst, TSecond, TThird, TReturn> map,
+            Func<T1, T2, T3, TReturn> map,
             object? parameters = null)
         {
-            return Task.FromResult<IList<TReturn>>(Db
-                .Query(sql, map, parameters)
-                .ToList());
+            using var connection = CreateOpenConnection();
+            return connection.Query(sql, map, parameters);
         }
 
-        public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TReturn>(
+        public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, TReturn>(
             string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TReturn> map,
+            Func<T1, T2, T3, T4, TReturn> map,
             object? parameters = null)
         {
-            return Task.FromResult<IList<TReturn>>(Db
-                .Query(sql, map, parameters)
-                .ToList());
+            using var connection = CreateOpenConnection();
+            return connection.Query(sql, map, parameters);
         }
 
-        public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TReturn>(
+        public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, T5, TReturn>(
             string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TFifth, TReturn> map,
+            Func<T1, T2, T3, T4, T5, TReturn> map,
             object? parameters = null)
         {
-            return Task.FromResult<IList<TReturn>>(Db
-                .Query(sql, map, parameters)
-                .ToList());
+            using var connection = CreateOpenConnection();
+            return connection.Query(sql, map, parameters);
         }
 
-        public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn>(
+        public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, T5, T6, TReturn>(
             string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TReturn> map,
+            Func<T1, T2, T3, T4, T5, T6, TReturn> map,
             object? parameters = null)
         {
-            return Task.FromResult<IList<TReturn>>(Db
-                .Query(sql, map, parameters)
-                .ToList());
+            using var connection = CreateOpenConnection();
+            return connection.Query(sql, map, parameters);
         }
 
-        public virtual Task<IList<TReturn>> QueryList<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh,
-            TReturn>(
+        public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, T5, T6, T7, TReturn>(
             string sql,
-            Func<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TReturn> map,
+            Func<T1, T2, T3, T4, T5, T6, T7, TReturn> map,
             object? parameters = null)
         {
-            return Task.FromResult<IList<TReturn>>(Db
-                .Query(sql, map, parameters)
-                .ToList());
-        }
-
-        public virtual Task<IList<T>> QueryList<T>(string sql, object? parameters = null)
-        {
-            return Task.FromResult<IList<T>>(Db
-                .Query<T>(sql, parameters)
-                .ToList());
+            using var connection = CreateOpenConnection();
+            return connection.Query(sql, map, parameters);
         }
 
         public virtual int Execute(string sql, object? parameters = null)
@@ -164,8 +136,8 @@ namespace Dapper.CQRS
             {
                 throw new ArgumentException("Please specify a value for the sql attribute.");
             }
-
-            return Db.Execute(sql, parameters);
+            using var connection = CreateOpenConnection();
+            return connection.Execute(sql, parameters);
         }
     }
 }
