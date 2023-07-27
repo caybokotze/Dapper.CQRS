@@ -13,7 +13,7 @@ namespace Dapper.CQRS.Tests.Commands
             UserType = userType;
         }
         
-        public override Task<int> Execute()
+        public override void Execute()
         {
             var sql = new SqlBuilder()
                 .Insert<UserType>("user_types")
@@ -22,7 +22,9 @@ namespace Dapper.CQRS.Tests.Commands
                 .Select()
                 .LastInserted(Version.MySql);
 
-            return QueryFirst<int>(sql);
+            var userTypeId = QueryFirst<int>(sql);
+
+            Result = new SuccessResult<int>(userTypeId);
         }
     }
 }

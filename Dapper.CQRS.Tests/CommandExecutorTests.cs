@@ -22,14 +22,12 @@ namespace Dapper.CQRS.Tests
             [Repeat(100)]
             public async Task AssertThatIApplicationBuilderRegistersCommandExecutor()
             {
-                var commandExecutor = ServiceProvider!
-                    .GetService<ICommandExecutor>();
+                var commandExecutor = ServiceProvider!.GetService<ICommandExecutor>();
                 
                 var actual = GetRandomInt(1);
-                var expected = await commandExecutor?
-                    .Execute(new GenericCommand<int>(actual))!;
-            
-                Assert.AreEqual(actual, expected);
+                var expected = commandExecutor!.Execute(new GenericCommand<int>(actual))!;
+                
+                Assert.AreEqual(actual, expected.Value);
             }
         }
 
@@ -38,7 +36,7 @@ namespace Dapper.CQRS.Tests
         {
 
             [Test]
-            public async Task ShouldReturnCorrectType()
+            public void ShouldReturnCorrectType()
             {
                 // arrange
                 var dbConnection = Substitute.For<IDbConnection>();
@@ -57,9 +55,9 @@ namespace Dapper.CQRS.Tests
                 
                 var command = new GenericCommand<int>(15);
                 // act
-                var result = await commandExecutor.Execute(command);
+                var result = commandExecutor.Execute(command);
                 // assert
-                Expect(result).To.Equal(15);
+                Expect(result.Value).To.Equal(15);
             }
         }
     }

@@ -33,7 +33,7 @@ namespace Dapper.CQRS
             return _serviceProvider.GetRequiredService<T>();
         }
 
-        internal void InitialiseExecutor(IServiceProvider serviceProvider)
+        public void InitialiseExecutor(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _dbConnection = serviceProvider.GetRequiredService<IDbConnection>();

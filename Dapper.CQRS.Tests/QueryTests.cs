@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Transactions;
@@ -24,7 +25,7 @@ namespace Dapper.CQRS.Tests
         public class Isolated : TestFixtureRequiringServiceProvider
         {
             [Test]
-            public async Task ShouldSelectAndReturnUser()
+            public void ShouldSelectAndReturnUser()
             {
                 using var scope = new TransactionScope();
                 // arrange
@@ -33,23 +34,24 @@ namespace Dapper.CQRS.Tests
                 // act
                 var randomUser = GetRandom<User>();
 
-                var id = await commandExecutor.Execute(new GenericCommand<int>(
+                var id = commandExecutor.Execute(new GenericCommand<int>(
                     @"INSERT INTO users (name, surname, email) 
                     VALUES(@Name, @Surname, @Email); 
                     SELECT LAST_INSERT_ID();",
                     randomUser));
 
-                var user = await queryExecutor
+                var user = queryExecutor
                     .Execute(new GenericQuery<User>("SELECT * FROM users WHERE id = @Id;",
                         new
                         {
                             Id = id
                         }));
+                
                 // assert
-                Expect(user.Id).To.Equal(id);
-                Expect(user.Name).To.Equal(randomUser.Name);
-                Expect(user.Surname).To.Equal(randomUser.Surname);
-                Expect(user.Email).To.Equal(randomUser.Email);
+                Expect(user.Value.Id).To.Equal(id.Value);
+                Expect(user.Value.Name).To.Equal(randomUser.Name);
+                Expect(user.Value.Surname).To.Equal(randomUser.Surname);
+                Expect(user.Value.Email).To.Equal(randomUser.Email);
             }
 
             [TestFixture]
@@ -64,7 +66,7 @@ namespace Dapper.CQRS.Tests
                     stopwatch.Start();
                     var queryExecutor = Resolve<IQueryExecutor>();
                     // act
-                    await queryExecutor.Execute(new SequentialBenchmarkQuery());
+                    await queryExecutor.ExecuteAsync(new SequentialBenchmarkQuery());
                     // assert
                     stopwatch.Stop();
                     Expect(stopwatch.Elapsed.TotalMilliseconds).To.Be.Greater.Than(4000);
@@ -78,43 +80,11 @@ namespace Dapper.CQRS.Tests
                 using var scope = new TransactionScope();
                 var queryExecutor = Resolve<IQueryExecutor>();
                 // act
-                var result = await queryExecutor.Execute(new ResolveDependenciesQuery());
+                var result = queryExecutor.Execute(new ResolveDependenciesQuery());
                 var expectedConnectionString = Resolve<IDbConnection>().ConnectionString;
                 // assert
                 Expect(result).To.Not.Be.Null();
-                Expect(result.ConnectionString).To.Be.Equal.To(expectedConnectionString);
-            }
-        }
-    }
-
-    [TestFixture]
-    public class GenericParameterTests
-    {
-        // todo: complete tests...
-        public class QueryWith4GenericParameters : Query<IList<User>>
-        {
-            public override Task<IList<User>> Execute()
-            {
-                return QueryList<User, UserType, UserDetails, User>(
-                    "SELECT * FROM users LEFT JOIN user_type ON users.id = user_type.user_id;",
-                    (user, type, details) =>
-                    {
-                        user.UserType = type;
-                        user.UserDetails = details;
-                        return user;
-                    });
-            }
-        }
-
-        [Test]
-        public void ShouldMerge4GenericParameters()
-        {
-            using (new TransactionScope())
-            {
-                // arrange
-
-                // act
-                // assert
+                Expect(result.Value.ConnectionString).To.Be.Equal.To(expectedConnectionString);
             }
         }
     }
@@ -158,17 +128,18 @@ namespace Dapper.CQRS.Tests
 
             var sut = Substitute.ForPartsOf<QueryUsers>();
 
-            sut.Initialise(serviceProvider);
+            sut.InitialiseExecutor(serviceProvider);
 
             queryExecutor
                 .Execute(Arg.Any<QueryUserDetails>())
-                .Returns(new List<UserDetails>
-                {
-                    new()
+                .Returns(new SuccessResult<IList<UserDetails>>(
+                    new List<UserDetails>
                     {
-                        IdNumber = "123"
-                    }
-                });
+                        new()
+                        {
+                            IdNumber = "123"
+                        }
+                    }));
 
             sut.QueryList<User>(Arg.Any<string>())
                 .Returns(new List<User>
@@ -177,11 +148,12 @@ namespace Dapper.CQRS.Tests
                 });
 
             // act
-            var result = await sut.Execute();
+            sut.Execute();
+            var result = sut.Result;
             // assert
-            await Expect(sut).To.Have.Received(1).QueryList<User>("select * from users;");
-            await Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
-            Expect(result.Count).To.Equal(1);
+            Expect(sut).To.Have.Received(1).QueryList<User>("select * from users;");
+            Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
+            Expect(result.Value.Count).To.Equal(1);
         }
 
         [TestFixture]
@@ -205,31 +177,36 @@ namespace Dapper.CQRS.Tests
 
                 var sut = Substitute.ForPartsOf<QueryUsers>();
 
-                sut.Initialise(serviceProvider);
+                sut.InitialiseExecutor(serviceProvider);
                 // act
-                var result = await sut.Execute();
+                sut.Execute();
+                var result = sut.Result;
                 // assert
-                await Expect(sut).To.Have.Received(1).QueryList<User>(Arg.Any<string>());
-                await Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
-                Expect(result).To.Deep.Equal(new List<User>());
+                Expect(sut).To.Have.Received(1).QueryList<User>(Arg.Any<string>());
+                Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
+                Expect(result.Value).To.Deep.Equal(new List<User>());
             }
         }
     }
     
     public class QueryUsers : Query<IList<User>>
     {
-        public override Task<IList<User>> Execute()
+        public override void Execute()
         {
             var userDetails = QueryExecutor.Execute(new QueryUserDetails());
-            return QueryList<User>("select * from users;");
+            var users =  QueryList<User>("select * from users;");
+
+            Result = new SuccessResult<IList<User>>(users.ToList());
         }
     }
 
     public class QueryUserDetails : Query<IList<UserDetails>>
     {
-        public override Task<IList<UserDetails>> Execute()
+        public override void Execute()
         {
-            return QueryList<UserDetails>("select * from user_details;");
+            var result = QueryList<UserDetails>("select * from user_details;");
+
+            Result = new SuccessResult<IList<UserDetails>>(result.ToList());
         }
     }
 }

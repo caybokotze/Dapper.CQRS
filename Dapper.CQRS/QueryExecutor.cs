@@ -20,6 +20,11 @@ namespace Dapper.CQRS
 
         public Result<T> Execute<T>(Query<T> query)
         {
+            if (query is null)
+            {
+                return new ErrorResult<T>("The query provided is invalid");
+            }
+            
             ExecuteWithNoResult(query);
             return query.Result;
         }

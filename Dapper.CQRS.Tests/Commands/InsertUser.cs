@@ -14,7 +14,7 @@ namespace Dapper.CQRS.Tests.Commands
             User = user;
         }
         
-        public override async Task<int> Execute()
+        public override void Execute()
         {
             var insertSql = new SqlBuilder()
                 .Insert<User>("users", i =>
@@ -28,14 +28,12 @@ namespace Dapper.CQRS.Tests.Commands
                 .Select()
                 .LastInserted(Version.MySql);
 
-            var existingUser = await QueryExecutor.Execute(new FetchUser(User.Id));
+            var result = QueryExecutor.Execute(new FetchUser(User.Id));
 
-            if (existingUser is null)
+            if (result.Failure)
             {
-                return await QueryFirst<int>(insertSql);
+                Result = new SuccessResult<int>(QueryFirst<int>(insertSql));
             }
-
-            return existingUser.Id;
         }
     }
 }

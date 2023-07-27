@@ -21,17 +21,15 @@ namespace Dapper.CQRS.Tests
         public class Registrations : TestFixtureRequiringServiceProvider
         {
             [Test]
-            public async Task AssertThatIApplicationBuilderRegistersIQueryExecutor()
+            public void AssertThatIApplicationBuilderRegistersIQueryExecutor()
             {
-                var queryExecutor = ServiceProvider!
-                    .GetService<IQueryExecutor>();
+                var queryExecutor = ServiceProvider!.GetService<IQueryExecutor>();
 
-                var actual = GetRandomInt();
+                var expected = GetRandomInt();
                 
-                var expected = await queryExecutor?
-                    .Execute(new GenericQuery<int>(actual))!;
+                var actual = queryExecutor!.Execute(new GenericQuery<int>(expected));
             
-                Assert.That(expected.Equals(actual));
+                Assert.That(expected.Equals(actual.Value));
             }
         }
     }
@@ -39,9 +37,8 @@ namespace Dapper.CQRS.Tests
     [TestFixture]
     public class WhenExecutingCommand
     {
-
         [Test]
-        public async Task ShouldReturnCorrectType()
+        public void ShouldReturnCorrectType()
         {
             // arrange
             var dbConnection = Substitute.For<IDbConnection>();
@@ -60,9 +57,9 @@ namespace Dapper.CQRS.Tests
             var command = new GenericQuery<User>(user);
             var queryExecutor = new QueryExecutor(serviceProvider);
             // act
-            var result = await queryExecutor.Execute(command);
+            var result = queryExecutor.Execute(command);
             // assert
-            Expect(result).To.Equal(user);
+            Expect(result.Value).To.Equal(user);
         }
     }
 }

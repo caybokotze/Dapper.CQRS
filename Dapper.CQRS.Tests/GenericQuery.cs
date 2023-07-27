@@ -19,9 +19,10 @@ namespace Dapper.CQRS.Tests
             _parameters = parameters;
         }
             
-        public override async Task<T> Execute()
+        public override void Execute()
         {
-            return _expectedValue ?? await QueryFirst<T>(_sql ?? string.Empty, _parameters);
+            var result = QueryFirst<T>(_sql ?? string.Empty, _parameters);
+            Result = new SuccessResult<T>(result);
         }
     }
 }

@@ -20,17 +20,15 @@ namespace Dapper.CQRS.Tests
             _parameters = parameters;
         }
             
-        public override async Task<T> Execute()
+        public override void Execute()
         {
             if (_mockedReturnValue is > 0)
             {
-                return _mockedReturnValue;
+                Result = new SuccessResult<T>(_mockedReturnValue);
             }
             
-            Db.Open();
-            var result = await Db.QueryFirstAsync<T>(_sql, _parameters);
-            Db.Close();
-            return result;
+            var result = Connection.QueryFirst<T>(_sql, _parameters);
+            Result = new SuccessResult<T>(result);
         }
     }
 }

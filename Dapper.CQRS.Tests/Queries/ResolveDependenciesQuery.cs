@@ -6,9 +6,9 @@ namespace Dapper.CQRS.Tests.Queries
 {
     public class ResolveDependenciesQuery : Query<IDbConnection>
     {
-        public override Task<IDbConnection> Execute()
+        public override void Execute()
         {
-            return Task.FromResult(Sp.GetRequiredService<IDbConnection>());
+            Result = new SuccessResult<IDbConnection>(GetRequiredService<IDbConnection>());
         }
     }
 }

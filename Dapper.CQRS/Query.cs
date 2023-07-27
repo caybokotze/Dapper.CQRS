@@ -27,6 +27,7 @@ namespace Dapper.CQRS
         /// </summary>
         /// <returns></returns>
         public abstract void Execute();
+        
 
         public void ValidateTransactionScope()
         {

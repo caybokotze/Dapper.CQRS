@@ -1,11 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
 namespace Dapper.CQRS.Tests.Queries
 {
-    public class FetchUser : Query<User?>
+    public class FetchUser : Query<User>
     {
         public int Id { get; }
 
@@ -14,9 +15,9 @@ namespace Dapper.CQRS.Tests.Queries
             Id = id;
         }
         
-        public override async Task<User?> Execute()
+        public override void Execute()
         {
-            var users =  await QueryList<User>(
+            var users =  QueryList<User>(
                 new SqlBuilder()
                 .Select<User>(s =>
                 {
@@ -26,7 +27,15 @@ namespace Dapper.CQRS.Tests.Queries
                 .From("users")
                 .Build());
 
-            return users.FirstOrDefault();
+            var user = users.FirstOrDefault();
+
+            if (user is null)
+            {
+                Result = new ErrorResult<User>("The user can not be found");
+                return;
+            }
+
+            Result = new SuccessResult<User>(user);
         }
     }
 }

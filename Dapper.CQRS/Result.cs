@@ -25,8 +25,8 @@ namespace Dapper.CQRS
             _data = data;
         }
         
-        public T Data => (Success ? _data 
-            : throw new InvalidResult($"Access to .{nameof(Data)} is not allowed when .{nameof(Success)} is false"))!;
+        public T Value => (Success ? _data 
+            : throw new InvalidResult($"Access to .{nameof(Value)} is not allowed when .{nameof(Success)} is false"))!;
     }
 
     public class SuccessResult : Result

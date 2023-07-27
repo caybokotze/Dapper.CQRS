@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dapper.CQRS
 {
@@ -24,7 +25,11 @@ namespace Dapper.CQRS
         public Result Execute(Command command)
         {
             // TODO: Implement error handling strategy here
+            command.CommandExecutor = this;
+            command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
+            
             command.InitialiseExecutor(_serviceProvider);
+            
             try
             {
                 command.Execute();
@@ -39,6 +44,9 @@ namespace Dapper.CQRS
 
         public Result<T> Execute<T>(Command<T> command)
         {
+            command.CommandExecutor = this;
+            command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
+            
             command.InitialiseExecutor(_serviceProvider);
             command.Execute();
             return command.Result;
@@ -46,6 +54,9 @@ namespace Dapper.CQRS
 
         public async Task<Result> ExecuteAsync(CommandAsync command)
         {
+            command.CommandExecutor = this;
+            command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
+            
             command.InitialiseExecutor(_serviceProvider);
             try
             {
@@ -61,6 +72,9 @@ namespace Dapper.CQRS
 
         public async Task<Result<T>> ExecuteAsync<T>(CommandAsync<T> command)
         {
+            command.CommandExecutor = this;
+            command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
+            
             command.InitialiseExecutor(_serviceProvider);
             await command.ExecuteAsync();
             return command.Result;
