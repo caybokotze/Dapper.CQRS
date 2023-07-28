@@ -9,9 +9,7 @@ namespace Dapper.CQRS
 {
     public class SqlExecutorAsync
     {
-        private ICommandExecutor? _commandExecutor;
         private ILogger? _logger;
-        private IDbConnection? _dbConnection;
         private IServiceProvider? _serviceProvider;
 
         protected ILogger Logger => _logger
@@ -33,8 +31,6 @@ namespace Dapper.CQRS
         internal void InitialiseExecutor(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _dbConnection = serviceProvider.GetRequiredService<IDbConnection>();
-            _commandExecutor = serviceProvider.GetRequiredService<ICommandExecutor>();
             _logger = serviceProvider.GetRequiredService<ILogger<SqlExecutor>>();
         }
 

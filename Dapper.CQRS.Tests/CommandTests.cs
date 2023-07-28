@@ -2,7 +2,6 @@
 using System.Data;
 using System.Threading.Tasks;
 using System.Transactions;
-using System.Windows.Input;
 using Dapper.CQRS.Tests.Commands;
 using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
@@ -10,7 +9,6 @@ using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
-using NSubstitute.Core;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
@@ -47,7 +45,7 @@ namespace Dapper.CQRS.Tests
                     queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id",
                         new
                         {
-                            Id = userId
+                            Id = userId.Value
                         }));
 
                 if (userId.Success)
@@ -60,7 +58,7 @@ namespace Dapper.CQRS.Tests
                     .To
                     .Be.Greater.Than(0);
 
-                Expect(user).To.Deep.Equal(expectedUser);
+                Expect(user).To.Deep.Equal(expectedUser.Value);
             }
 
             [Test]
@@ -90,7 +88,10 @@ namespace Dapper.CQRS.Tests
                 var expectedFirstUser = queryExecutor
                     .Execute(new GenericQuery<User>(
                         "SELECT * FROM users where id = @Id;",
-                        new {Id = userId}));
+                        new
+                        {
+                            Id = userId.Value
+                        }));
 
                 var updatedUser = new User
                 {
@@ -108,7 +109,7 @@ namespace Dapper.CQRS.Tests
                     queryExecutor.Execute(new GenericQuery<User>("SELECT * FROM users where id = @Id;",
                         new
                         {
-                            Id = userId
+                            Id = userId.Value
                         }));
 
                 // assert
@@ -116,8 +117,8 @@ namespace Dapper.CQRS.Tests
                     .To
                     .Be.Greater.Than(0);
 
-                Expect(user).To.Deep.Equal(expectedFirstUser);
-                Expect(updatedUser).To.Deep.Equal(expectedUpdatedUser);
+                Expect(user).To.Deep.Equal(expectedFirstUser.Value);
+                Expect(updatedUser).To.Deep.Equal(expectedUpdatedUser.Value);
             }
             
             [TestFixture]
@@ -213,28 +214,27 @@ namespace Dapper.CQRS.Tests
             public void ShouldBeMockable()
             {
                 // arrange
-                var serviceProvider = Substitute.For<IServiceProvider>();
-                
-                var queryExecutor = Substitute.For<QueryExecutor>(serviceProvider);
-                var commandExecutor = Substitute.For<CommandExecutor>(serviceProvider);
+                var queryExecutor = Substitute.For<IQueryExecutor>();
                 var dbConnection = Substitute.For<IDbConnection>();
                 var logger = Substitute.For<ILogger<SqlExecutor>>();
-
-                serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
-                serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
+                
+                var serviceProvider = Substitute.For<IServiceProvider>();
                 serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
                 serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
 
                 var user = GetRandom<User>();
                 
+                var sut = Substitute.ForPartsOf<InsertUser>(user);
+                
                 queryExecutor
                     .Execute(Arg.Any<FetchUser>())
                     .Returns(new SuccessResult<User>(user));
-
-                var sut = Substitute.ForPartsOf<InsertUser>(user);
+                
+                sut.QueryExecutor = queryExecutor;
+                sut.Execute();
 
                 // act
-                var result = commandExecutor.Execute(sut);
+                var result = sut.Result;
                 
                 // assert
                 Expect(sut)

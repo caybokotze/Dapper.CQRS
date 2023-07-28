@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Dapper.CQRS.Tests
+﻿namespace Dapper.CQRS.Tests
 {
     public class GenericCommand<T> : Command<T>
     {
@@ -25,6 +23,7 @@ namespace Dapper.CQRS.Tests
             if (_mockedReturnValue is > 0)
             {
                 Result = new SuccessResult<T>(_mockedReturnValue);
+                return;
             }
             
             var result = Connection.QueryFirst<T>(_sql, _parameters);

@@ -2,8 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +11,7 @@ namespace Dapper.CQRS
     
     public class SqlExecutor
     {
-        private ICommandExecutor? _commandExecutor;
         private ILogger? _logger;
-        private IDbConnection? _dbConnection;
         private IServiceProvider? _serviceProvider;
 
         protected ILogger Logger => _logger
@@ -33,11 +30,9 @@ namespace Dapper.CQRS
             return _serviceProvider.GetRequiredService<T>();
         }
 
-        public void InitialiseExecutor(IServiceProvider serviceProvider)
+        internal void InitialiseExecutor(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _dbConnection = serviceProvider.GetRequiredService<IDbConnection>();
-            _commandExecutor = serviceProvider.GetRequiredService<ICommandExecutor>();
             _logger = serviceProvider.GetRequiredService<ILogger<SqlExecutor>>();
         }
 
@@ -49,8 +44,8 @@ namespace Dapper.CQRS
             }
             
             var connection =  _serviceProvider.GetRequiredService<IDbConnection>();
-
-            if (connection.State != ConnectionState.Open)
+            
+            if (Transaction.Current is null && connection.State != ConnectionState.Open)
             {
                 connection.Open();
             }

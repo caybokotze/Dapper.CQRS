@@ -18,8 +18,7 @@ namespace Dapper.CQRS
 
                 return _queryExecutor;
             }
-            
-            internal set => _queryExecutor = value;
+            set => _queryExecutor = value;
         }
         
         /// <summary>

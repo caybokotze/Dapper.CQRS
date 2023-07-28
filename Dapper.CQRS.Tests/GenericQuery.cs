@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Dapper.CQRS.Tests
+﻿namespace Dapper.CQRS.Tests
 {
     public class GenericQuery<T> : Query<T>
     {
@@ -21,6 +19,12 @@ namespace Dapper.CQRS.Tests
             
         public override void Execute()
         {
+            if (_expectedValue is not null)
+            {
+                Result = new SuccessResult<T>(_expectedValue);
+                return;
+            }
+            
             var result = QueryFirst<T>(_sql ?? string.Empty, _parameters);
             Result = new SuccessResult<T>(result);
         }

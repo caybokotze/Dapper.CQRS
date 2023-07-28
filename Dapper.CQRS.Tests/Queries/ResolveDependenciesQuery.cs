@@ -1,6 +1,4 @@
 ﻿using System.Data;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dapper.CQRS.Tests.Queries
 {

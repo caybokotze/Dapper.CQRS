@@ -1,6 +1,5 @@
 using System;
 using System.Data;
-using System.Threading.Tasks;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,7 @@ namespace Dapper.CQRS.Tests
         {
             [Test]
             [Repeat(100)]
-            public async Task AssertThatIApplicationBuilderRegistersCommandExecutor()
+            public void AssertThatIApplicationBuilderRegistersCommandExecutor()
             {
                 var commandExecutor = ServiceProvider!.GetService<ICommandExecutor>();
                 

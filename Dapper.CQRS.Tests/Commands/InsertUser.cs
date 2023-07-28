@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Dapper.CQRS.Tests.Queries;
+﻿using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
@@ -30,10 +29,22 @@ namespace Dapper.CQRS.Tests.Commands
 
             var result = QueryExecutor.Execute(new FetchUser(User.Id));
 
+            if (result.Success)
+            {
+                Result = new SuccessResult<int>(result.Value.Id);
+                return;
+            }
+
             if (result.Failure)
             {
-                Result = new SuccessResult<int>(QueryFirst<int>(insertSql));
+                var insertedUserResult = QueryFirst<int>(insertSql, User);
+                if (insertedUserResult > 0)
+                {
+                    Result = new SuccessResult<int>(insertedUserResult);
+                }
             }
+
+            Result = new ErrorResult<int>("The person could not be found");
         }
     }
 }

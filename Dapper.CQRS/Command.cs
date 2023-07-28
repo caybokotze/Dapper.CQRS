@@ -27,7 +27,7 @@ namespace Dapper.CQRS
                 return _queryExecutor;
             }
             
-            internal set => _queryExecutor = value;
+            set => _queryExecutor = value;
         }
         
         private ICommandExecutor? _commandExecutor;
@@ -43,7 +43,7 @@ namespace Dapper.CQRS
                 return _commandExecutor;
             }
             
-            internal set => _commandExecutor = value;
+            set => _commandExecutor = value;
         }
         
         public abstract void Execute();
@@ -74,7 +74,7 @@ namespace Dapper.CQRS
                 return _queryExecutor;
             }
             
-            internal set => _queryExecutor = value;
+            set => _queryExecutor = value;
         }
         
         private ICommandExecutor? _commandExecutor;
@@ -90,7 +90,7 @@ namespace Dapper.CQRS
                 return _commandExecutor;
             }
             
-            internal set => _commandExecutor = value;
+            set => _commandExecutor = value;
         }
         
         public abstract Task ExecuteAsync();

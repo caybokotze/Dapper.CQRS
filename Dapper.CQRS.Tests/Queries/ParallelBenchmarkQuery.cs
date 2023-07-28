@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NSubstitute.Routing.Handlers;
-using NUnit.Framework;
 
 namespace Dapper.CQRS.Tests.Queries
 {
-    public class ParallelBenchmarkQuery : QueryAsync
+    public class ParallelBenchmarkQuery : QueryAsync<int>
     {
-
         public override async Task ExecuteAsync()
         {
             const string sql = "select benchmark(10000000, md5('when will it end?'));";
@@ -19,7 +16,9 @@ namespace Dapper.CQRS.Tests.Queries
                 Task.Run(() => QueryFirstAsync<int>(sql))
             };
             
-            await Task.WhenAll(taskList);
+            var result = await Task.WhenAll(taskList);
+
+            Result = new SuccessResult<int>(1);
         }
     }
 }

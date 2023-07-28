@@ -1,13 +1,11 @@
 using System;
 using System.Data;
-using System.Threading.Tasks;
 using Dapper.CQRS.Tests.TestModels;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
-using NSubstitute.Core;
 using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;

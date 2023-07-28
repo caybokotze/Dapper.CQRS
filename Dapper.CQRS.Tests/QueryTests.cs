@@ -4,7 +4,6 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Transactions;
 using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
@@ -28,9 +27,11 @@ namespace Dapper.CQRS.Tests
             public void ShouldSelectAndReturnUser()
             {
                 using var scope = new TransactionScope();
+                
                 // arrange
                 var queryExecutor = Resolve<IQueryExecutor>();
                 var commandExecutor = Resolve<ICommandExecutor>();
+
                 // act
                 var randomUser = GetRandom<User>();
 
@@ -40,11 +41,16 @@ namespace Dapper.CQRS.Tests
                     SELECT LAST_INSERT_ID();",
                     randomUser));
 
+                if (id.Failure)
+                {
+                    Assert.Fail();
+                }
+
                 var user = queryExecutor
                     .Execute(new GenericQuery<User>("SELECT * FROM users WHERE id = @Id;",
                         new
                         {
-                            Id = id
+                            Id = id.Value
                         }));
                 
                 // assert
@@ -61,7 +67,6 @@ namespace Dapper.CQRS.Tests
                 public async Task ShouldExecuteInSequence()
                 {
                     // arrange
-                    using var scope = new TransactionScope();
                     var stopwatch = new Stopwatch();
                     stopwatch.Start();
                     var queryExecutor = Resolve<IQueryExecutor>();
@@ -69,7 +74,49 @@ namespace Dapper.CQRS.Tests
                     await queryExecutor.ExecuteAsync(new SequentialBenchmarkQuery());
                     // assert
                     stopwatch.Stop();
-                    Expect(stopwatch.Elapsed.TotalMilliseconds).To.Be.Greater.Than(4000);
+                    var totalSequential = stopwatch.Elapsed.TotalMilliseconds;
+                    stopwatch.Reset();
+                    stopwatch.Start();
+                    await queryExecutor.ExecuteAsync(new ParallelBenchmarkQuery());
+                    stopwatch.Stop();
+                    var totalParallel = stopwatch.Elapsed.TotalMilliseconds;
+                    Expect(totalParallel).To.Be.Less.Than(totalSequential / 2);
+                }
+
+                [Test]
+                public async Task ShouldExecuteAndReturnUserAndDetails()
+                {
+                    // arrange
+                    var queryExecutor = Resolve<IQueryExecutor>();
+                    var commandExecutor = Resolve<ICommandExecutor>();
+                    
+                    var randomUser = GetRandom<User>();
+
+                    var userIdResult = commandExecutor.Execute(new GenericCommand<int>(
+                        @"
+                                INSERT INTO users (name, surname, email) 
+                                VALUES(@Name, @Surname, @Email); 
+                                SELECT LAST_INSERT_ID();",
+                        randomUser));
+
+                    var randomDetails = GetRandom<UserDetails>();
+                    randomDetails.UserId = userIdResult.Value;
+                    
+                    var userDetailsIdResult = commandExecutor.Execute(new GenericCommand<int>(
+                        @"
+                                INSERT INTO user_details (user_id, id_number) 
+                                VALUES(@UserId, @IdNumber); 
+                                SELECT LAST_INSERT_ID();",
+                        randomDetails));
+                    
+                    // assert
+                    var userDetails = await queryExecutor.ExecuteAsync(new ParallelUserDetailsQuery(userIdResult.Value));
+
+                    Expect(userDetails.Value.Id).To.Equal(userIdResult.Value);
+                    Expect(userDetails.Value.Email).To.Equal(randomUser.Email);
+                    Expect(userDetails.Value.Name).To.Equal(randomUser.Name);
+                    Expect(userDetails.Value.Surname).To.Equal(randomUser.Surname);
+                    Expect(userDetails.Value.UserDetails!.IdNumber).To.Equal(randomDetails.IdNumber);
                 }
             }
 
@@ -116,76 +163,40 @@ namespace Dapper.CQRS.Tests
         {
             // arrange
             var logger = Substitute.For<ILogger<SqlExecutor>>();
-            var dbConnection = Substitute.For<IDbConnection>();
-            var commandExecutor = Substitute.For<ICommandExecutor>();
-            var queryExecutor = Substitute.For<IQueryExecutor>();
+            
+            var mockDbConnection = Substitute.For<IDbConnection>();
+            var mockQueryExecutor = Substitute.For<IQueryExecutor>();
 
             var serviceProvider = Substitute.For<IServiceProvider>();
-            serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
-            serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
-            serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
+            serviceProvider.GetService(typeof(IDbConnection)).Returns(mockDbConnection);
             serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
-
+            
             var sut = Substitute.ForPartsOf<QueryUsers>();
 
-            sut.InitialiseExecutor(serviceProvider);
-
-            queryExecutor
-                .Execute(Arg.Any<QueryUserDetails>())
-                .Returns(new SuccessResult<IList<UserDetails>>(
-                    new List<UserDetails>
+            mockQueryExecutor.Execute(Arg.Any<QueryUserDetails>())
+                .Returns(new SuccessResult<IList<UserDetails>>(new List<UserDetails>
+                {
+                    new()
                     {
-                        new()
-                        {
-                            IdNumber = "123"
-                        }
-                    }));
+                        IdNumber = "123"
+                    }
+                }));
+            
+            sut.QueryExecutor = mockQueryExecutor;
 
             sut.QueryList<User>(Arg.Any<string>())
                 .Returns(new List<User>
                 {
                     GetRandom<User>()
-                });
+                }); 
 
-            // act
             sut.Execute();
+            // act
             var result = sut.Result;
             // assert
             Expect(sut).To.Have.Received(1).QueryList<User>("select * from users;");
-            Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
+            Expect(mockQueryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
             Expect(result.Value.Count).To.Equal(1);
-        }
-
-        [TestFixture]
-        public class WithoutDefiningReturnValue
-        {
-            [Test]
-            public async Task ShouldRecordMockedCalls()
-            {
-                // arrange
-                var queryExecutor = Substitute.For<IQueryExecutor>();
-                var commandExecutor = Substitute.For<ICommandExecutor>();
-                var dbConnection = Substitute.For<IDbConnection>();
-                var logger = Substitute.For<ILogger<SqlExecutor>>();
-                
-                var serviceProvider = Substitute.For<IServiceProvider>();
-                
-                serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
-                serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
-                serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
-                serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
-
-                var sut = Substitute.ForPartsOf<QueryUsers>();
-
-                sut.InitialiseExecutor(serviceProvider);
-                // act
-                sut.Execute();
-                var result = sut.Result;
-                // assert
-                Expect(sut).To.Have.Received(1).QueryList<User>(Arg.Any<string>());
-                Expect(queryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
-                Expect(result.Value).To.Deep.Equal(new List<User>());
-            }
         }
     }
     

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Dapper.CQRS.Tests.TestModels;
+﻿using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
 namespace Dapper.CQRS.Tests.Commands
