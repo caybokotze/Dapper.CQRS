@@ -17,16 +17,9 @@
             _parameters = parameters;
         }
             
-        public override void Execute()
+        public override T Execute()
         {
-            if (_expectedValue is not null)
-            {
-                Result = new SuccessResult<T>(_expectedValue);
-                return;
-            }
-            
-            var result = QueryFirst<T>(_sql ?? string.Empty, _parameters);
-            Result = new SuccessResult<T>(result);
+            return QueryFirst<T>(_sql ?? string.Empty, _parameters);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Dapper.CQRS.Tests.Queries
             _userId = userId;
         }
         
-        public override async Task ExecuteAsync()
+        public override async Task<User> ExecuteAsync()
         {
             var userSql = new SqlBuilder()
                 .Select<User>(s =>
@@ -42,7 +42,7 @@ namespace Dapper.CQRS.Tests.Queries
             var userResult = user.Result;
             userResult.UserDetails = userDetails.Result;
 
-            Result = new SuccessResult<User>(userResult);
+            return userResult;
         }
     }
 }

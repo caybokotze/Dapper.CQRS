@@ -41,23 +41,18 @@ namespace Dapper.CQRS.Tests
                     SELECT LAST_INSERT_ID();",
                     randomUser));
 
-                if (id.Failure)
-                {
-                    Assert.Fail();
-                }
-
                 var user = queryExecutor
                     .Execute(new GenericQuery<User>("SELECT * FROM users WHERE id = @Id;",
                         new
                         {
-                            Id = id.Value
+                            Id = id
                         }));
                 
                 // assert
-                Expect(user.Value.Id).To.Equal(id.Value);
-                Expect(user.Value.Name).To.Equal(randomUser.Name);
-                Expect(user.Value.Surname).To.Equal(randomUser.Surname);
-                Expect(user.Value.Email).To.Equal(randomUser.Email);
+                Expect(user.Id).To.Equal(id);
+                Expect(user.Name).To.Equal(randomUser.Name);
+                Expect(user.Surname).To.Equal(randomUser.Surname);
+                Expect(user.Email).To.Equal(randomUser.Email);
             }
 
             [TestFixture]
@@ -100,7 +95,7 @@ namespace Dapper.CQRS.Tests
                         randomUser));
 
                     var randomDetails = GetRandom<UserDetails>();
-                    randomDetails.UserId = userIdResult.Value;
+                    randomDetails.UserId = userIdResult;
                     
                     var userDetailsIdResult = commandExecutor.Execute(new GenericCommand<int>(
                         @"
@@ -110,13 +105,13 @@ namespace Dapper.CQRS.Tests
                         randomDetails));
                     
                     // assert
-                    var userDetails = await queryExecutor.ExecuteAsync(new ParallelUserDetailsQuery(userIdResult.Value));
+                    var userDetails = await queryExecutor.ExecuteAsync(new ParallelUserDetailsQuery(userIdResult));
 
-                    Expect(userDetails.Value.Id).To.Equal(userIdResult.Value);
-                    Expect(userDetails.Value.Email).To.Equal(randomUser.Email);
-                    Expect(userDetails.Value.Name).To.Equal(randomUser.Name);
-                    Expect(userDetails.Value.Surname).To.Equal(randomUser.Surname);
-                    Expect(userDetails.Value.UserDetails!.IdNumber).To.Equal(randomDetails.IdNumber);
+                    Expect(userDetails.Id).To.Equal(userIdResult);
+                    Expect(userDetails.Email).To.Equal(randomUser.Email);
+                    Expect(userDetails.Name).To.Equal(randomUser.Name);
+                    Expect(userDetails.Surname).To.Equal(randomUser.Surname);
+                    Expect(userDetails.UserDetails!.IdNumber).To.Equal(randomDetails.IdNumber);
                 }
             }
 
@@ -131,7 +126,7 @@ namespace Dapper.CQRS.Tests
                 var expectedConnectionString = Resolve<IDbConnection>().ConnectionString;
                 // assert
                 Expect(result).To.Not.Be.Null();
-                Expect(result.Value.ConnectionString).To.Be.Equal.To(expectedConnectionString);
+                Expect(result.ConnectionString).To.Be.Equal.To(expectedConnectionString);
             }
         }
     }
@@ -174,50 +169,46 @@ namespace Dapper.CQRS.Tests
             var sut = Substitute.ForPartsOf<QueryUsers>();
 
             mockQueryExecutor.Execute(Arg.Any<QueryUserDetails>())
-                .Returns(new SuccessResult<IList<UserDetails>>(new List<UserDetails>
+                .Returns(new List<UserDetails>
                 {
                     new()
                     {
                         IdNumber = "123"
                     }
-                }));
+                });
             
-            sut.QueryExecutor = mockQueryExecutor;
-
             sut.QueryList<User>(Arg.Any<string>())
                 .Returns(new List<User>
                 {
                     GetRandom<User>()
                 }); 
 
-            sut.Execute();
             // act
-            var result = sut.Result;
+            sut.Execute();
             // assert
             Expect(sut).To.Have.Received(1).QueryList<User>("select * from users;");
             Expect(mockQueryExecutor).To.Have.Received(1).Execute(Arg.Any<QueryUserDetails>());
-            Expect(result.Value.Count).To.Equal(1);
         }
     }
     
     public class QueryUsers : Query<IList<User>>
     {
-        public override void Execute()
+        public override IList<User> Execute()
         {
             var userDetails = QueryExecutor.Execute(new QueryUserDetails());
             var users =  QueryList<User>("select * from users;");
 
-            Result = new SuccessResult<IList<User>>(users.ToList());
+            return users.ToList();
         }
     }
 
     public class QueryUserDetails : Query<IList<UserDetails>>
     {
-        public override void Execute()
+        public override IList<UserDetails> Execute()
         {
             var result = QueryList<UserDetails>("select * from user_details;");
 
-            Result = new SuccessResult<IList<UserDetails>>(result.ToList());
+            return result.ToList();
         }
     }
 }

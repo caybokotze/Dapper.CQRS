@@ -8,7 +8,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
-    
+    /// <summary>
+    /// A synchronous SqlExecutor which exposes the ServiceProvider (to resolve dependencies) and Dapper methods.
+    /// All dapper methods are marked as virtual to allow for mocked return values with Moq or NSubstitute.
+    /// </summary>
     public class SqlExecutor
     {
         private ILogger? _logger;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper.CQRS.Exceptions;
@@ -6,10 +6,10 @@ using Dapper.CQRS.Exceptions;
 namespace Dapper.CQRS
 {
     /// <summary>
-    /// A synchronous Query which not not expose a result
+    /// A asynchronous Query which not not expose a result
     /// Exposes a QueryExecutor to perform internal operations
     /// </summary>
-    public abstract class Query : SqlExecutor
+    public abstract class QueryAsync : SqlExecutorAsync
     {
         private IQueryExecutor? _queryExecutor;
         
@@ -35,9 +35,8 @@ namespace Dapper.CQRS
         /// Execute this instance of 'Query'
         /// </summary>
         /// <returns></returns>
-        public abstract void Execute();
+        public abstract Task ExecuteAsync();
         
-
         /// <summary>
         /// Throw if there is no defined transaction scope.
         /// </summary>
@@ -50,17 +49,18 @@ namespace Dapper.CQRS
             }
         }
     }
+    
 
     /// <summary>
-    /// A synchronous Query which exposes a result
+    /// A asynchronous Query which exposes a result
     /// Exposes a QueryExecutor to perform internal operations
     /// </summary>
-    public abstract class Query<T> : SqlExecutor
+    public abstract class QueryAsync<T> : SqlExecutorAsync 
     {
-        protected Query()
+        protected QueryAsync()
         {
         }
-        
+
         private IQueryExecutor? _queryExecutor;
         
         /// <summary>
@@ -77,14 +77,15 @@ namespace Dapper.CQRS
 
                 return _queryExecutor;
             }
+            
             internal set => _queryExecutor = value;
         }
         
         /// <summary>
-        /// Execute this instance of 'Query'
+        /// Execute the instance of this 'Query'
         /// </summary>
         /// <returns></returns>
-        public abstract T Execute();
+        public abstract Task<T> ExecuteAsync();
         
         /// <summary>
         /// Throw if there is no defined transaction scope.

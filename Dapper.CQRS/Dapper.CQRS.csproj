@@ -15,7 +15,7 @@
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
-        <LangVersion>9</LangVersion>
+        <LangVersion>11</LangVersion>
         <PackageVersion>4.0.0</PackageVersion>
         <Title>Dapper.CQRS</Title>
         <PackageProjectUrl>https://github.com/caybokotze/Dapper.CQRS</PackageProjectUrl>

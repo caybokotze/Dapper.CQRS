@@ -26,7 +26,7 @@ namespace Dapper.CQRS.Tests
                 var actual = GetRandomInt(1);
                 var expected = commandExecutor!.Execute(new GenericCommand<int>(actual))!;
                 
-                Assert.AreEqual(actual, expected.Value);
+                Assert.AreEqual(actual, expected);
             }
         }
 
@@ -56,7 +56,7 @@ namespace Dapper.CQRS.Tests
                 // act
                 var result = commandExecutor.Execute(command);
                 // assert
-                Expect(result.Value).To.Equal(15);
+                Expect(result).To.Equal(15);
             }
         }
     }

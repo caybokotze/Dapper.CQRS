@@ -18,16 +18,9 @@
             _parameters = parameters;
         }
             
-        public override void Execute()
+        public override T Execute()
         {
-            if (_mockedReturnValue is > 0)
-            {
-                Result = new SuccessResult<T>(_mockedReturnValue);
-                return;
-            }
-            
-            var result = Connection.QueryFirst<T>(_sql, _parameters);
-            Result = new SuccessResult<T>(result);
+            return Connection.QueryFirst<T>(_sql, _parameters);
         }
     }
 }

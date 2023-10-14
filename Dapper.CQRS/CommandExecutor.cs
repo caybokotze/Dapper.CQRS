@@ -7,10 +7,10 @@ namespace Dapper.CQRS
 {
     public interface ICommandExecutor
     {
-        Result Execute(Command command);
-        Result<T> Execute<T>(Command<T> command);
-        Task<Result> ExecuteAsync(CommandAsync command);
-        Task<Result<T>> ExecuteAsync<T>(CommandAsync<T> command);
+        void Execute(Command command);
+        T Execute<T>(Command<T> command);
+        Task ExecuteAsync(CommandAsync command);
+        Task<T> ExecuteAsync<T>(CommandAsync<T> command);
     }
     
     public class CommandExecutor : ICommandExecutor
@@ -22,62 +22,36 @@ namespace Dapper.CQRS
             _serviceProvider = serviceProvider;
         }
         
-        public Result Execute(Command command)
-        {
-            // TODO: Implement error handling strategy here
-            command.CommandExecutor = this;
-            command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
-            
-            command.InitialiseExecutor(_serviceProvider);
-            
-            try
-            {
-                command.Execute();
-            }
-            catch (Exception e)
-            {
-                return new ErrorResult($"Something went wrong while executing {nameof(command)}", new List<Error>{ new(e.Message) });
-            }
-
-            return new SuccessResult();
-        }
-
-        public Result<T> Execute<T>(Command<T> command)
+        public void Execute(Command command)
         {
             command.CommandExecutor = this;
             command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
-            
             command.InitialiseExecutor(_serviceProvider);
             command.Execute();
-            return command.Result;
         }
 
-        public async Task<Result> ExecuteAsync(CommandAsync command)
+        public T Execute<T>(Command<T> command)
         {
             command.CommandExecutor = this;
             command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
-            
             command.InitialiseExecutor(_serviceProvider);
-            try
-            {
-                await command.ExecuteAsync();
-            }
-            catch (Exception e)
-            {
-                return new ErrorResult($"Something went wrong while executing {nameof(command)}", new List<Error>{ new(e.Message) });
-            }
-
-            return new SuccessResult();
+            return command.Execute();
         }
 
-        public async Task<Result<T>> ExecuteAsync<T>(CommandAsync<T> command)
+        public async Task ExecuteAsync(CommandAsync command)
         {
             command.CommandExecutor = this;
             command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
-            
             command.InitialiseExecutor(_serviceProvider);
             await command.ExecuteAsync();
-            return command.Result;
+        }
+
+        public async Task<T> ExecuteAsync<T>(CommandAsync<T> command)
+        {
+            command.CommandExecutor = this;
+            command.QueryExecutor = _serviceProvider.GetRequiredService<IQueryExecutor>();
+            command.InitialiseExecutor(_serviceProvider);
+            return await command.ExecuteAsync();
         }
     }
 }

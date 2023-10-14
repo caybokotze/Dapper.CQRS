@@ -7,6 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS
 {
+    /// <summary>
+    /// A asynchronous SqlExecutor which exposes the ServiceProvider (to resolve dependencies) and Dapper methods.
+    /// All dapper methods are marked as virtual to allow for mocked return values with Moq or NSubstitute.
+    /// </summary>
     public class SqlExecutorAsync
     {
         private ILogger? _logger;
@@ -69,48 +73,48 @@ namespace Dapper.CQRS
             return await connection.QueryAsync<T>(sql, parameters);
         }
 
-        public virtual async Task<IEnumerable<TReturn>> QueryListAsync<T1, T2, TReturn>(string sql,
-            Func<T1, T2, TReturn> map,
+        public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, TOut>(string sql,
+            Func<TIn, T2, TOut> map,
             object? parameters = null)
         {
             using var connection = CreateOpenConnection();
             return await connection.QueryAsync(sql, map, parameters);
         }
 
-        public virtual async Task<IEnumerable<TReturn>> QueryListAsync<T1, T2, T3, TReturn>(string sql,
-            Func<T1, T2, T3, TReturn> map,
+        public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, TOut>(string sql,
+            Func<TIn, T2, T3, TOut> map,
             object? parameters = null)
         {
             using var connection = CreateOpenConnection();
             return await connection.QueryAsync(sql, map, parameters);
         }
 
-        public virtual async Task<IEnumerable<TReturn>> QueryListAsync<T1, T2, T3, T4, TReturn>(string sql,
-            Func<T1, T2, T3, T4, TReturn> map,
+        public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, TOut>(string sql,
+            Func<TIn, T2, T3, T4, TOut> map,
             object? parameters = null)
         {
             using var connection = CreateOpenConnection();
             return await connection.QueryAsync(sql, map, parameters);
         }
 
-        public virtual async Task<IEnumerable<TReturn>> QueryListAsync<T1, T2, T3, T4, T5, TReturn>(string sql,
-            Func<T1, T2, T3, T4, T5, TReturn> map,
+        public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, T5, TOut>(string sql,
+            Func<TIn, T2, T3, T4, T5, TOut> map,
             object? parameters = null)
         {
             using var connection = CreateOpenConnection();
             return await connection.QueryAsync(sql, map, parameters);
         }
 
-        public virtual async Task<IEnumerable<TReturn>> QueryListAsync<T1, T2, T3, T4, T5, T6, TReturn>(string sql,
-            Func<T1, T2, T3, T4, T5, T6, TReturn> map,
+        public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, T5, T6, TOut>(string sql,
+            Func<TIn, T2, T3, T4, T5, T6, TOut> map,
             object? parameters = null)
         {
             using var connection = CreateOpenConnection();
             return await connection.QueryAsync(sql, map, parameters);
         }
 
-        public virtual async Task<IEnumerable<TReturn>> QueryListAsync<T1, T2, T3, T4, T5, T6, T7, TReturn>(string sql,
-            Func<T1, T2, T3, T4, T5, T6, T7, TReturn> map,
+        public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, T5, T6, T7, TOut>(string sql,
+            Func<TIn, T2, T3, T4, T5, T6, T7, TOut> map,
             object? parameters = null)
         {
             using var connection = CreateOpenConnection();

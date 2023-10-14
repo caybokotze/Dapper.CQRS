@@ -7,7 +7,7 @@
 
         <RootNamespace>Dapper.CQRS.Tests</RootNamespace>
 
-        <LangVersion>9</LangVersion>
+        <LangVersion>11</LangVersion>
 
         <AssemblyName>Dapper.CQRS.Tests</AssemblyName>
 

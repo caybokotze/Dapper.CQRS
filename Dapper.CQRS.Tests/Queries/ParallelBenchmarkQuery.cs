@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Dapper.CQRS.Tests.Queries
 {
-    public class ParallelBenchmarkQuery : QueryAsync<int>
+    public class ParallelBenchmarkQuery : QueryAsync<bool>
     {
-        public override async Task ExecuteAsync()
+        public override async Task<bool> ExecuteAsync()
         {
             const string sql = "select benchmark(10000000, md5('when will it end?'));";
             
@@ -18,7 +18,7 @@ namespace Dapper.CQRS.Tests.Queries
             
             var result = await Task.WhenAll(taskList);
 
-            Result = new SuccessResult<int>(1);
+            return true; 
         }
     }
 }

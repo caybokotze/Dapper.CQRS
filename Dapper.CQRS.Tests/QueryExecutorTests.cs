@@ -27,7 +27,7 @@ namespace Dapper.CQRS.Tests
                 
                 var actual = queryExecutor!.Execute(new GenericQuery<int>(expected));
             
-                Assert.That(expected.Equals(actual.Value));
+                Assert.That(expected.Equals(actual));
             }
         }
     }
@@ -57,7 +57,7 @@ namespace Dapper.CQRS.Tests
             // act
             var result = queryExecutor.Execute(command);
             // assert
-            Expect(result.Value).To.Equal(user);
+            Expect(result).To.Equal(user);
         }
     }
 }

@@ -1,21 +1,21 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Transactions;
+using Dapper.CQRS.Exceptions;
 
 namespace Dapper.CQRS
 {
-    public abstract class Command<T> : Command
-    {
-        protected Command()
-        {
-            Result = new ErrorResult<T>("The result was not assigned during the execution of the command. Please check that .Result<T> is set in the inherited .Command<T>");
-        }
-        
-        public Result<T> Result { get; set; }
-    }
-
+    /// <summary>
+    /// A synchronous Command which does not expose a result
+    /// Exposes a QueryExecutor and CommandExecutor to perform internal operations
+    /// </summary>
     public abstract class Command : SqlExecutor
     {
         private IQueryExecutor? _queryExecutor;
+        
+        /// <summary>
+        /// A hydrated instance of a QueryExecutor
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public IQueryExecutor QueryExecutor {
             get
             {
@@ -27,11 +27,15 @@ namespace Dapper.CQRS
                 return _queryExecutor;
             }
             
-            set => _queryExecutor = value;
+            internal set => _queryExecutor = value;
         }
         
         private ICommandExecutor? _commandExecutor;
         
+        /// <summary>
+        /// A hydrated instance of a CommandExecutor.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public ICommandExecutor CommandExecutor {
             get
             {
@@ -43,26 +47,44 @@ namespace Dapper.CQRS
                 return _commandExecutor;
             }
             
-            set => _commandExecutor = value;
+            internal set => _commandExecutor = value;
         }
         
+        /// <summary>
+        /// Executes the instance of this 'Command'
+        /// </summary>
         public abstract void Execute();
-    }
-    
-    
-    public abstract class CommandAsync<T> : CommandAsync
-    {
-        protected CommandAsync()
-        {
-            Result = new ErrorResult<T>("The result was not assigned during the execution of the command. Please check that .Result<T> is set in the inherited .Command<T>");
-        }
         
-        public Result<T> Result { get; set; }
+        /// <summary>
+        /// Throw if there is no defined transaction scope.
+        /// </summary>
+        /// <exception cref="TransactionScopeRequired"></exception>
+        public void ValidateTransactionScope()
+        {
+            if (Transaction.Current is null)
+            {
+                throw new TransactionScopeRequired();
+            }
+        }
     }
     
-    public abstract class CommandAsync : SqlExecutorAsync
+    /// <summary>
+    /// A synchronous Command which exposes a return type of type(T).
+    /// Exposes a QueryExecutor and a CommandExecutor to perform internal operations
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class Command<T> : SqlExecutor
     {
+       protected Command()
+       {
+       }
+      
         private IQueryExecutor? _queryExecutor;
+        
+        /// <summary>
+        /// A hydrated instance of a QueryExecutor
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public IQueryExecutor QueryExecutor {
             get
             {
@@ -74,11 +96,15 @@ namespace Dapper.CQRS
                 return _queryExecutor;
             }
             
-            set => _queryExecutor = value;
+            internal set => _queryExecutor = value;
         }
         
         private ICommandExecutor? _commandExecutor;
         
+        /// <summary>
+        /// A hydrated instance of a CommandExecutor.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public ICommandExecutor CommandExecutor {
             get
             {
@@ -90,9 +116,26 @@ namespace Dapper.CQRS
                 return _commandExecutor;
             }
             
-            set => _commandExecutor = value;
+            internal set => _commandExecutor = value;
         }
         
-        public abstract Task ExecuteAsync();
-    }
+        /// <summary>
+        /// Executes the instance of this 'Command'
+        /// </summary>
+        public abstract T Execute();
+        
+        /// <summary>
+        /// Throw if there is no defined transaction scope.
+        /// </summary>
+        /// <exception cref="TransactionScopeRequired"></exception>
+        public void ValidateTransactionScope()
+        {
+            if (Transaction.Current is null)
+            {
+                throw new TransactionScopeRequired();
+            }
+        }
+    } 
+    
+    
 }

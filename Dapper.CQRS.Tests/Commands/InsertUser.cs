@@ -13,7 +13,7 @@ namespace Dapper.CQRS.Tests.Commands
             User = user;
         }
         
-        public override void Execute()
+        public override int Execute()
         {
             var insertSql = new SqlBuilder()
                 .Insert<User>("users", i =>
@@ -31,20 +31,19 @@ namespace Dapper.CQRS.Tests.Commands
 
             if (result.Success)
             {
-                Result = new SuccessResult<int>(result.Value.Id);
-                return;
+                return 1;
             }
 
             if (result.Failure)
             {
                 var insertedUserResult = QueryFirst<int>(insertSql, User);
+                
                 if (insertedUserResult > 0)
                 {
-                    Result = new SuccessResult<int>(insertedUserResult);
                 }
             }
 
-            Result = new ErrorResult<int>("The person could not be found");
+            return 1;
         }
     }
 }

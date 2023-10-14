@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper.CQRS.Exceptions;
@@ -6,10 +6,10 @@ using Dapper.CQRS.Exceptions;
 namespace Dapper.CQRS
 {
     /// <summary>
-    /// A synchronous Query which not not expose a result
-    /// Exposes a QueryExecutor to perform internal operations
+    /// A asynchronous Command which does not expose a result
+    /// Exposes a QueryExecutor and CommandExecutor to perform internal operations
     /// </summary>
-    public abstract class Query : SqlExecutor
+    public abstract class CommandAsync : SqlExecutorAsync
     {
         private IQueryExecutor? _queryExecutor;
         
@@ -31,13 +31,32 @@ namespace Dapper.CQRS
             internal set => _queryExecutor = value;
         }
         
+        private ICommandExecutor? _commandExecutor;
+        
         /// <summary>
-        /// Execute this instance of 'Query'
+        /// A hydrated instance of a CommandExecutor
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public ICommandExecutor CommandExecutor {
+            get
+            {
+                if (_commandExecutor is null)
+                {
+                    throw new InvalidOperationException($"The {nameof(CommandExecutor)} is null. Please check to see whether this command is being executed via the `{nameof(ICommandExecutor)}.Execute()` method");
+                }
+
+                return _commandExecutor;
+            }
+            
+            internal set => _commandExecutor = value;
+        }
+        
+        /// <summary>
+        /// Executes the instance of this 'Command'
         /// </summary>
         /// <returns></returns>
-        public abstract void Execute();
+        public abstract Task ExecuteAsync();
         
-
         /// <summary>
         /// Throw if there is no defined transaction scope.
         /// </summary>
@@ -50,17 +69,17 @@ namespace Dapper.CQRS
             }
         }
     }
-
+    
     /// <summary>
-    /// A synchronous Query which exposes a result
-    /// Exposes a QueryExecutor to perform internal operations
+    /// A asynchronous Command which exposes a result
+    /// Exposes a QueryExecutor and CommandExecutor to perform internal operations
     /// </summary>
-    public abstract class Query<T> : SqlExecutor
+    public abstract class CommandAsync<T> : SqlExecutorAsync
     {
-        protected Query()
+        protected CommandAsync()
         {
         }
-        
+
         private IQueryExecutor? _queryExecutor;
         
         /// <summary>
@@ -77,14 +96,35 @@ namespace Dapper.CQRS
 
                 return _queryExecutor;
             }
+            
             internal set => _queryExecutor = value;
         }
         
+        private ICommandExecutor? _commandExecutor;
+        
         /// <summary>
-        /// Execute this instance of 'Query'
+        /// A hydrated instance of a CommandExecutor
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public ICommandExecutor CommandExecutor {
+            get
+            {
+                if (_commandExecutor is null)
+                {
+                    throw new InvalidOperationException($"The {nameof(CommandExecutor)} is null. Please check to see whether this command is being executed via the `{nameof(ICommandExecutor)}.Execute()` method");
+                }
+
+                return _commandExecutor;
+            }
+            
+            internal set => _commandExecutor = value;
+        }
+        
+        /// <summary>
+        /// Executes the instance of this 'Command'
         /// </summary>
         /// <returns></returns>
-        public abstract T Execute();
+        public abstract Task<T> ExecuteAsync();
         
         /// <summary>
         /// Throw if there is no defined transaction scope.
