@@ -94,7 +94,7 @@ public class QueryTests
                                 SELECT LAST_INSERT_ID();",
                     randomUser));
 
-                var randomDetails = GetRandom<UserDetails>();
+                var randomDetails = GetRandom<UserDetail>();
                 randomDetails.UserId = userIdResult;
                     
                 var userDetailsIdResult = commandExecutor.Execute(new GenericCommand<int>(
@@ -169,7 +169,7 @@ public class WithQueriesEmbeddedInQueries
         var sut = Substitute.ForPartsOf<QueryUsers>();
 
         mockQueryExecutor.Execute(Arg.Any<QueryUserDetails>())
-            .Returns(new List<UserDetails>
+            .Returns(new List<UserDetail>
             {
                 new()
                 {
@@ -202,11 +202,11 @@ public class QueryUsers : Query<IList<User>>
     }
 }
 
-public class QueryUserDetails : Query<IList<UserDetails>>
+public class QueryUserDetails : Query<IList<UserDetail>>
 {
-    public override IList<UserDetails> Execute()
+    public override IList<UserDetail> Execute()
     {
-        var result = QueryList<UserDetails>("select * from user_details;");
+        var result = QueryList<UserDetail>("select * from user_details;");
 
         return result.ToList();
     }

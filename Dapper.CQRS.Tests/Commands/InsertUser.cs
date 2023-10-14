@@ -27,22 +27,6 @@ public class InsertUser : Command<int>
             .Select()
             .LastInserted(Version.MySql);
 
-        var result = QueryExecutor.Execute(new FetchUser(User.Id));
-
-        if (result.Success)
-        {
-            return 1;
-        }
-
-        if (result.Failure)
-        {
-            var insertedUserResult = QueryFirst<int>(insertSql, User);
-                
-            if (insertedUserResult > 0)
-            {
-            }
-        }
-
-        return 1;
+        return QueryFirst<int>(insertSql, User);
     }
 }

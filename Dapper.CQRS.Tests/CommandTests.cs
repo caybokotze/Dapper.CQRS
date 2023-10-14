@@ -221,7 +221,7 @@ public class CommandTests
             var sut = Substitute.ForPartsOf<InsertUser>(user);
                 
             queryExecutor
-                .Execute(Arg.Any<FetchUser>())
+                .Execute(Arg.Any<FetchUserAsResult>())
                 .Returns(new SuccessResult<User>(user));
 
             // act

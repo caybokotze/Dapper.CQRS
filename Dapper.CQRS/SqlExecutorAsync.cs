@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +15,11 @@ namespace Dapper.CQRS;
 /// </summary>
 public class SqlExecutorAsync
 {
+    protected SqlExecutorAsync()
+    {
+        _dbConnectionSemaphore = new SemaphoreSlim(1,1);
+    }
+    
     private ILogger? _logger;
     private IServiceProvider? _serviceProvider;
 
@@ -38,24 +45,43 @@ public class SqlExecutorAsync
         _logger = serviceProvider.GetRequiredService<ILogger<SqlExecutor>>();
     }
 
+    private readonly SemaphoreSlim _dbConnectionSemaphore;
+    private IDbConnection? _dbConnection = null;
+    
     private IDbConnection CreateOpenConnection()
     {
-        if (_serviceProvider is null)
+        _dbConnectionSemaphore.Wait();
+        
+        try
         {
-            throw new InvalidOperationException("The IDbConnection instance is null. Check to see whether this has properly been initialised. The command/query needs to be executed via a IQueryExecutor or ICommandExecutor .Execute method");
-        }
+            if (_serviceProvider is null)
+            {
+                throw new InvalidOperationException("The IDbConnection instance is null. Check to see whether this has properly been initialised. The command/query needs to be executed via a IQueryExecutor or ICommandExecutor .Execute method");
+            }
             
-        var connection =  _serviceProvider.GetRequiredService<IDbConnection>();
+            // Prevent the transaction from being disposed if there is a active transaction.
+            if (Transaction.Current is not null && _dbConnection is not null)
+            {
+                _dbConnection.Open();
+                return _dbConnection;
+            }
+                
+            _dbConnection =  _serviceProvider.GetRequiredService<IDbConnection>();
 
-        if (connection.State != ConnectionState.Open)
-        {
-            connection.Open();
+            if (_dbConnection.State != ConnectionState.Open)
+            {
+                _dbConnection.Open();
+            }
+
+            return _dbConnection;
         }
-
-        return connection;
+        finally
+        {
+            _dbConnectionSemaphore.Release();
+        }
     }
 
-    public virtual async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object? parameters = null)
+    public virtual async Task<T?> QueryFirstOrDefaultAsync<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
         return await connection.QueryFirstOrDefaultAsync<T>(sql, parameters);

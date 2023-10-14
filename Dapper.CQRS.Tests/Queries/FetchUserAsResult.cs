@@ -5,11 +5,11 @@ using GenericSqlBuilder;
 
 namespace Dapper.CQRS.Tests.Queries;
 
-public class FetchUser : Query<Result<User>>
+public class FetchUserAsResult : Query<Result<User>>
 {
     public int Id { get; }
 
-    public FetchUser(int id)
+    public FetchUserAsResult(int id)
     {
         Id = id;
     }

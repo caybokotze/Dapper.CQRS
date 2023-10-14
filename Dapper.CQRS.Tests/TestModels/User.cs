@@ -9,7 +9,7 @@ public class User
     public string? Surname { get; set; }
     public string? Email { get; set; }
     public virtual UserType? UserType { get; set; }
-    public virtual UserDetails? UserDetails { get; set; }
+    public virtual UserDetail? UserDetails { get; set; }
 
     public static IEnumerable<string> NotMapped()
     {

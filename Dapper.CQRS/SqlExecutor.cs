@@ -39,24 +39,31 @@ public class SqlExecutor
         _logger = serviceProvider.GetRequiredService<ILogger<SqlExecutor>>();
     }
 
+    private IDbConnection? _dbConnection;
     private IDbConnection CreateOpenConnection()
     {
         if (_serviceProvider is null)
         {
             throw new InvalidOperationException("The IDbConnection instance is null. Check to see whether this has properly been initialised. The command/query needs to be executed via a IQueryExecutor or ICommandExecutor .Execute method");
         }
-            
-        var connection =  _serviceProvider.GetRequiredService<IDbConnection>();
-            
-        if (Transaction.Current is null && connection.State != ConnectionState.Open)
+
+        if (Transaction.Current is not null && _dbConnection is not null)
         {
-            connection.Open();
+            _dbConnection.Open();
+            return _dbConnection;
+        }
+            
+        _dbConnection = _serviceProvider.GetRequiredService<IDbConnection>();
+            
+        if (_dbConnection.State != ConnectionState.Open)
+        {
+            _dbConnection.Open();
         }
 
-        return connection;
+        return _dbConnection;
     }
 
-    public virtual T QueryFirstOrDefault<T>(string sql, object? parameters = null)
+    public virtual T? QueryFirstOrDefault<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
         return connection.QueryFirstOrDefault<T>(sql, parameters);
