@@ -6,18 +6,18 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 
-namespace Dapper.CQRS.Tests
+namespace Dapper.CQRS.Tests;
+
+public class HostBuilderTests
 {
-    public class HostBuilderTests
+    [Test]
+    public async Task AssertThatHostBuilderRegistersSuccessfully()
     {
-        [Test]
-        public async Task AssertThatHostBuilderRegistersSuccessfully()
-        {
-            // Arrange
-            var expected = "HostBuilder was started successfully.";
+        // Arrange
+        var expected = "HostBuilder was started successfully.";
             
-            var hostBuilder = new HostBuilder()
-                .ConfigureWebHost(webhost =>
+        var hostBuilder = new HostBuilder()
+            .ConfigureWebHost(webhost =>
             {
                 webhost.UseTestServer();
                 webhost.Configure(app => app
@@ -27,17 +27,16 @@ namespace Dapper.CQRS.Tests
                             .WriteAsync(expected)));
             });
 
-            // Act
-            var host = await hostBuilder.StartAsync();
+        // Act
+        var host = await hostBuilder.StartAsync();
 
-            var client = host.GetTestClient();
-            var response = await client.GetAsync("/");
+        var client = host.GetTestClient();
+        var response = await client.GetAsync("/");
 
-            response.EnsureSuccessStatusCode();
-            var actual = await response.Content.ReadAsStringAsync();
+        response.EnsureSuccessStatusCode();
+        var actual = await response.Content.ReadAsStringAsync();
             
-            // Assert
-            Assert.That(expected.Equals(actual));
-        }
+        // Assert
+        Assert.That(expected.Equals(actual));
     }
 }

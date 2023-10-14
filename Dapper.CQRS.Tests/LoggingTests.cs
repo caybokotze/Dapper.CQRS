@@ -13,137 +13,136 @@ using NUnit.Framework;
 using PeanutButter.RandomGenerators;
 using static NExpect.Expectations;
 
-namespace Dapper.CQRS.Tests
+namespace Dapper.CQRS.Tests;
+
+public class LoggingTests
 {
-    public class LoggingTests
+    [Test]
+    public async Task ShouldLogAsExpected()
+    {
+        // arrange
+        var genericLogger = Substitute.For<GenericLogger>();
+        var hostBuilder = new HostBuilder();
+        hostBuilder.ConfigureWebHost(webHost =>
+        {
+            webHost.ConfigureLogging(c =>
+            {
+                c.ClearProviders();
+                c.AddConsole();
+            });
+            webHost.ConfigureServices(c =>
+            {
+                c.AddSingleton<ILogger<SqlExecutor>, GenericLogger>(s => genericLogger);
+            });
+            webHost.UseTestServer();
+            webHost.Configure(app =>
+            {
+                app.Run(async ctx =>
+                    await ctx
+                        .Response
+                        .StartAsync());
+                app.Build();
+            });
+        });
+        var host = await hostBuilder.StartAsync();
+
+        // Act
+
+        var logger = host.Services.GetRequiredService<ILogger<SqlExecutor>>();
+        var logMessage = RandomValueGen.GetRandomAlphaString();
+
+        // act
+        logger.Log(LogLevel.Debug, logMessage);
+
+        // assert
+        Expect(genericLogger.Message).To.Equal(logMessage);
+    }
+
+    [TestFixture]
+    public class WhenLoggingExceptionsFromWithinCommands
     {
         [Test]
         public async Task ShouldLogAsExpected()
         {
             // arrange
-            var genericLogger = Substitute.For<GenericLogger>();
-            var hostBuilder = new HostBuilder();
-            hostBuilder.ConfigureWebHost(webHost =>
-            {
-                webHost.ConfigureLogging(c =>
+            var hostBuilder = new HostBuilder()
+                .ConfigureWebHost(host =>
                 {
-                    c.ClearProviders();
-                    c.AddConsole();
+                    host.UseTestServer();
+                    host.ConfigureLogging(c =>
+                    {
+                        c.ClearProviders();
+                        c.AddConsole();
+                    });
+                        
+                    host.Configure(app =>
+                    {
+                        app.Run(async ctx =>
+                            await ctx
+                                .Response
+                                .StartAsync());
+                        app.Build();
+                    });
+
+                    var idbConnection = Substitute.For<IDbConnection>();
+
+                    host.ConfigureServices(config =>
+                    {
+                        config.AddTransient(_ => idbConnection);
+                        config.AddTransient<ICommandExecutor, CommandExecutor>();
+                        config.AddTransient<IQueryExecutor, QueryExecutor>();
+                    });
                 });
-                webHost.ConfigureServices(c =>
-                {
-                    c.AddSingleton<ILogger<SqlExecutor>, GenericLogger>(s => genericLogger);
-                });
-                webHost.UseTestServer();
-                webHost.Configure(app =>
-                {
-                    app.Run(async ctx =>
-                        await ctx
-                            .Response
-                            .StartAsync());
-                    app.Build();
-                });
-            });
+                
             var host = await hostBuilder.StartAsync();
 
             // Act
-
-            var logger = host.Services.GetRequiredService<ILogger<SqlExecutor>>();
+                
+            var commandExecutor = host.Services.GetRequiredService<ICommandExecutor>();
+            var logger = host.Services.GetRequiredService<ILogger<LoggerTests>>();
+            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             var logMessage = RandomValueGen.GetRandomAlphaString();
 
             // act
-            logger.Log(LogLevel.Debug, logMessage);
-
-            // assert
-            Expect(genericLogger.Message).To.Equal(logMessage);
-        }
-
-        [TestFixture]
-        public class WhenLoggingExceptionsFromWithinCommands
-        {
-            [Test]
-            public async Task ShouldLogAsExpected()
-            {
-                // arrange
-                var hostBuilder = new HostBuilder()
-                    .ConfigureWebHost(host =>
-                    {
-                        host.UseTestServer();
-                        host.ConfigureLogging(c =>
-                        {
-                            c.ClearProviders();
-                            c.AddConsole();
-                        });
-                        
-                        host.Configure(app =>
-                        {
-                            app.Run(async ctx =>
-                                await ctx
-                                    .Response
-                                    .StartAsync());
-                            app.Build();
-                        });
-
-                        var idbConnection = Substitute.For<IDbConnection>();
-
-                        host.ConfigureServices(config =>
-                        {
-                            config.AddTransient(_ => idbConnection);
-                            config.AddTransient<ICommandExecutor, CommandExecutor>();
-                            config.AddTransient<IQueryExecutor, QueryExecutor>();
-                        });
-                    });
-                
-                var host = await hostBuilder.StartAsync();
-
-                // Act
-                
-                var commandExecutor = host.Services.GetRequiredService<ICommandExecutor>();
-                var logger = host.Services.GetRequiredService<ILogger<LoggerTests>>();
-                var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-                var logMessage = RandomValueGen.GetRandomAlphaString();
-
-                // act
-                commandExecutor.Execute(new LoggerTests(logMessage));
+            commandExecutor.Execute(new LoggerTests(logMessage));
             
-                // assert
-                Expect(logger).Not.To.Be.Null();
-                Expect(loggerFactory).Not.To.Be.Null();
-            }
+            // assert
+            Expect(logger).Not.To.Be.Null();
+            Expect(loggerFactory).Not.To.Be.Null();
         }
     }
+}
 
-    public class LoggerTests : Command
+public class LoggerTests : Command
+{
+    public readonly string LogMessage;
+
+    public LoggerTests(string logMessage)
     {
-        public readonly string LogMessage;
-
-        public LoggerTests(string logMessage)
-        {
-            LogMessage = logMessage;
-        }
+        LogMessage = logMessage;
+    }
         
-        public override void Execute()
-        {
-            Logger.Log(LogLevel.Debug, LogMessage);
-        }
+    public override void Execute()
+    {
+        Logger.Log(LogLevel.Debug, LogMessage);
+    }
+}
+
+public class GenericLogger : ILogger<SqlExecutor>
+{
+    public string? Message { get; set; }
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
+    {
+        Message = state?.ToString();
     }
 
-    public class GenericLogger : ILogger<SqlExecutor>
+    public bool IsEnabled(LogLevel logLevel)
     {
-        public string? Message { get; set; }
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
-        {
-            Message = state?.ToString();
-        }
+        throw new NotImplementedException();
+    }
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            throw new NotImplementedException();
-        }
+    public IDisposable BeginScope<TState>(TState state)
+    {
+        throw new NotImplementedException();
     }
 }

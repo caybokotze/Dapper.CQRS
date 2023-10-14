@@ -3,21 +3,21 @@ using System.Threading.Tasks;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
-namespace Dapper.CQRS.Tests.Queries
-{
-    public class FetchUser : Query<Result<User>>
-    {
-        public int Id { get; }
+namespace Dapper.CQRS.Tests.Queries;
 
-        public FetchUser(int id)
-        {
-            Id = id;
-        }
+public class FetchUser : Query<Result<User>>
+{
+    public int Id { get; }
+
+    public FetchUser(int id)
+    {
+        Id = id;
+    }
         
-        public override Result<User> Execute()
-        {
-            var users =  QueryList<User>(
-                new SqlBuilder()
+    public override Result<User> Execute()
+    {
+        var users =  QueryList<User>(
+            new SqlBuilder()
                 .Select<User>(s =>
                 {
                     s.UsePropertyCase(Casing.SnakeCase);
@@ -26,14 +26,13 @@ namespace Dapper.CQRS.Tests.Queries
                 .From("users")
                 .Build());
 
-            var user = users.FirstOrDefault();
+        var user = users.FirstOrDefault();
 
-            if (user is null)
-            {
-                return new ErrorResult<User>("The user can not be found");
-            }
-
-            return new SuccessResult<User>(user);
+        if (user is null)
+        {
+            return new ErrorResult<User>("The user can not be found");
         }
+
+        return new SuccessResult<User>(user);
     }
 }

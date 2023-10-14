@@ -3,100 +3,99 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Dapper.CQRS.Exceptions;
 
-namespace Dapper.CQRS
-{
-    /// <summary>
-    /// A asynchronous Query which not not expose a result
-    /// Exposes a QueryExecutor to perform internal operations
-    /// </summary>
-    public abstract class QueryAsync : SqlExecutorAsync
-    {
-        private IQueryExecutor? _queryExecutor;
-        
-        /// <summary>
-        /// A hydrated instance of a QueryExecutor
-        /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        public IQueryExecutor QueryExecutor {
-            get
-            {
-                if (_queryExecutor is null)
-                {
-                    throw new InvalidOperationException($"The {nameof(QueryExecutor)} is null. Please check to see whether this query is being executed via the `{nameof(IQueryExecutor)}.Execute()` method");
-                }
+namespace Dapper.CQRS;
 
-                return _queryExecutor;
-            }
-            
-            internal set => _queryExecutor = value;
-        }
+/// <summary>
+/// A asynchronous Query which not not expose a result
+/// Exposes a QueryExecutor to perform internal operations
+/// </summary>
+public abstract class QueryAsync : SqlExecutorAsync
+{
+    private IQueryExecutor? _queryExecutor;
         
-        /// <summary>
-        /// Execute this instance of 'Query'
-        /// </summary>
-        /// <returns></returns>
-        public abstract Task ExecuteAsync();
-        
-        /// <summary>
-        /// Throw if there is no defined transaction scope.
-        /// </summary>
-        /// <exception cref="TransactionScopeRequired"></exception>
-        public void ValidateTransactionScope()
+    /// <summary>
+    /// A hydrated instance of a QueryExecutor
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    public IQueryExecutor QueryExecutor {
+        get
         {
-            if (Transaction.Current is null)
+            if (_queryExecutor is null)
             {
-                throw new TransactionScopeRequired();
+                throw new InvalidOperationException($"The {nameof(QueryExecutor)} is null. Please check to see whether this query is being executed via the `{nameof(IQueryExecutor)}.Execute()` method");
             }
+
+            return _queryExecutor;
+        }
+            
+        internal set => _queryExecutor = value;
+    }
+        
+    /// <summary>
+    /// Execute this instance of 'Query'
+    /// </summary>
+    /// <returns></returns>
+    public abstract Task ExecuteAsync();
+        
+    /// <summary>
+    /// Throw if there is no defined transaction scope.
+    /// </summary>
+    /// <exception cref="TransactionScopeRequired"></exception>
+    public void ValidateTransactionScope()
+    {
+        if (Transaction.Current is null)
+        {
+            throw new TransactionScopeRequired();
         }
     }
+}
     
 
-    /// <summary>
-    /// A asynchronous Query which exposes a result
-    /// Exposes a QueryExecutor to perform internal operations
-    /// </summary>
-    public abstract class QueryAsync<T> : SqlExecutorAsync 
+/// <summary>
+/// A asynchronous Query which exposes a result
+/// Exposes a QueryExecutor to perform internal operations
+/// </summary>
+public abstract class QueryAsync<T> : SqlExecutorAsync 
+{
+    protected QueryAsync()
     {
-        protected QueryAsync()
-        {
-        }
+    }
 
-        private IQueryExecutor? _queryExecutor;
+    private IQueryExecutor? _queryExecutor;
         
-        /// <summary>
-        /// A hydrated instance of a QueryExecutor
-        /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
-        public IQueryExecutor QueryExecutor {
-            get
+    /// <summary>
+    /// A hydrated instance of a QueryExecutor
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    public IQueryExecutor QueryExecutor {
+        get
+        {
+            if (_queryExecutor is null)
             {
-                if (_queryExecutor is null)
-                {
-                    throw new InvalidOperationException($"The {nameof(QueryExecutor)} is null. Please check to see whether this query is being executed via the `{nameof(IQueryExecutor)}.Execute()` method");
-                }
-
-                return _queryExecutor;
+                throw new InvalidOperationException($"The {nameof(QueryExecutor)} is null. Please check to see whether this query is being executed via the `{nameof(IQueryExecutor)}.Execute()` method");
             }
+
+            return _queryExecutor;
+        }
             
-            internal set => _queryExecutor = value;
-        }
+        internal set => _queryExecutor = value;
+    }
         
-        /// <summary>
-        /// Execute the instance of this 'Query'
-        /// </summary>
-        /// <returns></returns>
-        public abstract Task<T> ExecuteAsync();
+    /// <summary>
+    /// Execute the instance of this 'Query'
+    /// </summary>
+    /// <returns></returns>
+    public abstract Task<T> ExecuteAsync();
         
-        /// <summary>
-        /// Throw if there is no defined transaction scope.
-        /// </summary>
-        /// <exception cref="TransactionScopeRequired"></exception>
-        public void ValidateTransactionScope()
+    /// <summary>
+    /// Throw if there is no defined transaction scope.
+    /// </summary>
+    /// <exception cref="TransactionScopeRequired"></exception>
+    public void ValidateTransactionScope()
+    {
+        if (Transaction.Current is null)
         {
-            if (Transaction.Current is null)
-            {
-                throw new TransactionScopeRequired();
-            }
+            throw new TransactionScopeRequired();
         }
     }
 }

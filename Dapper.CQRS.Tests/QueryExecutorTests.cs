@@ -10,54 +10,53 @@ using NUnit.Framework;
 using static NExpect.Expectations;
 using static PeanutButter.RandomGenerators.RandomValueGen;
 
-namespace Dapper.CQRS.Tests
+namespace Dapper.CQRS.Tests;
+
+[TestFixture]
+public class QueryExecutorTests
 {
     [TestFixture]
-    public class QueryExecutorTests
-    {
-        [TestFixture]
-        public class Registrations : TestFixtureRequiringServiceProvider
-        {
-            [Test]
-            public void AssertThatIApplicationBuilderRegistersIQueryExecutor()
-            {
-                var queryExecutor = ServiceProvider!.GetService<IQueryExecutor>();
-
-                var expected = GetRandomInt();
-                
-                var actual = queryExecutor!.Execute(new GenericQuery<int>(expected));
-            
-                Assert.That(expected.Equals(actual));
-            }
-        }
-    }
-    
-    [TestFixture]
-    public class WhenExecutingCommand
+    public class Registrations : TestFixtureRequiringServiceProvider
     {
         [Test]
-        public void ShouldReturnCorrectType()
+        public void AssertThatIApplicationBuilderRegistersIQueryExecutor()
         {
-            // arrange
-            var dbConnection = Substitute.For<IDbConnection>();
-            var mockableQueryExecutor = Substitute.For<IQueryExecutor>();
-            var commandExecutor = Substitute.For<ICommandExecutor>();
-            var logger = Substitute.For<ILogger<SqlExecutor>>();
-            
-            var serviceProvider = Substitute.For<IServiceProvider>();
+            var queryExecutor = ServiceProvider!.GetService<IQueryExecutor>();
 
-            serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
-            serviceProvider.GetService(typeof(IQueryExecutor)).Returns(mockableQueryExecutor);
-            serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
-            serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
+            var expected = GetRandomInt();
+                
+            var actual = queryExecutor!.Execute(new GenericQuery<int>(expected));
             
-            var user = GetRandom<User>();
-            var command = new GenericQuery<User>(user);
-            var queryExecutor = new QueryExecutor(serviceProvider);
-            // act
-            var result = queryExecutor.Execute(command);
-            // assert
-            Expect(result).To.Equal(user);
+            Assert.That(expected.Equals(actual));
         }
+    }
+}
+    
+[TestFixture]
+public class WhenExecutingCommand
+{
+    [Test]
+    public void ShouldReturnCorrectType()
+    {
+        // arrange
+        var dbConnection = Substitute.For<IDbConnection>();
+        var mockableQueryExecutor = Substitute.For<IQueryExecutor>();
+        var commandExecutor = Substitute.For<ICommandExecutor>();
+        var logger = Substitute.For<ILogger<SqlExecutor>>();
+            
+        var serviceProvider = Substitute.For<IServiceProvider>();
+
+        serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
+        serviceProvider.GetService(typeof(IQueryExecutor)).Returns(mockableQueryExecutor);
+        serviceProvider.GetService(typeof(ICommandExecutor)).Returns(commandExecutor);
+        serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
+            
+        var user = GetRandom<User>();
+        var command = new GenericQuery<User>(user);
+        var queryExecutor = new QueryExecutor(serviceProvider);
+        // act
+        var result = queryExecutor.Execute(command);
+        // assert
+        Expect(result).To.Equal(user);
     }
 }
