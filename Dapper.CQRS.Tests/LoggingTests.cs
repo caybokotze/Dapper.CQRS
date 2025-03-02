@@ -44,6 +44,7 @@ public class LoggingTests
                 app.Build();
             });
         });
+        
         var host = await hostBuilder.StartAsync();
 
         // Act
@@ -124,7 +125,7 @@ public class LoggerTests : Command
         
     public override void Execute()
     {
-        Logger.Log(LogLevel.Debug, LogMessage);
+        GetLogger<LoggerTests>().LogError("Testing logger");
     }
 }
 

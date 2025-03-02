@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
@@ -16,6 +15,7 @@ public class FetchUserById : QueryAsync<User?>
 
     public override async Task<User?> ExecuteAsync()
     {
+        
         return await QueryFirstOrDefaultAsync<User>(
             new SqlBuilder()
                 .Select<User>(s =>

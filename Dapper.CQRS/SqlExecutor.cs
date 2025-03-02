@@ -1,10 +1,6 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Transactions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Dapper.CQRS;
 
@@ -12,73 +8,24 @@ namespace Dapper.CQRS;
 /// A synchronous SqlExecutor which exposes the ServiceProvider (to resolve dependencies) and Dapper methods.
 /// All dapper methods are marked as virtual to allow for mocked return values with Moq or NSubstitute.
 /// </summary>
-public class SqlExecutor
+public class SqlExecutor : BaseConnection
 {
-    private ILogger? _logger;
-    private IServiceProvider? _serviceProvider;
-
-    protected ILogger Logger => _logger
-                                ?? throw new InvalidOperationException(
-                                    "The logger has not been correctly initialised. Make sure this is being executed via a ICommandExecutor / IQueryExecutor");
-
-    protected IDbConnection Connection => CreateOpenConnection();
-
-    protected T GetRequiredService<T>() where T : notnull
-    {
-        if (_serviceProvider is null)
-        {
-            throw new InvalidOperationException("The IServiceProvider instance is null. Check to see whether this has properly been initialised. The command/query needs to be executed via a IQueryExecutor or ICommandExecutor .Execute method");
-        }
-
-        return _serviceProvider.GetRequiredService<T>();
-    }
-
-    internal void InitialiseExecutor(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-        _logger = serviceProvider.GetRequiredService<ILogger<SqlExecutor>>();
-    }
-
-    private IDbConnection? _dbConnection;
-    private IDbConnection CreateOpenConnection()
-    {
-        if (_serviceProvider is null)
-        {
-            throw new InvalidOperationException("The IDbConnection instance is null. Check to see whether this has properly been initialised. The command/query needs to be executed via a IQueryExecutor or ICommandExecutor .Execute method");
-        }
-
-        if (Transaction.Current is not null && _dbConnection is not null)
-        {
-            _dbConnection.Open();
-            return _dbConnection;
-        }
-            
-        _dbConnection = _serviceProvider.GetRequiredService<IDbConnection>();
-            
-        if (_dbConnection.State != ConnectionState.Open)
-        {
-            _dbConnection.Open();
-        }
-
-        return _dbConnection;
-    }
-
     public virtual T? QueryFirstOrDefault<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.QueryFirstOrDefault<T>(sql, parameters);
+        return connection.QueryFirstOrDefault<T>(sql, parameters, commandTimeout: DefaultTimeout);
     }
         
     public virtual T QueryFirst<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.QueryFirst<T>(sql, parameters);
+        return connection.QueryFirst<T>(sql, parameters, commandTimeout: DefaultTimeout);
     }
 
     public virtual IEnumerable<T> QueryList<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query<T>(sql, parameters);
+        return connection.Query<T>(sql, parameters, commandTimeout: DefaultTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, TReturn>(
@@ -87,7 +34,7 @@ public class SqlExecutor
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters);
+        return connection.Query(sql, map, parameters, splitOn: SplitOn, commandTimeout: DefaultTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, TReturn>(
@@ -96,7 +43,7 @@ public class SqlExecutor
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters);
+        return connection.Query(sql, map, parameters, splitOn: SplitOn, commandTimeout: DefaultTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, TReturn>(
@@ -105,7 +52,7 @@ public class SqlExecutor
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters);
+        return connection.Query(sql, map, parameters, splitOn: SplitOn, commandTimeout: DefaultTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, T5, TReturn>(

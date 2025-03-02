@@ -75,10 +75,6 @@ public abstract class Command : SqlExecutor
 /// <typeparam name="T"></typeparam>
 public abstract class Command<T> : SqlExecutor
 {
-    protected Command()
-    {
-    }
-      
     private IQueryExecutor? _queryExecutor;
         
     /// <summary>

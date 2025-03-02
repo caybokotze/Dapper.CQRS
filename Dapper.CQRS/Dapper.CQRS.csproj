@@ -15,7 +15,7 @@
         <Copyright>A product of Merge Digital</Copyright>
         <PackageIcon>dapper_mouse.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
-        <LangVersion>11</LangVersion>
+        <LangVersion>12</LangVersion>
         <PackageVersion>4.0.0</PackageVersion>
         <Title>Dapper.CQRS</Title>
         <PackageProjectUrl>https://github.com/caybokotze/Dapper.CQRS</PackageProjectUrl>
@@ -25,9 +25,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Dapper" Version="2.1.11" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
+      <PackageReference Include="Dapper" Version="2.1.66" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
     </ItemGroup>
 
     <ItemGroup>

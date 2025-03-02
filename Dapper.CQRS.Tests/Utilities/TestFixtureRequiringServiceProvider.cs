@@ -13,6 +13,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
+using IsolationLevel = System.Transactions.IsolationLevel;
+
 namespace Dapper.CQRS.Tests.Utilities;
 
 [TestFixture]
@@ -46,10 +48,16 @@ public class TestFixtureRequiringServiceProvider
 
             webHost.ConfigureServices(config =>
             {
+                var dapperConfiguration = new CqrsConfigurationBuilder()
+                    .WithRequiredServices(config)
+                    .WithDefaultIsolationLevel(IsolationLevel.ReadUncommitted)
+                    .WithDefaultQueryTimeout(5)
+                    .WithAmbientTransactionRequired()
+                    .WithConnectionFactory(new ConnectionFactory(GetConnectionString()))
+                    .WithSnakeCaseMappingsEnabled();
+                
                 config.AddTransient<ICommandExecutor, CommandExecutor>();
                 config.AddTransient<IQueryExecutor, QueryExecutor>();
-                config.AddTransient<IDbConnection, MySqlConnection>(
-                    _ => new MySqlConnection(GetConnectionString()));
             });
         });
             
@@ -64,6 +72,8 @@ public class TestFixtureRequiringServiceProvider
 
         ServiceProvider = serviceProvider;
     }
+    
+    
 
     private string GetConnectionString()
     {

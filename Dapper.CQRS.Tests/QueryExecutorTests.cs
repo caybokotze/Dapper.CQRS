@@ -53,7 +53,7 @@ public class WhenExecutingCommand
             
         var user = GetRandom<User>();
         var command = new GenericQuery<User>(user);
-        var queryExecutor = new QueryExecutor(serviceProvider);
+        var queryExecutor = new QueryExecutor();
         // act
         var result = queryExecutor.Execute(command);
         // assert

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Transactions;
 using Dapper.CQRS.Exceptions;
 
@@ -36,13 +35,12 @@ public abstract class Query : SqlExecutor
     /// </summary>
     /// <returns></returns>
     public abstract void Execute();
-        
 
     /// <summary>
     /// Throw if there is no defined transaction scope.
     /// </summary>
     /// <exception cref="TransactionScopeRequired"></exception>
-    public void ValidateTransactionScope()
+    public virtual void ValidateTransactionScope()
     {
         if (Transaction.Current is null)
         {
@@ -77,6 +75,7 @@ public abstract class Query<T> : SqlExecutor
 
             return _queryExecutor;
         }
+        
         internal set => _queryExecutor = value;
     }
         
@@ -85,12 +84,12 @@ public abstract class Query<T> : SqlExecutor
     /// </summary>
     /// <returns></returns>
     public abstract T Execute();
-        
+
     /// <summary>
-    /// Throw if there is no defined transaction scope.
+    /// Default implementation for .Validate checks whether a transaction scope was set for the current query instance.
     /// </summary>
     /// <exception cref="TransactionScopeRequired"></exception>
-    public void ValidateTransactionScope()
+    public virtual void ValidateTransactionScope()
     {
         if (Transaction.Current is null)
         {

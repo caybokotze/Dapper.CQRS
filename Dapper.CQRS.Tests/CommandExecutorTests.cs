@@ -33,24 +33,13 @@ public class CommandExecutorTests
     [TestFixture]
     public class WhenExecutingCommand : TestFixtureRequiringServiceProvider
     {
-
         [Test]
         public void ShouldReturnCorrectType()
         {
             // arrange
-            var dbConnection = Substitute.For<IDbConnection>();
             var queryExecutor = Substitute.For<IQueryExecutor>();
-            var mockCommandExecutor = Substitute.For<ICommandExecutor>();
-            var logger = Substitute.For<ILogger<SqlExecutor>>();
-                
-            var serviceProvider = Substitute.For<IServiceProvider>();
 
-            serviceProvider.GetService(typeof(IDbConnection)).Returns(dbConnection);
-            serviceProvider.GetService(typeof(IQueryExecutor)).Returns(queryExecutor);
-            serviceProvider.GetService(typeof(ICommandExecutor)).Returns(mockCommandExecutor);
-            serviceProvider.GetService(typeof(ILogger<SqlExecutor>)).Returns(logger);
-                
-            var commandExecutor = new CommandExecutor(serviceProvider);
+            var commandExecutor = new CommandExecutor(queryExecutor);
                 
             var command = new GenericCommand<int>(15);
             // act

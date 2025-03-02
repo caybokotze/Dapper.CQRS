@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
+using Dapper.CQRS.Results;
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 

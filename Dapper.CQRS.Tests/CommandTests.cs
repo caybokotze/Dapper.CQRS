@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using System.Transactions;
+using Dapper.CQRS.Results;
 using Dapper.CQRS.Tests.Commands;
 using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
