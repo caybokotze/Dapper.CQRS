@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Threading.Tasks;
 
 namespace Dapper.CQRS;
 
@@ -19,12 +17,6 @@ public class CommandExecutor : ICommandExecutor
     public void Execute(Command command)
     {
         command.CommandExecutor = this;
-
-        if (BaseConnection.ValidateAmbientTransaction)
-        {
-            command.ValidateTransactionScope();
-        }
-
         command.QueryExecutor = _queryExecutor;
         command.Execute();
     }
@@ -32,12 +24,6 @@ public class CommandExecutor : ICommandExecutor
     public T Execute<T>(Command<T> command)
     {
         command.CommandExecutor = this;
-        
-        if (BaseConnection.ValidateAmbientTransaction)
-        {
-            command.ValidateTransactionScope();
-        }
-
         command.QueryExecutor = _queryExecutor;
         return command.Execute();
     }
@@ -45,12 +31,7 @@ public class CommandExecutor : ICommandExecutor
     public async Task ExecuteAsync(CommandAsync command)
     {
         command.CommandExecutor = this;
-        
-        if (BaseConnection.ValidateAmbientTransaction)
-        {
-            command.ValidateTransactionScope();
-        }
-        
+     
         command.QueryExecutor = _queryExecutor;
         await command.ExecuteAsync();
     }
@@ -58,12 +39,6 @@ public class CommandExecutor : ICommandExecutor
     public async Task<T> ExecuteAsync<T>(CommandAsync<T> command)
     {
         command.CommandExecutor = this;
-        
-        if (BaseConnection.ValidateAmbientTransaction)
-        {
-            command.ValidateTransactionScope();
-        }
-        
         command.QueryExecutor = _queryExecutor;
         return await command.ExecuteAsync();
     }

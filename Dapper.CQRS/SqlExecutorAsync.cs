@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Dapper.CQRS;
 
@@ -12,21 +13,43 @@ public class SqlExecutorAsync : BaseConnection
 {
     public virtual async Task<T?> QueryFirstOrDefaultAsync<T>(string sql, object? parameters = null)
     {
-        using var scope = CreateTransactionScope();
+        T? result;
+        
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope();
+            using var scopedConnection = CreateOpenConnection();
+            result = await scopedConnection.QueryFirstOrDefaultAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+            transaction.Complete();
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
-        return await connection.QueryFirstOrDefaultAsync<T>(sql, parameters, commandTimeout: DefaultTimeout);
+        result = await connection.QueryFirstOrDefaultAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+        return result;
     }
         
     public virtual async Task<T> QueryFirstAsync<T>(string sql, object? parameters = null)
     {
+        T result;
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope();
+            using var scopedConnection = CreateOpenConnection();
+            result = await scopedConnection.QueryFirstAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+            transaction.Complete();
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
-        return await connection.QueryFirstAsync<T>(sql, parameters, commandTimeout: DefaultTimeout);
+        result = await connection.QueryFirstAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+        return result;
     }
 
     public virtual async Task<IEnumerable<T>> QueryListAsync<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return await connection.QueryAsync<T>(sql, parameters, commandTimeout: DefaultTimeout);
+        return await connection.QueryAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, TOut>(string sql,
@@ -34,7 +57,7 @@ public class SqlExecutorAsync : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return await connection.QueryAsync(sql, map, parameters, commandTimeout: DefaultTimeout, splitOn: SplitOn);
+        return await connection.QueryAsync(sql, map, parameters, commandTimeout: Configuration.ScopedTimeout, splitOn: Configuration.ScopedSplitOn);
     }
 
     public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, TOut>(string sql,
@@ -42,7 +65,7 @@ public class SqlExecutorAsync : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return await connection.QueryAsync(sql, map, parameters, commandTimeout: DefaultTimeout, splitOn: SplitOn);
+        return await connection.QueryAsync(sql, map, parameters, commandTimeout: Configuration.ScopedTimeout, splitOn: Configuration.ScopedSplitOn);
     }
 
     public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, TOut>(string sql,
@@ -50,7 +73,7 @@ public class SqlExecutorAsync : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return await connection.QueryAsync(sql, map, parameters, commandTimeout: DefaultTimeout, splitOn: SplitOn);
+        return await connection.QueryAsync(sql, map, parameters, commandTimeout: Configuration.ScopedTimeout, splitOn: Configuration.ScopedSplitOn);
     }
 
     public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, T5, TOut>(string sql,
@@ -58,7 +81,7 @@ public class SqlExecutorAsync : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return await connection.QueryAsync(sql, map, parameters, commandTimeout: DefaultTimeout, splitOn: SplitOn);
+        return await connection.QueryAsync(sql, map, parameters, commandTimeout: Configuration.ScopedTimeout, splitOn: Configuration.ScopedSplitOn);
     }
 
     public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, T5, T6, TOut>(string sql,
@@ -66,7 +89,7 @@ public class SqlExecutorAsync : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return await connection.QueryAsync(sql, map, parameters, commandTimeout: DefaultTimeout, splitOn: SplitOn);
+        return await connection.QueryAsync(sql, map, parameters, commandTimeout: Configuration.ScopedTimeout, splitOn: Configuration.ScopedSplitOn);
     }
 
     public virtual async Task<IEnumerable<TOut>> QueryListAsync<TIn, T2, T3, T4, T5, T6, T7, TOut>(string sql,
@@ -74,7 +97,7 @@ public class SqlExecutorAsync : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return await connection.QueryAsync(sql, map, parameters, commandTimeout: DefaultTimeout, splitOn: SplitOn);
+        return await connection.QueryAsync(sql, map, parameters, commandTimeout: Configuration.ScopedTimeout, splitOn: Configuration.ScopedSplitOn);
     }
 
     public virtual async Task<int> ExecuteAsync(string sql, object? parameters = null)
@@ -84,6 +107,6 @@ public class SqlExecutorAsync : BaseConnection
             throw new ArgumentException("Please specify a value for the sql attribute.");
         }
         using var connection = CreateOpenConnection();
-        return await connection.ExecuteAsync(sql, parameters, commandTimeout: DefaultTimeout);
+        return await connection.ExecuteAsync(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
 }

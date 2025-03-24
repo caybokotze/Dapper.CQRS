@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Transactions;
-using Dapper.CQRS.Exceptions;
 
 namespace Dapper.CQRS;
 
@@ -54,18 +52,6 @@ public abstract class Command : SqlExecutor
     /// Executes the instance of this 'Command'
     /// </summary>
     public abstract void Execute();
-        
-    /// <summary>
-    /// Throw if there is no defined transaction scope.
-    /// </summary>
-    /// <exception cref="TransactionScopeRequired"></exception>
-    public void ValidateTransactionScope()
-    {
-        if (Transaction.Current is null)
-        {
-            throw new TransactionScopeRequired();
-        }
-    }
 }
     
 /// <summary>
@@ -119,16 +105,4 @@ public abstract class Command<T> : SqlExecutor
     /// Executes the instance of this 'Command'
     /// </summary>
     public abstract T Execute();
-        
-    /// <summary>
-    /// Throw if there is no defined transaction scope.
-    /// </summary>
-    /// <exception cref="TransactionScopeRequired"></exception>
-    public void ValidateTransactionScope()
-    {
-        if (Transaction.Current is null)
-        {
-            throw new TransactionScopeRequired();
-        }
-    }
 }

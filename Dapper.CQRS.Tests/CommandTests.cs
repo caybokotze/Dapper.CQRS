@@ -2,7 +2,6 @@
 using System.Data;
 using System.Threading.Tasks;
 using System.Transactions;
-using Dapper.CQRS.Results;
 using Dapper.CQRS.Tests.Commands;
 using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
@@ -222,8 +221,8 @@ public class CommandTests
             var sut = Substitute.ForPartsOf<InsertUser>(user);
                 
             queryExecutor
-                .Execute(Arg.Any<FetchUserAsResult>())
-                .Returns(new SuccessResult<User>(user));
+                .ExecuteAsync(Arg.Any<FetchUserById>())
+                .Returns(user);
 
             // act
             var result = sut.Execute();

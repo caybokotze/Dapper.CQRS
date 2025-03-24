@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using Microsoft.Extensions.DependencyInjection;
+using System.Transactions;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Dapper.CQRS;
@@ -8,28 +8,30 @@ namespace Dapper.CQRS;
 public class CqrsConfigurationBuilder
 {
     /// <summary>
-    /// A helper to automatically register the required dependencies in the service container.
-    /// </summary>
-    /// <param name="serviceCollection"></param>
-    /// <returns></returns>
-    public CqrsConfigurationBuilder WithRequiredServices(IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddTransient<IQueryExecutor, QueryExecutor>();
-        serviceCollection.AddTransient<ICommandExecutor, CommandExecutor>();
-        return this;
-    }
-
-    /// <summary>
     /// Provides the service provider instance to resolve internal dependencies via a query/command
     /// </summary>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
     public CqrsConfigurationBuilder WithServiceProvider(IServiceProvider serviceProvider)
     {
-        BaseConnection.ServiceProvider = serviceProvider;
+        ConnectionConfiguration.ServiceProvider = serviceProvider;
         return this;
     }
-    
+
+    /// <summary>
+    /// If there is no ambient transaction set, create a new transaction scope with the specified scopeOption and isolationLevel.
+    /// </summary>
+    /// <param name="scopeOption"></param>
+    /// <param name="isolationLevel"></param>
+    /// <returns></returns>
+    public CqrsConfigurationBuilder WithTransactionScope(TransactionScopeOption scopeOption, IsolationLevel isolationLevel)
+    {
+        ConnectionConfiguration.CreateTransaction = true;
+        ConnectionConfiguration.DefaultTransactionScopeOption = scopeOption;
+        ConnectionConfiguration.DefaultIsolationLevel = isolationLevel;
+        return this;
+    }
+        
     /// <summary>
     /// Specify the IDbConnection instance to use. This will create an internal factory. However, using different IDbConnection instances is not supported with this method.
     /// </summary>
@@ -37,7 +39,7 @@ public class CqrsConfigurationBuilder
     /// <returns></returns>
     public CqrsConfigurationBuilder WithConnectionFactory(Func<IDbConnection> connectionFactory)
     {
-        BaseConnection.ConnectionFactory = new InternalDbConnectionFactory(connectionFactory());
+        ConnectionConfiguration.ConnectionFactory = new InternalDbConnectionFactory(connectionFactory());
         return this;
     }
     
@@ -48,7 +50,7 @@ public class CqrsConfigurationBuilder
     /// <returns></returns>
     public CqrsConfigurationBuilder WithConnectionFactory(IDbConnectionFactory connectionFactory)
     {
-        BaseConnection.ConnectionFactory = connectionFactory;
+        ConnectionConfiguration.ConnectionFactory = connectionFactory;
         return this;
     }
     
@@ -59,19 +61,19 @@ public class CqrsConfigurationBuilder
     /// <returns></returns>
     public CqrsConfigurationBuilder WithDefaultQueryTimeout(int timeout)
     {
-        BaseConnection.DefaultTimeout = timeout;
+        ConnectionConfiguration.DefaultTimeout = timeout;
         return this;
     }
 
     public CqrsConfigurationBuilder WithAmbientTransactionRequired()
     {
-        BaseConnection.ValidateAmbientTransaction = true;
+        ConnectionConfiguration.ValidateAmbientTransaction = true;
         return this;
     }
     
     public CqrsConfigurationBuilder WithAmbientTransactionOptional()
     {
-        BaseConnection.ValidateAmbientTransaction = false;
+        ConnectionConfiguration.ValidateAmbientTransaction = false;
         return this;
     }
 
@@ -101,23 +103,14 @@ public class CqrsConfigurationBuilder
     /// <returns></returns>
     public CqrsConfigurationBuilder Reset()
     {
-        BaseConnection.ConnectionFactory = null;
-        BaseConnection.ServiceProvider = null;
-        BaseConnection.DefaultTimeout = 30;
+        ConnectionConfiguration.ConnectionFactory = null;
+        ConnectionConfiguration.ServiceProvider = null;
+        ConnectionConfiguration.DefaultTimeout = 30;
+        ConnectionConfiguration.CreateTransaction = false;
+        ConnectionConfiguration.ValidateAmbientTransaction = false;
         return this;
     }
-
-    /// <summary>
-    /// Specifies the default isolation level to use when creating new transaction scopes.
-    /// </summary>
-    /// <param name="isolationLevel"></param>
-    /// <returns></returns>
-    public CqrsConfigurationBuilder WithDefaultIsolationLevel(IsolationLevel isolationLevel)
-    {
-        BaseConnection.DefaultIsolatedLevel = isolationLevel;
-        return this;
-    }
-
+    
     /// <summary>
     /// Define the default splitOn value which is set to 'Id' by default.
     /// </summary>
@@ -125,7 +118,7 @@ public class CqrsConfigurationBuilder
     /// <returns></returns>
     public CqrsConfigurationBuilder WithDefaultSplitOn(string splitOn)
     {
-        BaseConnection.DefaultSplitOn = splitOn;
+        ConnectionConfiguration.DefaultSplitOn = splitOn;
         return this;
     }
     

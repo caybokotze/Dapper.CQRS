@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
 
         <IsPackable>false</IsPackable>
 
@@ -15,16 +15,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="EventServe.EventStore.Extensions.Microsoft.DepdendencyInjection" Version="2020.11.26.2" />
         <PackageReference Include="Faker.Net" Version="1.5.126" />
         <PackageReference Include="GenericSqlBuilder" Version="1.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.14" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
         <PackageReference Include="MySql.Data" Version="8.0.29" />
         <PackageReference Include="NExpect" Version="1.0.264" />
         <PackageReference Include="NExpect.Matchers.NSubstitute" Version="1.0.198" />
         <PackageReference Include="NSubstitute" Version="4.2.2" />
         <PackageReference Include="NUnit" Version="3.13.1" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
         <PackageReference Include="PeanutButter.RandomGenerators" Version="2.0.11" />
     </ItemGroup>
 

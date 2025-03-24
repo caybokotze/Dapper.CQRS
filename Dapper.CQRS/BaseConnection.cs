@@ -1,79 +1,61 @@
 ﻿using System;
 using System.Data;
 using System.Transactions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Dapper.CQRS;
 
 public class BaseConnection
 {
     protected IDbConnection Connection => CreateOpenConnection();
-    protected IServiceProvider Services => ServiceProvider ?? throw new InvalidOperationException("A registered service provider is not available. Register a service provider in the configuration builder to use internally");
+    protected IServiceProvider Services => ConnectionConfiguration.ServiceProvider 
+                                           ?? throw new InvalidOperationException("A registered service provider is not available. Register a service provider in the configuration builder to use internally");
 
     #region Internal use via configuration builder
-
-    internal static IDbConnectionFactory? ConnectionFactory { get; set; }
-    internal static IServiceProvider? ServiceProvider { get; set; }
-    internal static string DefaultSplitOn { get; set; } = "Id";
-    
-    internal static IsolationLevel DefaultIsolatedLevel = IsolationLevel.ReadCommitted;
-    internal static int DefaultTimeout { get; set; } = 30;
-    internal static bool ValidateAmbientTransaction { get; set; }
-        
+    internal static ConnectionConfiguration Configuration => new();
     #endregion
     
-    internal string SplitOn { get; private set; } = DefaultSplitOn;
-    private string? ConnectionName { get; set; }
-    
-    protected bool IsolateTransactions { get; set; }
-
-    private IsolationLevel IsolationLevel { get; } = DefaultIsolatedLevel;
-    
-    protected ILogger<T> GetLogger<T>() where T : BaseConnection 
-    {
-        return Services.GetRequiredService<ILogger<T>>();
-    }
-
     protected T GetRequiredService<T>() where T : notnull
     {
-        return Services.GetRequiredService<T>();
+        return (T) Services.GetService(typeof(T)) ?? throw new InvalidOperationException($"No service of type {typeof(T).FullName} registered.");
+    }
+
+    protected T? GetService<T>() where T : notnull
+    {
+        return (T?) Services.GetService(typeof(T));
     }
 
     protected void SetConnectionName(string connectionName)
     {
-        ConnectionName = connectionName;
+        Configuration.ScopedConnectionName = connectionName;
     }
     
     protected void SetSplitOn(string splitOn)
     {
-        SplitOn = splitOn;
+        Configuration.ScopedSplitOn = splitOn;
     }
 
-    protected TransactionScope CreateTransactionScope()
+    protected void ValidateTransaction()
     {
-        if (Transaction.Current is not null)
+        if (Transaction.Current is null && ConnectionConfiguration.ValidateAmbientTransaction)
         {
-            return new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
-            {
-                IsolationLevel = Transaction.Current.IsolationLevel,
-                Timeout = TimeSpan.FromSeconds(DefaultTimeout)
-            });
+            throw new InvalidOperationException("No ambient transaction found. Make sure you have configured ambient transactions or explicitly set ValidateTransaction to false.");
         }
-        
-        return new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
-        {
-            IsolationLevel = IsolationLevel,
-            Timeout = TimeSpan.FromSeconds(DefaultTimeout)
-        });
     }
 
-    private IDbConnection? _dbConnection;
+    /// <summary>
+    /// Marked as static to make sure we don't open a connection twice if we're in a transaction
+    /// if the Transaction.Current is null and we're not in a transaction, we open a new connection in the CreateOpenConnection method body
+    /// </summary>
+    private static IDbConnection? _dbConnection;
     
     internal IDbConnection CreateOpenConnection()
     {
-        if (!IsolateTransactions)
+        if (ConnectionConfiguration.ValidateAmbientTransaction)
+        {
+            ValidateTransaction();
+        }
+        
+        if (!ConnectionConfiguration.ValidateAmbientTransaction)
         {
             if (Transaction.Current is not null && _dbConnection is not null)
             {
@@ -86,14 +68,14 @@ public class BaseConnection
             }
         }
 
-        if (ConnectionFactory is null)
+        if (ConnectionConfiguration.ConnectionFactory is null)
         {
             throw new InvalidOperationException("No connection factory registered. Register a connection factory in the configuration builder to use internally");
         }
 
-        _dbConnection = ConnectionName is not null 
-            ? ConnectionFactory.Create(ConnectionName) 
-            : ConnectionFactory.Create();
+        _dbConnection = Configuration.ScopedConnectionName is not null 
+            ? ConnectionConfiguration.ConnectionFactory.Create(Configuration.ScopedConnectionName) 
+            : ConnectionConfiguration.ConnectionFactory.Create();
             
         if (_dbConnection.State != ConnectionState.Open)
         {

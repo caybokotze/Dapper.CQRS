@@ -15,7 +15,6 @@ public class FetchUserById : QueryAsync<User?>
 
     public override async Task<User?> ExecuteAsync()
     {
-        
         return await QueryFirstOrDefaultAsync<User>(
             new SqlBuilder()
                 .Select<User>(s =>

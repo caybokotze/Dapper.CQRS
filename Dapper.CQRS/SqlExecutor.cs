@@ -13,19 +13,19 @@ public class SqlExecutor : BaseConnection
     public virtual T? QueryFirstOrDefault<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.QueryFirstOrDefault<T>(sql, parameters, commandTimeout: DefaultTimeout);
+        return connection.QueryFirstOrDefault<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
         
     public virtual T QueryFirst<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.QueryFirst<T>(sql, parameters, commandTimeout: DefaultTimeout);
+        return connection.QueryFirst<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual IEnumerable<T> QueryList<T>(string sql, object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query<T>(sql, parameters, commandTimeout: DefaultTimeout);
+        return connection.Query<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, TReturn>(
@@ -34,7 +34,7 @@ public class SqlExecutor : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters, splitOn: SplitOn, commandTimeout: DefaultTimeout);
+        return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, TReturn>(
@@ -43,7 +43,7 @@ public class SqlExecutor : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters, splitOn: SplitOn, commandTimeout: DefaultTimeout);
+        return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, TReturn>(
@@ -52,7 +52,7 @@ public class SqlExecutor : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters, splitOn: SplitOn, commandTimeout: DefaultTimeout);
+        return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, T5, TReturn>(
@@ -61,7 +61,7 @@ public class SqlExecutor : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters);
+        return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, T5, T6, TReturn>(
@@ -70,7 +70,7 @@ public class SqlExecutor : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters);
+        return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual IEnumerable<TReturn> QueryList<T1, T2, T3, T4, T5, T6, T7, TReturn>(
@@ -79,7 +79,7 @@ public class SqlExecutor : BaseConnection
         object? parameters = null)
     {
         using var connection = CreateOpenConnection();
-        return connection.Query(sql, map, parameters);
+        return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
 
     public virtual int Execute(string sql, object? parameters = null)
@@ -89,6 +89,6 @@ public class SqlExecutor : BaseConnection
             throw new ArgumentException("Please specify a value for the sql attribute.");
         }
         using var connection = CreateOpenConnection();
-        return connection.Execute(sql, parameters);
+        return connection.Execute(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
 }

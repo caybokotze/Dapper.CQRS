@@ -1,8 +1,5 @@
-using System;
-using System.Data;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NExpect;
 using NSubstitute;
 using NUnit.Framework;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,9 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
 using NUnit.Framework;
-using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Dapper.CQRS.Tests.Utilities;
 
@@ -35,7 +32,8 @@ public class TestFixtureRequiringServiceProvider
     [SetUp]
     public async Task SetupHostEnvironment()
     {
-        var hostBuilder = new HostBuilder().ConfigureWebHost(webHost =>
+        var hostBuilder = new HostBuilder()
+            .ConfigureWebHost(webHost =>
         {
             DefaultTypeMap.MatchNamesWithUnderscores = true;
             webHost.UseTestServer();
@@ -48,19 +46,11 @@ public class TestFixtureRequiringServiceProvider
 
             webHost.ConfigureServices(config =>
             {
-                var dapperConfiguration = new CqrsConfigurationBuilder()
-                    .WithRequiredServices(config)
-                    .WithDefaultIsolationLevel(IsolationLevel.ReadUncommitted)
-                    .WithDefaultQueryTimeout(5)
-                    .WithAmbientTransactionRequired()
-                    .WithConnectionFactory(new ConnectionFactory(GetConnectionString()))
-                    .WithSnakeCaseMappingsEnabled();
-                
                 config.AddTransient<ICommandExecutor, CommandExecutor>();
                 config.AddTransient<IQueryExecutor, QueryExecutor>();
             });
         });
-            
+        
         hostBuilder.ConfigureLogging(l =>
         {
             l.ClearProviders();
@@ -69,11 +59,15 @@ public class TestFixtureRequiringServiceProvider
 
         var host = await hostBuilder.StartAsync();
         var serviceProvider = host.Services;
+        
+        new CqrsConfigurationBuilder()
+            .WithDefaultQueryTimeout(5)
+            .WithConnectionFactory(new ConnectionFactory(GetConnectionString()))
+            .WithSnakeCaseMappingsEnabled()
+            .WithServiceProvider(serviceProvider);
 
         ServiceProvider = serviceProvider;
     }
-    
-    
 
     private string GetConnectionString()
     {

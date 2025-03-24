@@ -27,7 +27,7 @@ public class QueryTests
         public void ShouldSelectAndReturnUser()
         {
             using var scope = new TransactionScope();
-                
+            
             // arrange
             var queryExecutor = Resolve<IQueryExecutor>();
             var commandExecutor = Resolve<ICommandExecutor>();
@@ -47,7 +47,7 @@ public class QueryTests
                     {
                         Id = id
                     }));
-                
+            
             // assert
             Expect(user.Id).To.Equal(id);
             Expect(user.Name).To.Equal(randomUser.Name);

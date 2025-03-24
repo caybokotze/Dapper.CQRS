@@ -125,7 +125,8 @@ public class LoggerTests : Command
         
     public override void Execute()
     {
-        GetLogger<LoggerTests>().LogError("Testing logger");
+        var logger = GetRequiredService<ILogger<LoggerTests>>();
+        logger.LogError("Testing logger");
     }
 }
 

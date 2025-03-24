@@ -1,7 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using System.Transactions;
-using Dapper.CQRS.Exceptions;
 
 namespace Dapper.CQRS;
 
@@ -36,18 +34,6 @@ public abstract class QueryAsync : SqlExecutorAsync
     /// </summary>
     /// <returns></returns>
     public abstract Task ExecuteAsync();
-        
-    /// <summary>
-    /// Throw if there is no defined transaction scope.
-    /// </summary>
-    /// <exception cref="TransactionScopeRequired"></exception>
-    public void ValidateTransactionScope()
-    {
-        if (Transaction.Current is null)
-        {
-            throw new TransactionScopeRequired();
-        }
-    }
 }
     
 
@@ -57,10 +43,6 @@ public abstract class QueryAsync : SqlExecutorAsync
 /// </summary>
 public abstract class QueryAsync<T> : SqlExecutorAsync 
 {
-    protected QueryAsync()
-    {
-    }
-
     private IQueryExecutor? _queryExecutor;
         
     /// <summary>
@@ -86,16 +68,4 @@ public abstract class QueryAsync<T> : SqlExecutorAsync
     /// </summary>
     /// <returns></returns>
     public abstract Task<T> ExecuteAsync();
-        
-    /// <summary>
-    /// Throw if there is no defined transaction scope.
-    /// </summary>
-    /// <exception cref="TransactionScopeRequired"></exception>
-    public void ValidateTransactionScope()
-    {
-        if (Transaction.Current is null)
-        {
-            throw new TransactionScopeRequired();
-        }
-    }
 }
