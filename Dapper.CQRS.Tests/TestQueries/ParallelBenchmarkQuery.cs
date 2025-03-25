@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Dapper.CQRS.Tests.Queries;
+namespace Dapper.CQRS.Tests.TestQueries;
 
 public class ParallelBenchmarkQuery : QueryAsync<bool>
 {

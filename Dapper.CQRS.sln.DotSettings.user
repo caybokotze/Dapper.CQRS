@@ -19,6 +19,11 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3fd0283d_002D7a07_002D4a75_002D9e3c_002D7c9b2bee38c0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ShouldBeMockable #5" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\Code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=93a9debc_002Db987_002D42c9_002D988c_002Dcfba3e5439e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldBeMockable #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=93a9debc_002Db987_002D42c9_002D988c_002Dcfba3e5439e4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ShouldBeMockable #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\code\personal\Dapper.CQRS\Dapper.CQRS.Tests" Presentation="&amp;lt;Dapper.CQRS.Tests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a7dc6b84_002Dbacd_002D4921_002Da5f5_002Dcad44473476b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldExecuteCommandAndBeRetrievable" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::EAC95ECE-2EBA-4B7D-A226-0D90194035A4::net8.0::Dapper.CQRS.Tests.CommandAsyncTests+Isolated+WithoutReturnValue.ShouldExecuteCommandAndBeRetrievable&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

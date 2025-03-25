@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -62,6 +63,8 @@ public class TestFixtureRequiringServiceProvider
         
         new CqrsConfigurationBuilder()
             .WithDefaultQueryTimeout(5)
+            // .WithAmbientTransactionRequired()
+            .WithDefaultTransactionScope(TransactionScopeOption.Required, IsolationLevel.ReadUncommitted)
             .WithConnectionFactory(new ConnectionFactory(GetConnectionString()))
             .WithSnakeCaseMappingsEnabled()
             .WithServiceProvider(serviceProvider);

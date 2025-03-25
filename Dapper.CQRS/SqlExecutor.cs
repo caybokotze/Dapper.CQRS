@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 
 namespace Dapper.CQRS;
 
@@ -12,12 +13,30 @@ public class SqlExecutor : BaseConnection
 {
     public virtual T? QueryFirstOrDefault<T>(string sql, object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope();
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.QueryFirstOrDefault<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+            transaction.Complete();
+            return result;
+        }
+
         using var connection = CreateOpenConnection();
         return connection.QueryFirstOrDefault<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
         
     public virtual T QueryFirst<T>(string sql, object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope();
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.QueryFirst<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+            transaction.Complete();
+            return result;
+        }
+
         using var connection = CreateOpenConnection();
         return connection.QueryFirst<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }

@@ -2,7 +2,7 @@
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
-namespace Dapper.CQRS.Tests.Queries;
+namespace Dapper.CQRS.Tests.TestQueries;
 
 public class FetchUserById : QueryAsync<User?>
 {

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dapper.CQRS.Tests.TestModels;
 
-public class UserDetail
+public class UserDetails
 {
     [Key]
     public int Id { get; set; }

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Dapper.CQRS.Tests.Queries;
+namespace Dapper.CQRS.Tests.TestQueries;
 
 public class SequentialBenchmarkQuery : QueryAsync<int>
 {

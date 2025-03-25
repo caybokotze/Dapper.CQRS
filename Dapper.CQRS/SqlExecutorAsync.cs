@@ -17,7 +17,14 @@ public class SqlExecutorAsync : BaseConnection
         
         if (ConnectionConfiguration.CreateTransaction)
         {
-            using var transaction = new TransactionScope();
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption,
+                new TransactionOptions
+                {
+                    IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                    Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+                });
+
             using var scopedConnection = CreateOpenConnection();
             result = await scopedConnection.QueryFirstOrDefaultAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
             transaction.Complete();
@@ -34,7 +41,12 @@ public class SqlExecutorAsync : BaseConnection
         T result;
         if (ConnectionConfiguration.CreateTransaction)
         {
-            using var transaction = new TransactionScope();
+            using var transaction = new TransactionScope(ConnectionConfiguration.DefaultTransactionScopeOption, new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+
             using var scopedConnection = CreateOpenConnection();
             result = await scopedConnection.QueryFirstAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
             transaction.Complete();
@@ -48,6 +60,22 @@ public class SqlExecutorAsync : BaseConnection
 
     public virtual async Task<IEnumerable<T>> QueryListAsync<T>(string sql, object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(ConnectionConfiguration.DefaultTransactionScopeOption,
+                new TransactionOptions
+                {
+                    IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                    Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+                });
+
+            using var scopedConnection = CreateOpenConnection();
+            var result =
+                await scopedConnection.QueryAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+            transaction.Complete();
+            return result;
+        }
+
         using var connection = CreateOpenConnection();
         return await connection.QueryAsync<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }

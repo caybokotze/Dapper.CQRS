@@ -2,9 +2,9 @@
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
-namespace Dapper.CQRS.Tests.Queries;
+namespace Dapper.CQRS.Tests.TestQueries;
 
-public class FetchUserDetailsByUserId : QueryAsync<UserDetail?>
+public class FetchUserDetailsByUserId : QueryAsync<UserDetails?>
 {
     private readonly int _userId;
 
@@ -13,11 +13,11 @@ public class FetchUserDetailsByUserId : QueryAsync<UserDetail?>
         _userId = userId;
     }
     
-    public override async Task<UserDetail?> ExecuteAsync()
+    public override async Task<UserDetails?> ExecuteAsync()
     {
-        return await QueryFirstOrDefaultAsync<UserDetail>(
+        return await QueryFirstOrDefaultAsync<UserDetails>(
             new SqlBuilder()
-            .Select<UserDetail>(s =>
+            .Select<UserDetails>(s =>
             {
                 s.UsePropertyCase(Casing.SnakeCase);
             }).From("user_details")

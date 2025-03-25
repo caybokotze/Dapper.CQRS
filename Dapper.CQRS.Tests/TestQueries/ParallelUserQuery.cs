@@ -2,7 +2,7 @@
 using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
-namespace Dapper.CQRS.Tests.Queries;
+namespace Dapper.CQRS.Tests.TestQueries;
 
 public class ParallelUserDetailsQuery : QueryAsync<User>
 {
@@ -26,7 +26,7 @@ public class ParallelUserDetailsQuery : QueryAsync<User>
             .Build();
             
         var detailSql = new SqlBuilder()
-            .Select<UserDetail>(s =>
+            .Select<UserDetails>(s =>
             {
                 s.UsePropertyCase(Casing.SnakeCase);
             })
@@ -35,7 +35,7 @@ public class ParallelUserDetailsQuery : QueryAsync<User>
             .Build();
 
         var user = Task.Run(() => QueryFirstAsync<User>(userSql, new { Id = _userId }));
-        var userDetails = Task.Run(() => QueryFirstAsync<UserDetail>(detailSql, new { Id = _userId }));
+        var userDetails = Task.Run(() => QueryFirstAsync<UserDetails>(detailSql, new { Id = _userId }));
 
         await Task.WhenAll(user, userDetails);
 

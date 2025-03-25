@@ -2,9 +2,9 @@
 using System.Data;
 using System.Threading.Tasks;
 using System.Transactions;
-using Dapper.CQRS.Tests.Commands;
-using Dapper.CQRS.Tests.Queries;
+using Dapper.CQRS.Tests.TestCommands;
 using Dapper.CQRS.Tests.TestModels;
+using Dapper.CQRS.Tests.TestQueries;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.Logging;
 using NExpect;

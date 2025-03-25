@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Transactions;
-using Dapper.CQRS.Tests.Commands;
-using Dapper.CQRS.Tests.Queries;
+using Dapper.CQRS.Tests.TestCommands;
 using Dapper.CQRS.Tests.TestModels;
+using Dapper.CQRS.Tests.TestQueries;
 using Dapper.CQRS.Tests.Utilities;
 using NExpect;
 using NUnit.Framework;
@@ -32,13 +32,13 @@ public class QueryAsyncTests
                 var queryExecutor = Resolve<IQueryExecutor>();
                 
                 var user = GetRandom<User>();
-                var userDetail = GetRandom<UserDetail>();
+                var userDetail = GetRandom<UserDetails>();
                 // act
                 var userId = commandExecutor.Execute(new InsertUser(user));
                 user.Id = userId;
                 userDetail.UserId = userId;
                 
-                var userDetailId = commandExecutor.Execute(new InsertUserDetail(userDetail));
+                var userDetailId = await commandExecutor.ExecuteAsync(new InsertUserDetailAsync(userDetail));
                 userDetail.Id = userDetailId;
 
                 var sut = new FetchUserAndDetailsById(userId);
@@ -69,14 +69,14 @@ public class QueryAsyncTests
                 var queryExecutor = Resolve<IQueryExecutor>();
 
                 var user = GetRandom<User>();
-                var userDetail = GetRandom<UserDetail>();
+                var userDetail = GetRandom<UserDetails>();
                 
                 // act
                 var userId = commandExecutor.Execute(new InsertUser(user));
                 user.Id = userId;
                 userDetail.UserId = userId;
 
-                var userDetailId = commandExecutor.Execute(new InsertUserDetail(userDetail));
+                var userDetailId = await commandExecutor.ExecuteAsync(new InsertUserDetailAsync(userDetail));
                 userDetail.Id = userDetailId;
 
                 var sut = new FetchUserAndDetailsByIdAsEmbeddedQuery(userId);
@@ -111,14 +111,14 @@ public class QueryAsyncTests
                 var queryExecutor = Resolve<IQueryExecutor>();
 
                 var user = GetRandom<User>();
-                var userDetail = GetRandom<UserDetail>();
+                var userDetail = GetRandom<UserDetails>();
                 
                 // act
                 var userId = commandExecutor.Execute(new InsertUser(user));
                 user.Id = userId;
                 userDetail.UserId = userId;
 
-                var userDetailId = commandExecutor.Execute(new InsertUserDetail(userDetail));
+                var userDetailId = await commandExecutor.ExecuteAsync(new InsertUserDetailAsync(userDetail));
                 userDetail.Id = userDetailId;
 
                 var userResult = await queryExecutor.ExecuteAsync(new FetchUserById(userId));
@@ -156,14 +156,14 @@ public class QueryAsyncTests
                 var queryExecutor = Resolve<IQueryExecutor>();
 
                 var user = GetRandom<User>();
-                var userDetail = GetRandom<UserDetail>();
+                var userDetail = GetRandom<UserDetails>();
                 
                 // act
                 var userId = commandExecutor.Execute(new InsertUser(user));
                 user.Id = userId;
                 userDetail.UserId = userId;
 
-                var userDetailId = commandExecutor.Execute(new InsertUserDetail(userDetail));
+                var userDetailId = await commandExecutor.ExecuteAsync(new InsertUserDetailAsync(userDetail));
                 userDetail.Id = userDetailId;
 
                 var userResultTask = queryExecutor.ExecuteAsync(new FetchUserById(userId));

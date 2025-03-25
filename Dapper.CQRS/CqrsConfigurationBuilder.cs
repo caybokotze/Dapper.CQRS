@@ -24,7 +24,7 @@ public class CqrsConfigurationBuilder
     /// <param name="scopeOption"></param>
     /// <param name="isolationLevel"></param>
     /// <returns></returns>
-    public CqrsConfigurationBuilder WithTransactionScope(TransactionScopeOption scopeOption, IsolationLevel isolationLevel)
+    public CqrsConfigurationBuilder WithDefaultTransactionScope(TransactionScopeOption scopeOption, IsolationLevel isolationLevel)
     {
         ConnectionConfiguration.CreateTransaction = true;
         ConnectionConfiguration.DefaultTransactionScopeOption = scopeOption;

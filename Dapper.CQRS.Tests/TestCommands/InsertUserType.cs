@@ -1,7 +1,7 @@
 ﻿using Dapper.CQRS.Tests.TestModels;
 using GenericSqlBuilder;
 
-namespace Dapper.CQRS.Tests.Commands;
+namespace Dapper.CQRS.Tests.TestCommands;
 
 public class InsertUserType : Command<int>
 {

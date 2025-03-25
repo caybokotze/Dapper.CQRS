@@ -5,8 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
-using Dapper.CQRS.Tests.Queries;
 using Dapper.CQRS.Tests.TestModels;
+using Dapper.CQRS.Tests.TestQueries;
 using Dapper.CQRS.Tests.Utilities;
 using Microsoft.Extensions.Logging;
 using NExpect;
@@ -94,7 +94,7 @@ public class QueryTests
                                 SELECT LAST_INSERT_ID();",
                     randomUser));
 
-                var randomDetails = GetRandom<UserDetail>();
+                var randomDetails = GetRandom<UserDetails>();
                 randomDetails.UserId = userIdResult;
                     
                 var userDetailsIdResult = commandExecutor.Execute(new GenericCommand<int>(
@@ -122,7 +122,7 @@ public class QueryTests
             using var scope = new TransactionScope();
             var queryExecutor = Resolve<IQueryExecutor>();
             // act
-            var result = queryExecutor.Execute(new ResolveDependenciesQuery());
+            var result = queryExecutor.Execute(new QueryDependency<IDbConnection>());
             var expectedConnectionString = Resolve<IDbConnection>().ConnectionString;
             // assert
             Expect(result).To.Not.Be.Null();
@@ -169,7 +169,7 @@ public class WithQueriesEmbeddedInQueries
         var sut = Substitute.ForPartsOf<QueryUsers>();
 
         mockQueryExecutor.Execute(Arg.Any<QueryUserDetails>())
-            .Returns(new List<UserDetail>
+            .Returns(new List<UserDetails>
             {
                 new()
                 {
@@ -202,11 +202,11 @@ public class QueryUsers : Query<IList<User>>
     }
 }
 
-public class QueryUserDetails : Query<IList<UserDetail>>
+public class QueryUserDetails : Query<IList<UserDetails>>
 {
-    public override IList<UserDetail> Execute()
+    public override IList<UserDetails> Execute()
     {
-        var result = QueryList<UserDetail>("select * from user_details;");
+        var result = QueryList<UserDetails>("select * from user_details;");
 
         return result.ToList();
     }
