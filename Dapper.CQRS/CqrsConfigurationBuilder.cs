@@ -31,6 +31,17 @@ public class CqrsConfigurationBuilder
         ConnectionConfiguration.DefaultIsolationLevel = isolationLevel;
         return this;
     }
+
+    public CqrsConfigurationBuilder WithAutoTransactionRollback()
+    {
+        if (!ConnectionConfiguration.CreateTransaction)
+        {
+            throw new InvalidOperationException("A transaction is required for this to be configured. Please use WithDefaultTransactionScope first");
+        }
+
+        ConnectionConfiguration.AutoRollback = true;
+        return this;
+    }
         
     /// <summary>
     /// Specify the IDbConnection instance to use. This will create an internal factory. However, using different IDbConnection instances is not supported with this method.
@@ -108,6 +119,7 @@ public class CqrsConfigurationBuilder
         ConnectionConfiguration.DefaultTimeout = 30;
         ConnectionConfiguration.CreateTransaction = false;
         ConnectionConfiguration.ValidateAmbientTransaction = false;
+        ConnectionConfiguration.AutoRollback = false;
         return this;
     }
     

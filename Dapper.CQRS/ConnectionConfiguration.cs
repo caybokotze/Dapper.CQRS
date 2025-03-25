@@ -14,6 +14,7 @@ internal class ConnectionConfiguration
     internal static TransactionScopeOption DefaultTransactionScopeOption { get; set; } = TransactionScopeOption.Required;
     internal static bool ValidateAmbientTransaction { get; set; }
     internal static bool CreateTransaction { get; set; }
+    internal static bool AutoRollback { get; set; }
     
     
     #endregion

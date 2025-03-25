@@ -4,11 +4,11 @@ using GenericSqlBuilder;
 
 namespace Dapper.CQRS.Tests.TestQueries;
 
-public class FetchUserById : QueryAsync<User?>
+public class FetchUserByIdAsync : QueryAsync<User?>
 {
     private readonly int _userId;
 
-    public FetchUserById(int userId)
+    public FetchUserByIdAsync(int userId)
     {
         _userId = userId;
     }

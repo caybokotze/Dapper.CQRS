@@ -63,8 +63,6 @@ public class TestFixtureRequiringServiceProvider
         
         new CqrsConfigurationBuilder()
             .WithDefaultQueryTimeout(5)
-            // .WithAmbientTransactionRequired()
-            .WithDefaultTransactionScope(TransactionScopeOption.Required, IsolationLevel.ReadUncommitted)
             .WithConnectionFactory(new ConnectionFactory(GetConnectionString()))
             .WithSnakeCaseMappingsEnabled()
             .WithServiceProvider(serviceProvider);
@@ -75,8 +73,7 @@ public class TestFixtureRequiringServiceProvider
     private string GetConnectionString()
     {
         var configurationRoot = CreateConfigurationRoot();
-        return configurationRoot
-            .GetConnectionString("DefaultConnection");
+        return configurationRoot.GetConnectionString("DefaultConnection")!;
     }
         
     private static IConfigurationRoot CreateConfigurationRoot()

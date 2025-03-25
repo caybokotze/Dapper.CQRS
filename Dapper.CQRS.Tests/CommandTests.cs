@@ -221,7 +221,7 @@ public class CommandTests
             var sut = Substitute.ForPartsOf<InsertUser>(user);
                 
             queryExecutor
-                .ExecuteAsync(Arg.Any<FetchUserById>())
+                .ExecuteAsync(Arg.Any<FetchUserByIdAsync>())
                 .Returns(user);
 
             // act

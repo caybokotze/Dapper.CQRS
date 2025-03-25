@@ -15,10 +15,22 @@ public class SqlExecutor : BaseConnection
     {
         if (ConnectionConfiguration.CreateTransaction)
         {
-            using var transaction = new TransactionScope();
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
             using var scopedConnection = CreateOpenConnection();
             var result = scopedConnection.QueryFirstOrDefault<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
-            transaction.Complete();
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            
             return result;
         }
 
@@ -30,10 +42,21 @@ public class SqlExecutor : BaseConnection
     {
         if (ConnectionConfiguration.CreateTransaction)
         {
-            using var transaction = new TransactionScope();
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
             using var scopedConnection = CreateOpenConnection();
             var result = scopedConnection.QueryFirst<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
-            transaction.Complete();
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
             return result;
         }
 
@@ -43,6 +66,26 @@ public class SqlExecutor : BaseConnection
 
     public virtual IEnumerable<T> QueryList<T>(string sql, object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Query<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Query<T>(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }
@@ -52,6 +95,27 @@ public class SqlExecutor : BaseConnection
         Func<T1, T2, TReturn> map,
         object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
+
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
@@ -61,6 +125,27 @@ public class SqlExecutor : BaseConnection
         Func<T1, T2, T3, TReturn> map,
         object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+                {
+                    IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                    Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+                });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
@@ -70,6 +155,26 @@ public class SqlExecutor : BaseConnection
         Func<T1, T2, T3, T4, TReturn> map,
         object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
@@ -79,6 +184,27 @@ public class SqlExecutor : BaseConnection
         Func<T1, T2, T3, T4, T5, TReturn> map,
         object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption,
+                new TransactionOptions
+                {
+                    IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                    Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+                });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
@@ -88,6 +214,27 @@ public class SqlExecutor : BaseConnection
         Func<T1, T2, T3, T4, T5, T6, TReturn> map,
         object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
@@ -97,6 +244,27 @@ public class SqlExecutor : BaseConnection
         Func<T1, T2, T3, T4, T5, T6, T7, TReturn> map,
         object? parameters = null)
     {
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Query(sql, map, parameters, splitOn: Configuration.ScopedSplitOn, commandTimeout: Configuration.ScopedTimeout);
     }
@@ -107,6 +275,28 @@ public class SqlExecutor : BaseConnection
         {
             throw new ArgumentException("Please specify a value for the sql attribute.");
         }
+
+        if (ConnectionConfiguration.CreateTransaction)
+        {
+            using var transaction = new TransactionScope(
+                ConnectionConfiguration.DefaultTransactionScopeOption, 
+                new TransactionOptions
+            {
+                IsolationLevel = ConnectionConfiguration.DefaultIsolationLevel,
+                Timeout = TimeSpan.FromSeconds(Configuration.ScopedTimeout)
+            });
+            
+            using var scopedConnection = CreateOpenConnection();
+            var result = scopedConnection.Execute(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
+            
+            if (!ConnectionConfiguration.AutoRollback)
+            {
+                transaction.Complete();
+            }
+            
+            return result;
+        }
+        
         using var connection = CreateOpenConnection();
         return connection.Execute(sql, parameters, commandTimeout: Configuration.ScopedTimeout);
     }

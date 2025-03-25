@@ -51,7 +51,7 @@ public class QueryAsyncTests
                 Expect(result.UserDetails).To.Deep.Equal(userDetail);
                 scope.Dispose();
                 
-                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserById(userId));
+                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserByIdAsync(userId));
                 Expect(userAfterDispose).To.Be.Null();
             }
         }
@@ -90,7 +90,7 @@ public class QueryAsyncTests
                 Expect(result.UserDetails).To.Deep.Equal(userDetail);
                 scope.Dispose();
                 
-                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserById(userId));
+                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserByIdAsync(userId));
                 Expect(userAfterDispose).To.Be.Null();
             }    
         }
@@ -121,7 +121,7 @@ public class QueryAsyncTests
                 var userDetailId = await commandExecutor.ExecuteAsync(new InsertUserDetailAsync(userDetail));
                 userDetail.Id = userDetailId;
 
-                var userResult = await queryExecutor.ExecuteAsync(new FetchUserById(userId));
+                var userResult = await queryExecutor.ExecuteAsync(new FetchUserByIdAsync(userId));
                 var userDetailResult = await queryExecutor.ExecuteAsync(new FetchUserDetailsByUserId(userId));
                 
                 // assert
@@ -133,7 +133,7 @@ public class QueryAsyncTests
                 Expect(userDetailResult.IdNumber).To.Equal(userDetail.IdNumber);
                 
                 scope.Dispose();
-                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserById(userId));
+                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserByIdAsync(userId));
                 Expect(userAfterDispose).To.Be.Null();
                 timer.Stop();
                 var timeTaken = timer.Elapsed;
@@ -166,7 +166,7 @@ public class QueryAsyncTests
                 var userDetailId = await commandExecutor.ExecuteAsync(new InsertUserDetailAsync(userDetail));
                 userDetail.Id = userDetailId;
 
-                var userResultTask = queryExecutor.ExecuteAsync(new FetchUserById(userId));
+                var userResultTask = queryExecutor.ExecuteAsync(new FetchUserByIdAsync(userId));
                 var userDetailResultTask = queryExecutor.ExecuteAsync(new FetchUserDetailsByUserId(userId));
 
                 await Task.WhenAll(userResultTask, userDetailResultTask);
@@ -182,7 +182,7 @@ public class QueryAsyncTests
                 Expect(userDetailResult.IdNumber).To.Equal(userDetail.IdNumber);
                 
                 scope.Dispose();
-                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserById(userId));
+                var userAfterDispose = await queryExecutor.ExecuteAsync(new FetchUserByIdAsync(userId));
                 Expect(userAfterDispose).To.Be.Null();
                 
                 timer.Stop();
